@@ -1,0 +1,23 @@
+{
+  "name": "dig",
+  "version": "0.0.1",
+  "description": "Graph algorithms",
+  "main": "index.js",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "keywords": [
+    "graph",
+    "algorithms"
+  ],
+  "devDependencies": {
+    "mocha": "1.2.x",
+    "uglify-js": "1.3.x"
+  },
+  "author": "Chris Pettitt <chris@samsarin.com>",
+  "license": "MIT"
+}
