@@ -3,7 +3,7 @@ NODE_MODULES=./node_modules
 JS_MIN=$(NODE_MODULES)/uglify-js/bin/uglifyjs
 MOCHA=$(NODE_MODULES)/mocha/bin/mocha
 BROWSERIFY=$(NODE_MODULES)/browserify/bin/browserify
-MOCHA_OPTS=-R spec
+MOCHA_OPTS?=-R spec
 TESTS=$(shell find test -name "*-test.js")
 
 all: \
