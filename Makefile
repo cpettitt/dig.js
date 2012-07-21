@@ -2,6 +2,7 @@ NPM=npm
 NODE_MODULES=./node_modules
 JS_MIN=$(NODE_MODULES)/uglify-js/bin/uglifyjs
 MOCHA=$(NODE_MODULES)/mocha/bin/mocha
+BROWSERIFY=$(NODE_MODULES)/browserify/bin/browserify
 MOCHA_OPTS=-R spec
 TESTS=$(shell find test -name "*-test.js")
 
@@ -10,10 +11,9 @@ all: \
 	dig.min.js
 
 .INTERMEDIATE dig.js: \
-	src/dig/pre.js \
-	src/dig/util.js \
-	src/dig/graph.js \
-	src/dig/post.js
+	lib/dig.js \
+	lib/graph.js \
+	lib/util.js
 
 dig.js: Makefile
 	@rm -f $@

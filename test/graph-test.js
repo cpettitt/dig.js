@@ -1,6 +1,5 @@
-require('./test.js');
-
-require_src('dig/graph.js');
+var assert = require('assert')
+    dig = require('../index')
 
 describe('dig.graph', function() {
   var graph, n1, n2, n3;
@@ -16,7 +15,7 @@ describe('dig.graph', function() {
     assert.deepEqual([n1, n2].sort(), graph.addNodes([n1, n2]).nodes().sort());
     assert.ok(graph.containsNode(n1));
     assert.ok(graph.containsNode(n2));
-    assert.notOk(graph.containsNode(n3));
+    assert.equal(false, graph.containsNode(n3));
   });
 
   it('should fail to add the same node twice', function() {
@@ -49,7 +48,7 @@ describe('dig.graph', function() {
     assert.deepEqual(expected.sort(), graph.edges().sort());
     assert.ok(graph.containsEdge(n1, n2));
     assert.ok(graph.containsEdge(n2, n3));
-    assert.notOk(graph.containsEdge(n3, n1));
+    assert.equal(false, graph.containsEdge(n3, n1));
 
     assert.deepEqual([], graph.predecessors(n1));
     assert.deepEqual([n1], graph.predecessors(n2));
@@ -172,8 +171,8 @@ describe('dig.graph', function() {
     assert.throws(function() { graph.addEdge(n1, n2); });
 
     assert.ok(graph.containsNode(n1));
-    assert.notOk(graph.containsNode(n2));
-    assert.notOk(graph.containsEdge(n1, n2)); 
+    assert.equal(false, graph.containsNode(n2));
+    assert.equal(false, graph.containsEdge(n1, n2)); 
   });
 
   it('should return a predecessor once, even if there are multiple edges', function() {
