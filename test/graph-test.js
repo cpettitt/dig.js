@@ -75,6 +75,18 @@ describe('dig.graph', function() {
                      graph.copy().removeEdge(n2, n3).edges());
   });
 
+  it('should allow labelled edges to be removed', function() {
+    graph
+      .addNodes([n1, n2, n3])
+      .addEdge(n1, n2, "label1")
+      .addEdge(n2, n3, "label2");
+
+    assert.deepEqual([{from: n2, to: n3, label: "label2"}],
+                     graph.copy().removeEdge(n1, n2).edges());
+    assert.deepEqual([{from: n1, to: n2, label: "label1"}],
+                     graph.copy().removeEdge(n2, n3).edges());
+  });
+
   it('should remove edges when removing incident nodes', function() {
     graph
       .addNodes([n1, n2])
@@ -119,24 +131,16 @@ describe('dig.graph', function() {
     assert.deepEqual(expected, graph.inEdges(n2));
   });
 
-  it('should allow edges between the same nodes with different labels', function() {
+  it('should not allow multiple edges between the same source and target nodes', function() {
     graph
       .addNodes([n1, n2]) 
       .addEdge(n1, n2, "label1")
-      .addEdge(n1, n2, "label2");
 
-    var expected = [
-      {from: n1, to: n2, label: "label1"},
-      {from: n1, to: n2, label: "label2"}
-    ];
+    assert.throws(function() {
+      graph.addEdge(n1, n2, "label2");
+    });
 
-    assert.deepEqual(expected, graph.edges());
-    assert.deepEqual(expected, graph.outEdges(n1));
-    assert.deepEqual(expected, graph.inEdges(n2));
-
-    graph.removeEdge(n1, n2, "label2");
-
-    expected = [{from: n1, to: n2, label: "label1"}];
+    var expected = [{from: n1, to: n2, label: "label1"}];
 
     assert.deepEqual(expected, graph.edges());
     assert.deepEqual(expected, graph.outEdges(n1));
@@ -175,34 +179,6 @@ describe('dig.graph', function() {
     assert.equal(false, graph.containsEdge(n1, n2)); 
   });
 
-  it('should return a predecessor once, even if there are multiple edges', function() {
-    graph
-      .addNodes([n1, n2])
-      .addEdge(n1, n2, "label1")
-      .addEdge(n1, n2, "label2");
-
-    assert.deepEqual([n1], graph.predecessors(n2));
-  });
-
-  it('should return a successor once, even if there are multiple edges', function() {
-    graph
-      .addNodes([n1, n2])
-      .addEdge(n1, n2, "label1")
-      .addEdge(n1, n2, "label2");
-
-    assert.deepEqual([n2], graph.successors(n1));
-  });
-
-  it('should return a neighbor once, even if there are multiple edges', function() {
-    graph
-      .addNodes([n1, n2])
-      .addEdge(n1, n2)
-      .addEdge(n2, n1);
-
-    assert.deepEqual([n2], graph.neighbors(n1));
-    assert.deepEqual([n1], graph.neighbors(n2));
-  });
-
   it('should return sources in the graph', function() {
     graph
       .addNodes([n1, n2, n3])
@@ -236,23 +212,21 @@ describe('dig.graph', function() {
   it('should provide a means to get the in-degree of a node', function() {
     graph
       .addNodes([n1, n2, n3])
-      .addEdge(n1, n2, "label1")
-      .addEdge(n1, n2, "label2")
+      .addEdge(n1, n2)
       .addEdge(n2, n3);
 
     assert.equal(0, graph.indegree(n1));
-    assert.equal(2, graph.indegree(n2));
+    assert.equal(1, graph.indegree(n2));
     assert.equal(1, graph.indegree(n3));
   });
 
   it('should provide a means to get the out-degree of a node', function() {
     graph
       .addNodes([n1, n2, n3])
-      .addEdge(n1, n2, "label1")
-      .addEdge(n1, n2, "label2")
+      .addEdge(n1, n2)
       .addEdge(n2, n3);
 
-    assert.equal(2, graph.outdegree(n1));
+    assert.equal(1, graph.outdegree(n1));
     assert.equal(1, graph.outdegree(n2));
     assert.equal(0, graph.outdegree(n3));
   });
@@ -260,12 +234,11 @@ describe('dig.graph', function() {
   it('should provide a means to get the degree of a node', function() {
     graph
       .addNodes([n1, n2, n3])
-      .addEdge(n1, n2, "label1")
-      .addEdge(n1, n2, "label2")
+      .addEdge(n1, n2)
       .addEdge(n2, n3);
 
-    assert.equal(2, graph.degree(n1));
-    assert.equal(3, graph.degree(n2));
+    assert.equal(1, graph.degree(n1));
+    assert.equal(2, graph.degree(n2));
     assert.equal(1, graph.degree(n3));
   });
 });
