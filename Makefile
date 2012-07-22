@@ -12,7 +12,12 @@ all: \
 .INTERMEDIATE dig.js: \
 	lib/dig.js \
 	lib/graph.js \
+	dig.alg.js \
 	lib/util.js
+
+dig.alg.js: \
+	lib/alg.js \
+	lib/alg/topsort.js
 
 dig.js: Makefile
 	@rm -f $@

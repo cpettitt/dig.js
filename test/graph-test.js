@@ -12,7 +12,7 @@ describe('dig.graph', function() {
   });
 
   it('should allow nodes to be added', function() {
-    assert.deepEqual([n1, n2].sort(), graph.addNodes([n1, n2]).nodes().sort());
+    assert.deepEqual([n1, n2], graph.addNodes([n1, n2]).nodes());
     assert.ok(graph.containsNode(n1));
     assert.ok(graph.containsNode(n2));
     assert.equal(false, graph.containsNode(n3));
@@ -45,7 +45,7 @@ describe('dig.graph', function() {
       {from: n2, to: n3}
     ];
 
-    assert.deepEqual(expected.sort(), graph.edges().sort());
+    assert.deepEqual(expected, graph.edges());
     assert.ok(graph.containsEdge(n1, n2));
     assert.ok(graph.containsEdge(n2, n3));
     assert.equal(false, graph.containsEdge(n3, n1));
@@ -59,7 +59,7 @@ describe('dig.graph', function() {
     assert.deepEqual([], graph.successors(n3));
 
     assert.deepEqual([n2], graph.neighbors(n1));
-    assert.deepEqual([n1, n3].sort(), graph.neighbors(n2).sort());
+    assert.deepEqual([n1, n3], graph.neighbors(n2));
     assert.deepEqual([n2], graph.neighbors(n3));
   });
 
@@ -128,11 +128,11 @@ describe('dig.graph', function() {
     var expected = [
       {from: n1, to: n2, label: "label1"},
       {from: n1, to: n2, label: "label2"}
-    ].sort();
+    ];
 
-    assert.deepEqual(expected, graph.edges().sort());
-    assert.deepEqual(expected, graph.outEdges(n1).sort());
-    assert.deepEqual(expected, graph.inEdges(n2).sort());
+    assert.deepEqual(expected, graph.edges());
+    assert.deepEqual(expected, graph.outEdges(n1));
+    assert.deepEqual(expected, graph.inEdges(n2));
 
     graph.removeEdge(n1, n2, "label2");
 
@@ -208,7 +208,7 @@ describe('dig.graph', function() {
       .addNodes([n1, n2, n3])
       .addEdge(n1, n2);
   
-    assert.deepEqual([n1, n3].sort(), graph.sources().sort());
+    assert.deepEqual([n1, n3], graph.sources());
 
     // form a cyle
     graph
@@ -223,7 +223,7 @@ describe('dig.graph', function() {
       .addNodes([n1, n2, n3])
       .addEdge(n1, n2);
 
-    assert.deepEqual([n2, n3].sort(), graph.sinks().sort());
+    assert.deepEqual([n2, n3], graph.sinks());
 
     // form a cycle
     graph
@@ -240,9 +240,9 @@ describe('dig.graph', function() {
       .addEdge(n1, n2, "label2")
       .addEdge(n2, n3);
 
-    assert.equal(0, graph.inDegree(n1));
-    assert.equal(2, graph.inDegree(n2));
-    assert.equal(1, graph.inDegree(n3));
+    assert.equal(0, graph.indegree(n1));
+    assert.equal(2, graph.indegree(n2));
+    assert.equal(1, graph.indegree(n3));
   });
 
   it('should provide a means to get the out-degree of a node', function() {
@@ -252,9 +252,9 @@ describe('dig.graph', function() {
       .addEdge(n1, n2, "label2")
       .addEdge(n2, n3);
 
-    assert.equal(2, graph.outDegree(n1));
-    assert.equal(1, graph.outDegree(n2));
-    assert.equal(0, graph.outDegree(n3));
+    assert.equal(2, graph.outdegree(n1));
+    assert.equal(1, graph.outdegree(n2));
+    assert.equal(0, graph.outdegree(n3));
   });
 
   it('should provide a means to get the degree of a node', function() {
