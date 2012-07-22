@@ -202,4 +202,70 @@ describe('dig.graph', function() {
     assert.deepEqual([n2], graph.neighbors(n1));
     assert.deepEqual([n1], graph.neighbors(n2));
   });
+
+  it('should return sources in the graph', function() {
+    graph
+      .addNodes([n1, n2, n3])
+      .addEdge(n1, n2);
+  
+    assert.deepEqual([n1, n3].sort(), graph.sources().sort());
+
+    // form a cyle
+    graph
+      .addEdge(n2, n3)
+      .addEdge(n3, n1);
+
+    assert.deepEqual([], graph.sources());
+  });
+
+  it('should return sinks in the graph', function() {
+    graph
+      .addNodes([n1, n2, n3])
+      .addEdge(n1, n2);
+
+    assert.deepEqual([n2, n3].sort(), graph.sinks().sort());
+
+    // form a cycle
+    graph
+      .addEdge(n2, n3)
+      .addEdge(n3, n1);
+
+    assert.deepEqual([], graph.sinks());
+  });
+
+  it('should provide a means to get the in-degree of a node', function() {
+    graph
+      .addNodes([n1, n2, n3])
+      .addEdge(n1, n2, "label1")
+      .addEdge(n1, n2, "label2")
+      .addEdge(n2, n3);
+
+    assert.equal(0, graph.inDegree(n1));
+    assert.equal(2, graph.inDegree(n2));
+    assert.equal(1, graph.inDegree(n3));
+  });
+
+  it('should provide a means to get the out-degree of a node', function() {
+    graph
+      .addNodes([n1, n2, n3])
+      .addEdge(n1, n2, "label1")
+      .addEdge(n1, n2, "label2")
+      .addEdge(n2, n3);
+
+    assert.equal(2, graph.outDegree(n1));
+    assert.equal(1, graph.outDegree(n2));
+    assert.equal(0, graph.outDegree(n3));
+  });
+
+  it('should provide a means to get the degree of a node', function() {
+    graph
+      .addNodes([n1, n2, n3])
+      .addEdge(n1, n2, "label1")
+      .addEdge(n1, n2, "label2")
+      .addEdge(n2, n3);
+
+    assert.equal(2, graph.degree(n1));
+    assert.equal(3, graph.degree(n2));
+    assert.equal(1, graph.degree(n3));
+  });
 });
