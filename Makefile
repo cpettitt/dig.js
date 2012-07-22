@@ -10,10 +10,12 @@ all: \
 	dig.min.js
 
 .INTERMEDIATE dig.js: \
+	lib/pre.js \
 	lib/dig.js \
+	lib/util.js \
 	lib/graph.js \
 	dig.alg.js \
-	lib/util.js
+	lib/post.js
 
 dig.alg.js: \
 	lib/alg.js \
