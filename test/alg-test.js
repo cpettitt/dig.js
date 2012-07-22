@@ -158,4 +158,109 @@ describe('dig.alg', function() {
       });
     });
   });
+
+  describe('shortestPaths', function() {
+    it('should handle empty graphs', function() {
+      assert.equal(0, dig.alg.shortestPaths(dig.graph()).nodes().length);
+    });
+
+    it('should handle a single node', function() {
+      var paths = dig.alg.shortestPaths(dig.graph().addNode(n1));
+      assert.deepEqual([n1], paths.nodes());
+      assert.equal(0, paths.edgeLabel(n1, n1));
+    });
+
+    it('should handle two unconnected nodes', function() {
+      var graph = dig.graph().addNodes([n1, n2]);
+      var paths = dig.alg.shortestPaths(graph);
+      assert.equal(0, paths.edgeLabel(n1, n1));
+      assert.equal(Number.POSITIVE_INFINITY, paths.edgeLabel(n1, n2));
+      assert.equal(Number.POSITIVE_INFINITY, paths.edgeLabel(n2, n1));
+      assert.equal(0, paths.edgeLabel(n2, n2));
+    });
+
+    it('should handle two nodes connected by an edge', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2])
+        .addEdge(n1, n2, 5);
+      var paths = dig.alg.shortestPaths(graph);
+      assert.equal(0, paths.edgeLabel(n1, n1));
+      assert.equal(5, paths.edgeLabel(n1, n2));
+      assert.equal(Number.POSITIVE_INFINITY, paths.edgeLabel(n2, n1));
+      assert.equal(0, paths.edgeLabel(n2, n2));
+    });
+
+    it('should handle two nodes with a cycle', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2])
+        .addEdge(n1, n2, 5)
+        .addEdge(n2, n1, 3);
+      var paths = dig.alg.shortestPaths(graph);
+      assert.equal(0, paths.edgeLabel(n1, n1));
+      assert.equal(5, paths.edgeLabel(n1, n2));
+      assert.equal(3, paths.edgeLabel(n2, n1));
+      assert.equal(0, paths.edgeLabel(n2, n2));
+    });
+
+    it('should handle edges with a negative label', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2])
+        .addEdge(n1, n2, -5);
+      var paths = dig.alg.shortestPaths(graph);
+      assert.equal(0, paths.edgeLabel(n1, n1));
+      assert.equal(-5, paths.edgeLabel(n1, n2));
+      assert.equal(Number.POSITIVE_INFINITY, paths.edgeLabel(n2, n1));
+      assert.equal(0, paths.edgeLabel(n2, n2));
+    });
+
+    it('should handle edges with a negative cycle', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2])
+        .addEdge(n1, n2, -5)
+        .addEdge(n2, n1, -3);
+      var paths = dig.alg.shortestPaths(graph);
+      assert.ok(paths.edgeLabel(n1, n1) < 0);
+      assert.ok(paths.edgeLabel(n1, n2) < 0);
+      assert.ok(paths.edgeLabel(n2, n1) < 0);
+      assert.ok(paths.edgeLabel(n2, n2) < 0);
+    });
+
+    it('should handle more complicated graphs', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2, n3, n4, n5, n6])
+        .addEdge(n1, n2, 1)
+        .addEdge(n1, n3, 1)
+        .addEdge(n2, n4, 1)
+        .addEdge(n3, n4, 1)
+        .addEdge(n4, n1, 1);
+      var paths = dig.alg.shortestPaths(graph);
+      assert.deepEqual(1, paths.edgeLabel(n1, n2));
+      assert.deepEqual(1, paths.edgeLabel(n1, n3));
+      assert.deepEqual(2, paths.edgeLabel(n1, n4));
+      assert.deepEqual(1, paths.edgeLabel(n2, n4));
+      assert.deepEqual(2, paths.edgeLabel(n2, n1));
+      assert.deepEqual(3, paths.edgeLabel(n2, n3));
+      assert.deepEqual(1, paths.edgeLabel(n3, n4));
+      assert.deepEqual(2, paths.edgeLabel(n3, n1));
+      assert.deepEqual(3, paths.edgeLabel(n3, n2));
+    });
+
+    it('should fail for graphs with non-numeric edges', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2])
+        .addEdge(n1, n2, "non-numeric edge");
+      assert.throws(function() {
+        dig.alg.shortestPaths(graph);
+      });
+    });
+
+    it('should fail for graphs with unlabled edges', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2])
+        .addEdge(n1, n2);
+      assert.throws(function() {
+        dig.alg.shortestPaths(graph);
+      });
+    });
+  });
 });
