@@ -24,3 +24,9 @@ If you want to verify the integrity of the libraries, use:
 
 
 [1]: http://npmjs.org/
+
+License
+=======
+
+dig.js is licensed under the terms of the MIT License. See the LICENSE file
+for details.
