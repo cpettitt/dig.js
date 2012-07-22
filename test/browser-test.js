@@ -12,6 +12,6 @@ describe('browser library', function() {
     assert.ok(dig);
     assert.ok(dig.graph);
     assert.ok(dig.util);
-    assert.ok(dig.alg.topsort);
+    assert.ok(dig.alg);
   });
 });

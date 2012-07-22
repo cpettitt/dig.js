@@ -14,7 +14,7 @@ all: \
 	lib/dig.js \
 	lib/util.js \
 	lib/graph.js \
-	dig.alg.js \
+	lib/alg.js \
 	lib/post.js
 
 dig.alg.js: \
@@ -26,18 +26,13 @@ dig.js: Makefile
 	cat $(filter %.js,$^) > $@
 	@chmod a-w $@
 
-dig.%.js: Makefile
-	@rm -f $@
-	cat $(filter %.js,$^) > $@
-	@chmod a-w $@
-
 dig.min.js: dig.js
 	@rm -f $@
 	$(JS_MIN) dig.js > dig.min.js
 	@chmod a-w $@
 
 .PHONY: test
-test: dig.js
+test: dig.min.js
 	$(MOCHA) $(MOCHA_OPTS) --recursive test
 
 clean:
