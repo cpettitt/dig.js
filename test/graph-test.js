@@ -87,6 +87,20 @@ describe('dig.graph', function() {
                      graph.copy().removeEdge(n2, n3).edges());
   });
 
+  it("should provide a mechanism to get an edge's label", function() {
+    graph
+      .addNodes([n1, n2, n3])
+      .addEdge(n1, n2, "label")
+      .addEdge(n2, n3);
+
+    assert.equal("label", graph.edgeLabel(n1, n2));
+    assert.equal(undefined, graph.edgeLabel(n2, n3));
+
+    assert.throws(function() {
+      graph.edgeLabel(n3, n1);
+    });
+  });
+
   it('should remove edges when removing incident nodes', function() {
     graph
       .addNodes([n1, n2])
