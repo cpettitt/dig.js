@@ -101,6 +101,20 @@ describe('dig.graph', function() {
     });
   });
 
+  it("should provide a mechanism to set an edge's label", function() {
+    graph
+      .addNodes([n1, n2])
+      .addEdge(n1, n2);
+
+    graph.edgeLabel(n1, n2, "label");
+
+    assert.equal("label", graph.edgeLabel(n1, n2));
+
+    graph.edgeLabel(n1, n2, undefined);
+
+    assert.equal(undefined, graph.edgeLabel(n1, n2));
+  });
+
   it('should remove edges when removing incident nodes', function() {
     graph
       .addNodes([n1, n2])
