@@ -2,13 +2,14 @@ var assert = require('assert')
     dig = require('../index')
 
 describe('dig.graph', function() {
-  var graph, n1, n2, n3;
+  var graph, n1, n2, n3, n4;
 
   beforeEach(function() {
     graph = dig.graph();
     n1 = {name: "n1"};
     n2 = {name: "n2"};
     n3 = {name: "n3"};
+    n4 = {name: "n4"};
   });
 
   it('should allow nodes to be added', function() {
@@ -112,6 +113,26 @@ describe('dig.graph', function() {
     graph.updateEdge(n1, n2, undefined);
 
     assert.equal(undefined, graph.getEdge(n1, n2));
+  });
+
+  it('should provide a mechanism for updating all edge labels', function() {
+    graph
+      .addNodes([n1, n2, n3, n4])
+      .addEdge(n1, n2, 1)
+      .addEdge(n2, n3, 2)
+      .addEdge(n3, n4, 3);
+
+    graph.mapEdges(function(edge) {
+      if (edge.from == n3) {
+        return undefined;
+      }
+      return edge.label + 1;
+    });
+
+    assert.equal(2, graph.getEdge(n1, n2));
+    assert.equal(3, graph.getEdge(n2, n3));
+    assert.equal(undefined, graph.getEdge(n3, n4));
+    assert.ok(graph.containsEdge(n3, n4));
   });
 
   it('should remove edges when removing incident nodes', function() {
