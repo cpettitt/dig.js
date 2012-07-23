@@ -1,6 +1,10 @@
-{
+require('../lib/dig.js');
+
+var sys = require('sys');
+
+sys.puts(JSON.stringify({
   "name": "dig",
-  "version": "0.0.1",
+  "version": dig.version,
   "description": "Graph algorithms",
   "main": "index.js",
   "directories": {
@@ -24,4 +28,4 @@
     "url": "https://github.com/cpettitt/dig.js.git"
   },
   "license": "MIT"
-}
+}, null, 2));

@@ -1,21 +1,22 @@
-NPM=npm
-NODE_MODULES=./node_modules
-JS_MIN=$(NODE_MODULES)/uglify-js/bin/uglifyjs
-MOCHA=$(NODE_MODULES)/mocha/bin/mocha
-BROWSERIFY=$(NODE_MODULES)/browserify/bin/browserify
+NODE?=node
+NPM?=npm
+NODE_MODULES?=./node_modules
+JS_MIN?=$(NODE_MODULES)/uglify-js/bin/uglifyjs
+MOCHA?=$(NODE_MODULES)/mocha/bin/mocha
 MOCHA_OPTS?=-R spec
 
 all: \
 	dig.js \
-	dig.min.js
+	dig.min.js \
+	package.json
 
 .INTERMEDIATE dig.js: \
-	lib/pre.js \
+	src/pre.js \
 	lib/dig.js \
 	lib/util.js \
 	lib/graph.js \
 	lib/alg.js \
-	lib/post.js
+	src/post.js
 
 dig.alg.js: \
 	lib/alg.js \
@@ -31,9 +32,14 @@ dig.min.js: dig.js
 	$(JS_MIN) dig.js > dig.min.js
 	@chmod a-w $@
 
+package.json: lib/dig.js src/package.js
+	@rm -f $@
+	$(NODE) src/package.js > $@
+	@chmod a-w $@
+
 .PHONY: test
 test: dig.min.js
 	$(MOCHA) $(MOCHA_OPTS) --recursive test
 
 clean:
-	rm -f dig.js dig.min.js
+	rm -f dig.js dig.min.js package.json
