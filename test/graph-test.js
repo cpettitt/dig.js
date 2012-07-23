@@ -75,7 +75,7 @@ describe('dig.graph', function() {
                      graph.copy().removeEdge(n2, n3).edges());
   });
 
-  it('should allow labelled edges to be removed', function() {
+  it('should allow labeled edges to be removed', function() {
     graph
       .addNodes([n1, n2, n3])
       .addEdge(n1, n2, "label1")
@@ -93,26 +93,25 @@ describe('dig.graph', function() {
       .addEdge(n1, n2, "label")
       .addEdge(n2, n3);
 
-    assert.equal("label", graph.edgeLabel(n1, n2));
-    assert.equal(undefined, graph.edgeLabel(n2, n3));
-
-    assert.throws(function() {
-      graph.edgeLabel(n3, n1);
-    });
+    assert.equal("label", graph.getEdge(n1, n2));
+    assert.equal(undefined, graph.getEdge(n2, n3));
+    assert.ok(graph.containsEdge(n2, n3));
+    assert.equal(undefined, graph.getEdge(n3, n1));
+    assert.equal(false, graph.containsEdge(n3, n1));
   });
 
-  it("should provide a mechanism to set an edge's label", function() {
+  it("should provide a mechanism to update an edge's label", function() {
     graph
       .addNodes([n1, n2])
       .addEdge(n1, n2);
 
-    graph.edgeLabel(n1, n2, "label");
+    graph.updateEdge(n1, n2, "label");
 
-    assert.equal("label", graph.edgeLabel(n1, n2));
+    assert.equal("label", graph.getEdge(n1, n2));
 
-    graph.edgeLabel(n1, n2, undefined);
+    graph.updateEdge(n1, n2, undefined);
 
-    assert.equal(undefined, graph.edgeLabel(n1, n2));
+    assert.equal(undefined, graph.getEdge(n1, n2));
   });
 
   it('should remove edges when removing incident nodes', function() {
