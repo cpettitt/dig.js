@@ -25,6 +25,16 @@ If you want to verify the integrity of the libraries, use:
 
 [1]: http://npmjs.org/
 
+Known Issues
+============
+
+This library will not work with versions of Internet Explorer earlier than IE
+9. It uses the following functions which are known to be missing or not work
+correctly:
+
+- [`Object.defineProperty`](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty)
+- [`Array.forEach`](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach)
+
 License
 =======
 
