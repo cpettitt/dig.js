@@ -14,6 +14,7 @@ all: \
 	src/pre.js \
 	lib/dig.js \
 	lib/util.js \
+	lib/data.js \
 	lib/graph.js \
 	lib/alg.js \
 	src/post.js

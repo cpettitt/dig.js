@@ -10,8 +10,9 @@ require('../dig.min.js')
 describe('browser library', function() {
   it('should export all module and functions', function() {
     assert.ok(dig);
-    assert.ok(dig.graph);
     assert.ok(dig.util);
+    assert.ok(dig.data);
+    assert.ok(dig.graph);
     assert.ok(dig.alg);
   });
 });
