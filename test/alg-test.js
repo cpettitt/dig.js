@@ -190,46 +190,58 @@ describe('dig.alg', function() {
       assert.equal(0, paths.getEdge(n2, n2));
     });
 
-    it('should handle two nodes connected by an edge labeled with a number', function() {
+    it('should handle two nodes with a cycle', function() {
+      var graph = dig.graph()
+        .addNodes([n1, n2])
+        .addEdge(n1, n2)
+        .addEdge(n2, n1);
+      var paths = dig.alg.shortestPaths(graph);
+      assert.equal(0, paths.getEdge(n1, n1));
+      assert.equal(1, paths.getEdge(n1, n2));
+      assert.equal(1, paths.getEdge(n2, n1));
+      assert.equal(0, paths.getEdge(n2, n2));
+    });
+
+    it('should handle two nodes using labelEdgeCost', function() {
       var graph = dig.graph()
         .addNodes([n1, n2])
         .addEdge(n1, n2, 5);
-      var paths = dig.alg.shortestPaths(graph);
+      var paths = dig.alg.shortestPaths(graph, dig.alg.labelEdgeCost(graph));
       assert.equal(0, paths.getEdge(n1, n1));
       assert.equal(5, paths.getEdge(n1, n2));
       assert.equal(Number.POSITIVE_INFINITY, paths.getEdge(n2, n1));
       assert.equal(0, paths.getEdge(n2, n2));
     });
 
-    it('should handle two nodes with a cycle', function() {
+    it('should handle two nodes with a cycle using labelEdgeCost', function() {
       var graph = dig.graph()
         .addNodes([n1, n2])
         .addEdge(n1, n2, 5)
         .addEdge(n2, n1, 3);
-      var paths = dig.alg.shortestPaths(graph);
+      var paths = dig.alg.shortestPaths(graph, dig.alg.labelEdgeCost(graph));
       assert.equal(0, paths.getEdge(n1, n1));
       assert.equal(5, paths.getEdge(n1, n2));
       assert.equal(3, paths.getEdge(n2, n1));
       assert.equal(0, paths.getEdge(n2, n2));
     });
 
-    it('should handle edges with a negative label', function() {
+    it('should handle edges with a negative cost', function() {
       var graph = dig.graph()
         .addNodes([n1, n2])
         .addEdge(n1, n2, -5);
-      var paths = dig.alg.shortestPaths(graph);
+      var paths = dig.alg.shortestPaths(graph, dig.alg.labelEdgeCost(graph));
       assert.equal(0, paths.getEdge(n1, n1));
       assert.equal(-5, paths.getEdge(n1, n2));
       assert.equal(Number.POSITIVE_INFINITY, paths.getEdge(n2, n1));
       assert.equal(0, paths.getEdge(n2, n2));
     });
 
-    it('should handle edges with a negative cycle', function() {
+    it('should handle a graph with a negative cycle', function() {
       var graph = dig.graph()
         .addNodes([n1, n2])
         .addEdge(n1, n2, -5)
         .addEdge(n2, n1, -3);
-      var paths = dig.alg.shortestPaths(graph);
+      var paths = dig.alg.shortestPaths(graph, dig.alg.labelEdgeCost(graph));
       assert.ok(paths.getEdge(n1, n1) < 0);
       assert.ok(paths.getEdge(n1, n2) < 0);
       assert.ok(paths.getEdge(n2, n1) < 0);
@@ -239,11 +251,11 @@ describe('dig.alg', function() {
     it('should handle more complicated graphs', function() {
       var graph = dig.graph()
         .addNodes([n1, n2, n3, n4, n5, n6])
-        .addEdge(n1, n2, 1)
-        .addEdge(n1, n3, 1)
-        .addEdge(n2, n4, 1)
-        .addEdge(n3, n4, 1)
-        .addEdge(n4, n1, 1);
+        .addEdge(n1, n2)
+        .addEdge(n1, n3)
+        .addEdge(n2, n4)
+        .addEdge(n3, n4)
+        .addEdge(n4, n1);
       var paths = dig.alg.shortestPaths(graph);
       assert.deepEqual(1, paths.getEdge(n1, n2));
       assert.deepEqual(1, paths.getEdge(n1, n3));
@@ -254,13 +266,6 @@ describe('dig.alg', function() {
       assert.deepEqual(1, paths.getEdge(n3, n4));
       assert.deepEqual(2, paths.getEdge(n3, n1));
       assert.deepEqual(3, paths.getEdge(n3, n2));
-    });
-
-    it('should fail for graphs with non-numeric edges', function() {
-      var graph = dig.graph()
-        .addNodes([n1, n2])
-        .addEdge(n1, n2, "non-numeric edge");
-      assert.throws(function() { dig.alg.shortestPaths(graph); });
     });
   });
 });
