@@ -5,7 +5,6 @@ describe('dig.data', function() {
   describe('queue', function() {
     it('should allow no-arg construction', function() {
       var q = data.queue();
-      assert.ok(q.isEmpty());
       assert.equal(0, q.size());
     });
 
@@ -30,11 +29,9 @@ describe('dig.data', function() {
       var q = data.queue();
 
       q.enqueue('test');
-      assert.equal(false, q.isEmpty());
       assert.equal(1, q.size());
 
       assert.equal('test', q.dequeue());
-      assert.ok(q.isEmpty());
       assert.equal(0, q.size());
     });
   });
