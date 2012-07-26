@@ -17,6 +17,7 @@ all: \
 	lib/data.js \
 	lib/graph.js \
 	lib/alg.js \
+	lib/alg/sp.js \
 	src/post.js
 
 dig.alg.js: \

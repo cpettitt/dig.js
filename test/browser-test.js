@@ -5,14 +5,15 @@
 
 var assert = require('assert');
 
-require('../dig.min.js')
-
 describe('browser library', function() {
   it('should export all module and functions', function() {
-    assert.ok(dig);
-    assert.ok(dig.util);
-    assert.ok(dig.data);
-    assert.ok(dig.graph);
-    assert.ok(dig.alg);
+    require('../dig.min.js');
+
+    assert.notEqual(undefined, dig);
+    assert.notEqual(undefined, dig.util);
+    assert.notEqual(undefined, dig.data);
+    assert.notEqual(undefined, dig.graph);
+    assert.notEqual(undefined, dig.alg);
+    assert.notEqual(undefined, dig.alg.sp);
   });
 });

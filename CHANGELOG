@@ -1,0 +1,4 @@
+v0.0.2
+
+	* alg.js (shortestPaths): moved shortestPaths to dig.alg.sp (sp.js) and
+	renamed it to floydWashall.
