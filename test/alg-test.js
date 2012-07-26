@@ -15,16 +15,13 @@ function assertBefore(before, after, arr) {
 }
 
 describe('dig.alg', function() {
-  var n1, n2, n3, n4, n5, n6;
+  var n;
 
   beforeEach(function() {
-    // TODO there has to be a better way to do this
-    n1 = {name: "n1"};
-    n2 = {name: "n2"};
-    n3 = {name: "n3"};
-    n4 = {name: "n4"};
-    n5 = {name: "n5"};
-    n6 = {name: "n6"};
+    n = [];
+    for (var i = 0; i < 6; ++i) {
+      n[i] = {name: 'n' + i};
+    }
   });
 
   describe('dfs', function() {
@@ -43,25 +40,25 @@ describe('dig.alg', function() {
     }
 
     it('should handle a single node graph', function() {
-      var g = dig.graph().addNode(n1);
-      dig.alg.dfs(g, [n1], enter, exit);
-      assert.equal(0, n1.enter);
-      assert.equal(1, n1.exit);
+      var g = dig.graph().addNode(n[0]);
+      dig.alg.dfs(g, [n[0]], enter, exit);
+      assert.equal(0, n[0].enter);
+      assert.equal(1, n[0].exit);
     });
 
     it('should handle a diamond shape', function() {
       var g = dig.graph()
-        .addNodes([n1, n2, n3, n4])
-        .addEdge(n1, n2)
-        .addEdge(n1, n3)
-        .addEdge(n2, n4)
-        .addEdge(n3, n4);
+        .addNodes([n[0], n[1], n[2], n[3]])
+        .addEdge(n[0], n[1])
+        .addEdge(n[0], n[2])
+        .addEdge(n[1], n[3])
+        .addEdge(n[2], n[3]);
 
-      dig.alg.dfs(g, [n1], enter, exit);
+      dig.alg.dfs(g, [n[0]], enter, exit);
 
-      var steps = [n1.enter, n2.enter, n4.enter,
-                   n4.exit, n2.exit, n3.enter,
-                   n3.exit, n1.exit]
+      var steps = [n[0].enter, n[1].enter, n[3].enter,
+                   n[3].exit, n[1].exit, n[2].enter,
+                   n[2].exit, n[0].exit]
       steps.forEach(function(s, i) {
         assert.equal(i, s, "Actual steps: " + JSON.stringify(steps));
       });
@@ -70,15 +67,15 @@ describe('dig.alg', function() {
 
     it('should handle a cycle', function() {
       var g = dig.graph()
-        .addNodes([n1, n2, n3])
-        .addEdge(n1, n2)
-        .addEdge(n2, n3)
-        .addEdge(n3, n1);
+        .addNodes([n[0], n[1], n[2]])
+        .addEdge(n[0], n[1])
+        .addEdge(n[1], n[2])
+        .addEdge(n[2], n[0]);
 
-      dig.alg.dfs(g, [n1], enter, exit);
+      dig.alg.dfs(g, [n[0]], enter, exit);
 
-      var steps = [n1.enter, n2.enter, n3.enter,
-                   n3.exit, n2.exit, n1.exit];
+      var steps = [n[0].enter, n[1].enter, n[2].enter,
+                   n[2].exit, n[1].exit, n[0].exit];
 
       steps.forEach(function(s, i) {
         assert.equal(i, s, "Actual steps: " + JSON.stringify(steps));
@@ -88,17 +85,17 @@ describe('dig.alg', function() {
 
     it('should handle multiple nodes in the same subgraph', function() {
         var g = dig.graph()
-          .addNodes([n1, n2, n3, n4])
-          .addEdge(n1, n2)
-          .addEdge(n1, n3)
-          .addEdge(n2, n4)
-          .addEdge(n3, n4);
+          .addNodes([n[0], n[1], n[2], n[3]])
+          .addEdge(n[0], n[1])
+          .addEdge(n[0], n[2])
+          .addEdge(n[1], n[3])
+          .addEdge(n[2], n[3]);
 
-        dig.alg.dfs(g, [n1, n2, n3, n4], enter, exit);
+        dig.alg.dfs(g, [n[0], n[1], n[2], n[3]], enter, exit);
 
-        var steps = [n1.enter, n2.enter, n4.enter,
-                     n4.exit, n2.exit, n3.enter,
-                     n3.exit, n1.exit]
+        var steps = [n[0].enter, n[1].enter, n[3].enter,
+                     n[3].exit, n[1].exit, n[2].enter,
+                     n[2].exit, n[0].exit]
         steps.forEach(function(s, i) {
           assert.equal(i, s, "Actual steps: " + JSON.stringify(steps));
         });
@@ -107,14 +104,14 @@ describe('dig.alg', function() {
 
     it('should handle multiple nodes in different subgraph', function() {
         var g = dig.graph()
-          .addNodes([n1, n2, n3, n4])
-          .addEdge(n1, n2)
-          .addEdge(n3, n4);
+          .addNodes([n[0], n[1], n[2], n[3]])
+          .addEdge(n[0], n[1])
+          .addEdge(n[2], n[3]);
 
-        dig.alg.dfs(g, [n1, n2, n3, n4], enter, exit);
+        dig.alg.dfs(g, [n[0], n[1], n[2], n[3]], enter, exit);
 
-        var steps = [n1.enter, n2.enter, n2.exit, n1.exit,
-                     n3.enter, n4.enter, n4.exit, n3.exit]
+        var steps = [n[0].enter, n[1].enter, n[1].exit, n[0].exit,
+                     n[2].enter, n[3].enter, n[3].exit, n[2].exit]
         steps.forEach(function(s, i) {
           assert.equal(i, s, "Actual steps: " + JSON.stringify(steps));
         });
@@ -129,29 +126,27 @@ describe('dig.alg', function() {
 
     it('should order nodes according to topological sort', function() {
       var g = dig.graph()
-        .addNodes([n1, n2, n3, n4, n5, n6])
-        .addEdge(n1, n2)
-        .addEdge(n2, n4)
-        .addEdge(n3, n4)
-        .addEdge(n4, n5);
+        .addNodes([n[0], n[1], n[2], n[3], n[4], n[5]])
+        .addEdge(n[0], n[1])
+        .addEdge(n[1], n[3])
+        .addEdge(n[2], n[3])
+        .addEdge(n[3], n[4]);
 
       var sorted = dig.alg.topsort(g);
 
-      assertBefore(n1, n2, sorted);
-      assertBefore(n2, n4, sorted);
-      assertBefore(n3, n4, sorted);
-      assertBefore(n3, n4, sorted);
-      assertBefore(n4, n5, sorted);
-      assert.ok(sorted.some(function(n) { return n === n6; }));
+      assertBefore(n[0], n[1], sorted);
+      assertBefore(n[1], n[3], sorted);
+      assertBefore(n[2], n[3], sorted);
+      assertBefore(n[2], n[3], sorted);
+      assertBefore(n[3], n[4], sorted);
+      assert.ok(sorted.some(function(x) { return x === n[5]; }));
     });
 
     it('should raise an error for a graph with a cycle', function() {
-      var n1 = {name: "n1"};
-      var n2 = {name: "n2"};
       var g = dig.graph()
-        .addNodes([n1, n2])
-        .addEdge(n1, n2)
-        .addEdge(n2, n1);
+        .addNodes([n[0], n[1]])
+        .addEdge(n[0], n[1])
+        .addEdge(n[1], n[0]);
         
       assert.throws(function() {
         dig.alg.topsort(g);
