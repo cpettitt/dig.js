@@ -65,6 +65,15 @@ describe('dig.data', function() {
       assert.equal(0, h.size());      
     });
 
+    it('should allow an arbitrary key function', function() {
+      var h = data.binaryHeap(function(x) { return -x; });
+      h.add(5);
+      h.add(3);
+      assert.equal(5, h.removeMin());
+      assert.equal(3, h.removeMin());
+      assert.equal(0, h.size());
+    });
+
     it('should throw an error with an empty heap and `removeMin`', function() {
       assert.throws(function() {
         data.binaryHeap().removeMin();
@@ -90,8 +99,9 @@ describe('dig.data', function() {
     });
   });
 
-  it('should allow construction with an initial array', function() {
-    var h = data.binaryHeap([5, 3, 7]);
+  it('should allow the addition of multiple elements', function() {
+    var h = data.binaryHeap();
+    h.addAll([5, 3, 7]);
     assert.equal(3, h.removeMin());
     assert.equal(5, h.removeMin());
     assert.equal(7, h.removeMin());
