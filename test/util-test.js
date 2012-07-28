@@ -47,4 +47,22 @@ describe('dig.util', function() {
       assert.equal(false, util.isArray({a: 123}));
     });
   });
+
+  describe('map', function() {
+    it('should return an empty array when given an empty array', function() {
+      assert.deepEqual([], dig.util.map(function(x) { return x; }, []));
+    });
+
+    it('should map each element of the given array', function() {
+      assert.deepEqual([1,2,3], dig.util.map(function(x) { return x + 1; }, [0, 1, 2]));
+    });
+
+    it('should throw when given a non-function', function() {
+      assert.throws(function() { dig.util.map("not-a-function", [0, 1, 2]); });
+    });
+
+    it('should throw when given a non-array', function() {
+      assert.throws(function() { dig.util.map(function(x) { return x; }, {a: 123}); });
+    });
+  });
 });
