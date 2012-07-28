@@ -88,19 +88,19 @@ describe('dig.alg.sp', function() {
       assert.equal(false, sp.containsEdge(n[1], n[1]));
     });
 
-    it('should handle more complicated graphs', function() {
+    it('should handle more complicated paths', function() {
       var g = dig.graph()
-        .addNodes([n[0], n[1], n[2], n[3], n[4], n[5]])
-        .addEdge(n[0], n[1])
-        .addEdge(n[0], n[2])
-        .addEdge(n[1], n[3])
-        .addEdge(n[2], n[3])
-        .addEdge(n[3], n[0]);
-      var sp = alg(g, n[0]);
-      assert.deepEqual({cost: 0, predecessor: null}, sp.getEdge(n[0], n[0]));
-      assert.deepEqual({cost: 1, predecessor: n[0]}, sp.getEdge(n[0], n[1]));
-      assert.deepEqual({cost: 1, predecessor: n[0]}, sp.getEdge(n[0], n[2]));
-      assert.deepEqual(2, sp.getEdge(n[0], n[3]).cost);
+        .addNodes([n[0], n[1], n[2], n[3]])
+        .addEdge(n[0], n[1],  1)
+        .addEdge(n[0], n[2], 25)
+        .addEdge(n[1], n[2],  5)
+        .addEdge(n[1], n[3], 50)
+        .addEdge(n[2], n[3], 15);
+      var sp = alg(g, n[0], dig.alg.labelEdgeCost(g));
+      assert.deepEqual({cost:  0, predecessor: null}, sp.getEdge(n[0], n[0]));
+      assert.deepEqual({cost:  1, predecessor: n[0]}, sp.getEdge(n[0], n[1]));
+      assert.deepEqual({cost:  6, predecessor: n[1]}, sp.getEdge(n[0], n[2]));
+      assert.deepEqual({cost: 21, predecessor: n[2]}, sp.getEdge(n[0], n[3]));
     });
   }
 
