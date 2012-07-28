@@ -19,7 +19,7 @@ sys.puts(JSON.stringify({
     "algorithms"
   ],
   "devDependencies": {
-    "mocha": "1.2.x",
+    "mocha": "1.3.x",
     "uglify-js": "1.3.x"
   },
   "author": "Chris Pettitt <chris@samsarin.com>",
