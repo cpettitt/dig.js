@@ -68,5 +68,3 @@ dig.alg = (function() {
     labelEdgeCost: labelEdgeCost
   };
 })();
-
-require('./alg/sp');

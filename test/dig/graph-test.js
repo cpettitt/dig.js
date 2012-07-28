@@ -1,5 +1,4 @@
-var assert = require('assert')
-    dig = require('../index')
+require('../test-env');
 
 describe('dig.graph', function() {
   var graph, n1, n2, n3, n4;

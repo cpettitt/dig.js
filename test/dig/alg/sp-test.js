@@ -1,5 +1,4 @@
-var assert = require('assert'),
-    dig = require('../../index'); 
+require('../../test-env');
 
 describe('dig.alg.sp', function() {
   var n;

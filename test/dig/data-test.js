@@ -1,5 +1,6 @@
-var assert = require('assert'),
-    data = require('../index').data;
+require('../test-env');
+
+var data = dig.data;
 
 describe('dig.data', function() {
   function heapTests(heapFactory) {

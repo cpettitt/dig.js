@@ -1,2 +1,2 @@
-require('./lib/dig')
+require('./dig')
 module.exports = dig;

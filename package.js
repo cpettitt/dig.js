@@ -1,4 +1,4 @@
-require('../lib/dig.js');
+require('./index');
 
 var sys = require('sys');
 

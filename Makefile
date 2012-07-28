@@ -12,17 +12,12 @@ all: \
 
 .INTERMEDIATE dig.js: \
 	src/pre.js \
-	lib/dig.js \
-	lib/util.js \
-	lib/data.js \
-	lib/graph.js \
-	lib/alg.js \
-	lib/alg/sp.js \
+	src/dig/util.js \
+	src/dig/data.js \
+	src/dig/graph.js \
+	src/dig/alg.js \
+	src/dig/alg/sp.js \
 	src/post.js
-
-dig.alg.js: \
-	lib/alg.js \
-	lib/alg/topsort.js
 
 dig.js: Makefile
 	@rm -f $@
@@ -34,13 +29,13 @@ dig.min.js: dig.js
 	$(JS_MIN) dig.js > dig.min.js
 	@chmod a-w $@
 
-package.json: lib/dig.js src/package.js
+package.json: dig.js package.js
 	@rm -f $@
-	$(NODE) src/package.js > $@
+	$(NODE) package.js > $@
 	@chmod a-w $@
 
 .PHONY: test
-test: dig.min.js
+test: dig.js
 	$(MOCHA) $(MOCHA_OPTS) --recursive test
 
 clean:

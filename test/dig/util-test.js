@@ -1,5 +1,6 @@
-var assert = require('assert'),
-    util = require('../index').util;
+require('../test-env');
+
+var util = dig.util;
 
 describe('dig.util', function() {
   describe('attachId', function() {

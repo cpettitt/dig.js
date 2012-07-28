@@ -1,5 +1,4 @@
-var assert = require('assert'),
-    dig = require('../index'); 
+require('../test-env');
 
 function assertBefore(before, after, arr) {
   var beforeIdx, afterIdx;
