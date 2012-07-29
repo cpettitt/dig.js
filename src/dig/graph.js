@@ -1,326 +1,203 @@
-/*
- * The core graph library.
- */
-dig.graph = (function() {
-  function _numKeys(obj) {
-    if (typeof Object.keys !== undefined) {
-      return Object.keys(obj).length;
-    }
-
-    var count = 0;
+dig.Graph = (function() {
+  function _copyObj(obj) {
+    var copy = {};
     for (var k in obj) {
       if (obj.hasOwnProperty(k)) {
-        count++;
+        copy[k] = obj[k];
       }
     }
-    return count;
+    return copy;
   }
 
-  function graph() {
-    var _nextId = 0;
-    var _nodes = [];
-    var _edges = {};
-
-    function _edgeId(from, to) {
-      return from._digId + "->" + to._digId
+  function _safeGetNode(graph, node) {
+    var nodes = graph._nodes;
+    if (!(node in nodes)) {
+      throw new Error("Node not in graph: " + node);
     }
+    return nodes[node];
+  }
 
-    function _adjId(node) {
-      return node._digId;
-    }
-
-    function _copyEdge(e) {
-      var copy = {
-        from: e.from,
-        to: e.to
-      };
-      if ("label" in e) {
-        copy.label = e.label;
-      }
-      return copy;
-    }
-
-    function _incidentEdges(n, type) {
-      var edges = [];
-      var incidents = _nodes[n._digId][type];
-      for (var i in incidents) {
-        edges.push(_copyEdge(incidents[i]));
-      }
-      return edges;
-    }
-
-    function _checkContainsNode(n) {
-      if (!containsNode(n)) {
-        throw new Error("Node is not in graph: " + JSON.stringify(n));
-      }
-    }
-
-    function _checkContainsEdge(from, to) {
-      if (!containsEdge(from, to)) {
-        throw new Error("Edge is not in graph. From: " + JSON.stringify(from) + " to: " + JSON.stringify(to));
-      }
-    }
-
-    function addNodes(ns) {
-      ns.forEach(function(n) {
-        addNode(n);
-      });
-      return this;
-    }
-
-    function addNode(n) {
-      if (containsNode(n)) {
-        throw new Error("Node is already contained in graph: " + n);
-      }
-
-      dig.util.attachId(n);
-      _nodes[n._digId] = {
-        node: n,
-        inEdges: {},
-        outEdges: {} 
-      };
-      return graph;
-    }
-
-    function removeNode(n) {
-      _checkContainsNode(n);
-
-      var node = _nodes[n._digId];
-      for (var a in node.inEdges) {
-        var edge = node.inEdges[a];
-        removeEdge(edge.from, edge.to, edge.label);
-      }
-      for (var a in node.outEdges) {
-        var edge = node.outEdges[a];
-        removeEdge(edge.from, edge.to, edge.label);
-      }
-      delete _nodes[n._digId];
-
-      return graph;
-    }
-
-    function nodes() {
-      var nodes = [];
-      _nodes.forEach(function(n) { nodes.push(n.node); });
-      return nodes;
-    }
-
-    function containsNode(n) {
-      return n._digId in _nodes;
-    }
-
-    /*
-     * Adds an edge to the graph with an optional label. If an edge already
-     * edists between `from` and `to` then this function will throw an error.
-     * Use `addOrUpdateEdge` to safely add or update an edge without throwing an
-     * error.
-     *
-     * If the given label is not specified or is left `undefined` then calls to
-     * `getEdge(from, to)` will return `undefined`. The label can be changed
-     * later using `updateEdge` or `addOrUpdateEdge`.
-     *
-     * This method returns the graph to allow for function chaining.
-     */
-    function addEdge(from, to, label) {
-      if (containsEdge(from, to)) {
-        throw new Error("Edge already exists. From: " + JSON.stringify(from) + " to: " + JSON.stringify(to));
-      };
-      return addOrUpdateEdge(from, to, label);
-    }
-
-    /*
-     * Returns the label associated with the edge from the `from` node to the
-     * `to` node. If no such edge exists, this function returns `undefined`.
-     * Note, however, that this function will also return `undefined` when
-     * there is an edge with no label. Use `containsEdge` to distinguish
-     * between these cases.
-     */
-    function getEdge(from, to) {
-      var edge = _edges[_edgeId(from, to)];
-      if (edge) {
-        return edge.label;
-      }
-    }
-
-    /*
-     * Updates the label for an edge that already exists. If the edge does not
-     * exists this function will throw an error. Use `addOrUpdateEdge` to
-     * safely add or change an edge without raising an error.
-     *
-     * If the given label is not specified or is left `undefined` then calls to
-     * `getEdge(from, to)` will return `undefined`.
-     *
-     * This function returns the graph to allow for function chaining.
-     */
-    function updateEdge(from, to, label) {
-      _checkContainsEdge(from, to);
-      return addOrUpdateEdge(from, to, label);
-    }
-
-    /*
-     * Adds or updates an edge.
-     *
-     * If the given label is not specified or is left `undefined` then calls to
-     * `getEdge(from, to)` will return `undefined`.
-     *
-     * This function returns the graph to allow for function chaining.
-     */
-    function addOrUpdateEdge(from, to, label) {
-      var edge = _edges[_edgeId(from, to)];
-      if (!edge) {
-        edge = {
-          from: from,
-          to: to
+  function Graph(graph) {
+    var nodes = this._nodes = {};
+    this._order = 0;
+    if (graph) {
+      var graphNodes = graph._nodes;
+      for (i in graphNodes) {
+        var node = graphNodes[i];
+        nodes[i] = {
+          predecessors: _copyObj(node.predecessors),
+          successors: _copyObj(node.successors)
         };
-        _checkContainsNode(from);
-        _checkContainsNode(to);
-
-        _edges[_edgeId(from, to)] = edge;
-        _nodes[from._digId].outEdges[_adjId(to)] = edge;
-        _nodes[to._digId].inEdges[_adjId(from)] = edge;
-      }
-
-      if (label !== undefined) {
-        edge.label = label;
-      } else {
-        delete edge.label;
-      }
-
-      return graph;
+        this._order++;
+      };
     }
+  }
 
-    /*
-     * Removes the specified edge, if it exists. If it does not exist, this
-     * function will throw an error. Use `containsEdge` if you're not sure if
-     * the edge exists.
-     *
-     * This function returns the graph to allow for function chaining.
-     */
-    function removeEdge(from, to) {
-      _checkContainsEdge(from, to);
+  Graph.prototype = {
+    order: function() {
+      return this._order;
+    },
 
-      var edgeId = _edgeId(from, to);
-      delete _edges[edgeId];
+    size: function() {
+      return this.edges().length;
+    },
 
-      delete _nodes[from._digId].outEdges[_adjId(to)];
-      delete _nodes[to._digId].inEdges[_adjId(from)];
-      
-      return graph;
-    }
+    nodes: function() {
+      return dig_util_objToArr(this._nodes);
+    },
 
-    function edges() {
+    edges: function() {
       var edges = [];
-      for (var e in _edges) {
-        edges.push(_copyEdge(_edges[e]));
-      }
+      for (var i in this._nodes) {
+        for (var j in this._nodes[i].successors) {
+          edges.push({from: i, to: j});
+        };
+      };
       return edges;
-    }
+    },
 
-    /*
-     * Sets the value of each ege in the graph to the value returned from the
-     * function `fun([{from: x, to: y, label: z}])`. If the returned value is
-     * undefined, then the edge label is removed.
-     */
-    function mapEdges(fun) {
-      edges().forEach(function(edge) {
-        addOrUpdateEdge(edge.from, edge.to, fun(edge));
-      });
-    }
-
-    function containsEdge(from, to) {
-      return _edgeId(from, to) in _edges;
-    }
-
-    function inEdges(n) {
-      return _incidentEdges(n, "inEdges");
-    }
-
-    function indegree(n) {
-      return _numKeys(_nodes[n._digId].inEdges);
-    }
-
-    function outEdges(n) {
-      return _incidentEdges(n, "outEdges");
-    }
-
-    function outdegree(n) {
-      return _numKeys(_nodes[n._digId].outEdges);
-    }
-
-    function degree(n) {
-      return indegree(n) + outdegree(n);
-    }
-
-    function predecessors(n) {
-      return inEdges(n).map(function(e) { return e.from; });
-    }
-
-    function successors(n) {
-      return outEdges(n).map(function(e) { return e.to; });
-    }
-
-    function neighbors(n) {
-      return predecessors(n).concat(successors(n));
-    }
-
-    function sources() {
+    sources: function() {
       var sources = [];
-      nodes().forEach(function(node) {
-        if (indegree(node) === 0) {
-          sources.push(node);
+      var self = this;
+      dig_util_forEach(this.nodes(), function(i) { 
+        if (self.indegree(i) == 0) {
+          sources.push(i);
         }
       });
       return sources;
-    }
+    },
 
-    function sinks() {
+    sinks: function() {
       var sinks = [];
-      nodes().forEach(function(node) {
-        if (outdegree(node) === 0) {
-          sinks.push(node);
+      var self = this;
+      dig_util_forEach(this.nodes(), function(i) {
+        if (self.outdegree(i) === 0) {
+          sinks.push(i);
         }
       });
       return sinks;
+    },
+
+    copy: function() {
+      return new Graph(this);
+    },
+
+    hasNode: function(node) {
+      return node in this._nodes;
+    },
+
+    addNode: function(node) {
+      if (!this.hasNode(node)) {
+        this._nodes[node] = {
+          predecessors: {},
+          successors: {}
+        };
+        this._order++;
+        return true;
+      }
+      return false;
+    },
+
+    addNodes: function() {
+      for (var i = 0; i < arguments.length; ++i) {
+        this.addNode(arguments[i]);
+      }
+    },
+
+    removeNode: function(node) {
+      var self = this;
+      if (this.hasNode(node)) {
+        dig_util_forEach(this.predecessors(node), function(i) {
+          self.removeEdge(i, node);
+        });
+        dig_util_forEach(this.successors(node), function(k) {
+          self.removeEdge(node, k);
+        });
+        delete this._nodes[node];
+        this._order--;
+        return true;
+      }
+      return false;
+    },
+
+    hasEdge: function(from, to) {
+      return this.hasNode(from) && to in this._nodes[from].successors;
+    },
+
+    addEdge: function(from, to) {
+      var fromNode = _safeGetNode(this, from);
+      var toNode = _safeGetNode(this, to);
+      if (!this.hasEdge(from, to)) {
+        fromNode.successors[to] = true;
+        toNode.predecessors[from] = true;
+        return true;
+      }
+      return false;
+    },
+
+    addPath: function() {
+      var prev, curr;
+      if (arguments.length > 1) {
+        prev = arguments[0];
+        for (var i = 1; i < arguments.length; ++i) {
+          curr = arguments[i];
+          this.addEdge(prev, curr);
+          prev = curr;
+        }
+      }
+    },
+
+    removeEdge: function(from, to) {
+      if (this.hasEdge(from, to)) {
+        delete this._nodes[from].successors[to];
+        delete this._nodes[to].predecessors[from];
+        return true;
+      }
+      return false;
+    },
+
+    indegree: function(node) {
+      return this.inEdges(node).length;
+    },
+
+    outdegree: function(node) {
+      return this.outEdges(node).length;
+    },
+
+    degree: function(node) {
+      return this.indegree(node) + this.outdegree(node);
+    },
+
+    inEdges: function(node) {
+      var edges = [];
+      var preds = this.predecessors(node);
+      for (var i = 0; i < preds.length; i++) {
+        edges.push({from: preds[i], to: node});
+      }
+      return edges;
+    },
+
+    outEdges: function(node) {
+      var edges = [];
+      var sucs = this.successors(node);
+      for (var i = 0; i < sucs.length; i++) {
+        edges.push({from: node, to: sucs[i]});
+      };
+      return edges;
+    },
+
+    predecessors: function(node) {
+      return dig_util_objToArr(_safeGetNode(this, node).predecessors);
+    },
+
+    successors: function(node) {
+      return dig_util_objToArr(_safeGetNode(this, node).successors);
+    },
+
+    neighbors: function(node) {
+      return this.predecessors(node).concat(this.successors(node));
     }
-
-    function copy() {
-      var graph = dig.graph();
-      graph.addNodes(nodes());
-      edges().forEach(function(e) {
-        graph.addEdge(e.from, e.to, e.label);
-      });
-      return graph;
-    }
-
-    var graph = {
-      addNodes: addNodes,
-      addNode: addNode,
-      removeNode: removeNode,
-      nodes: nodes,
-      containsNode: containsNode,
-      addEdge: addEdge,
-      getEdge: getEdge,
-      updateEdge: updateEdge,
-      addOrUpdateEdge: addOrUpdateEdge,
-      removeEdge: removeEdge,
-      edges: edges,
-      mapEdges: mapEdges,
-      containsEdge: containsEdge,
-      inEdges: inEdges,
-      indegree: indegree,
-      outEdges: outEdges,
-      outdegree: outdegree,
-      degree: degree,
-      predecessors: predecessors,
-      successors: successors,
-      neighbors: neighbors,
-      sources: sources,
-      sinks: sinks,
-      copy: copy
-    };
-
-    return graph;
   };
 
-  return graph;
+  return Graph;
 })();

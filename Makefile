@@ -14,9 +14,14 @@ all: \
 	src/pre.js \
 	src/dig/util.js \
 	src/dig/data.js \
+	src/dig/data/priority-queue.js \
+	src/dig/data/queue.js \
 	src/dig/graph.js \
 	src/dig/alg.js \
+	src/dig/alg/topsort.js \
 	src/dig/alg/sp.js \
+	src/dig/alg/sp/dijkstra.js \
+	src/dig/alg/sp/floyd-warshall.js \
 	src/post.js
 
 dig.js: Makefile
