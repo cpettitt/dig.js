@@ -50,16 +50,16 @@ function expectNoMore(result) {
 }
 
 describe("dig.alg.sp.floydWarshall", function() {
-  it("should handle singleton graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.singleton);
+  it("should handle node1 graph", function() {
+    var results = dig.alg.sp.floydWarshall(graphs.node1);
 
     expect(results, 1, 1, 0);
 
     expectNoMore(results);
   });
 
-  it("should handle two node disjoint graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.twoNodeDisjoint);
+  it("should handle node2 graph", function() {
+    var results = dig.alg.sp.floydWarshall(graphs.node2);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2);
@@ -70,8 +70,8 @@ describe("dig.alg.sp.floydWarshall", function() {
     expectNoMore(results);
   });
 
-  it("should handle single edge graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.singleEdge);
+  it("should handle edge1 graph", function() {
+    var results = dig.alg.sp.floydWarshall(graphs.edge1);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2, 1, 1);
@@ -82,8 +82,8 @@ describe("dig.alg.sp.floydWarshall", function() {
     expectNoMore(results);
   });
 
-  it("should handle two edge graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.twoEdge);
+  it("should handle edge2 graph", function() {
+    var results = dig.alg.sp.floydWarshall(graphs.edge2);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2, 1, 1);
@@ -100,7 +100,7 @@ describe("dig.alg.sp.floydWarshall", function() {
     expectNoMore(results);
   });
 
-  it("should handle self loop graph", function() {
+  it("should handle selfLoop graph", function() {
     var results = dig.alg.sp.floydWarshall(graphs.selfLoop);
 
     expect(results, 1, 1, 0);
@@ -108,8 +108,8 @@ describe("dig.alg.sp.floydWarshall", function() {
     expectNoMore(results);
   });
 
-  it("should handle short cycle graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.shortCycle);
+  it("should handle cycle2 graph", function() {
+    var results = dig.alg.sp.floydWarshall(graphs.cycle2);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2, 1, 1);
@@ -146,8 +146,8 @@ describe("dig.alg.sp.floydWarshall", function() {
     expectNoMore(results);
   });
 
-  it("should handle nested cycle graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.nestedCycle);
+  it("should handle nestCycle2 graph", function() {
+    var results = dig.alg.sp.floydWarshall(graphs.nestedCycle2);
 
     expect(results, 0, 0, 0);
     expect(results, 0, 1, 1, 0);

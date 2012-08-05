@@ -38,42 +38,42 @@ function expectCount(result, n) {
 }
 
 describe("dig.alg.sp.dijkstra", function() {
-  it("should handle singleton graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.singleton, 1);
+  it("should handle node1 graph", function() {
+    var results = dig.alg.sp.dijkstra(graphs.node1, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
-  it("should handle two node disjoint graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.twoNodeDisjoint, 1);
+  it("should handle node2 graph", function() {
+    var results = dig.alg.sp.dijkstra(graphs.node2, 1);
     expect(results, 1, 0);
     expect(results, 2);
     expectCount(results, 2);
   });
 
-  it("should handle single edge graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.singleEdge, 1);
+  it("should handle edge1 graph", function() {
+    var results = dig.alg.sp.dijkstra(graphs.edge1, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
   });
 
-  it("should handle two edge graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.twoEdge, 1);
+  it("should handle edge2 graph", function() {
+    var results = dig.alg.sp.dijkstra(graphs.edge2, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expect(results, 3, 2, 2);
     expectCount(results, 3);
   });
 
-  it("should handle self loop graph", function() {
+  it("should handle selfLoop graph", function() {
     var results = dig.alg.sp.dijkstra(graphs.selfLoop, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
-  it("should handle short cycle graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.shortCycle, 1);
+  it("should handle cycle2 graph", function() {
+    var results = dig.alg.sp.dijkstra(graphs.cycle2, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
@@ -88,8 +88,8 @@ describe("dig.alg.sp.dijkstra", function() {
     expectCount(results, 4);
   });
 
-  it("should handle nested cycle graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.nestedCycle, 0);
+  it("should handle nestedCycle2 graph", function() {
+    var results = dig.alg.sp.dijkstra(graphs.nestedCycle2, 0);
     expect(results, 0, 0);
     expect(results, 1, 1, 0);
     expect(results, 2, 2, 1);
