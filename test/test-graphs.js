@@ -64,7 +64,7 @@ exports.twoCycle3 = twoCycle3;
 var scc3 = new dig.Graph();
 scc3.addNodes(1, 2, 3, 4, 5, 6, 7, 8);
 scc3.addPath(1, 2, 5, 1);
-scc3.addPath(6, 7);
+scc3.addPath(6, 7, 6);
 scc3.addPath(3, 4, 8, 4, 3);
 scc3.addEdge(2, 3);
 scc3.addEdge(2, 6);

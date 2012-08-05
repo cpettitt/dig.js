@@ -19,6 +19,7 @@ all: \
 	src/dig/data/queue.js \
 	src/dig/graph.js \
 	src/dig/alg.js \
+	src/dig/alg/tarjan.js \
 	src/dig/alg/topsort.js \
 	src/dig/alg/sp.js \
 	src/dig/alg/sp/dijkstra.js \
