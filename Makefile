@@ -12,6 +12,7 @@ all: \
 
 .INTERMEDIATE dig.js: \
 	src/pre.js \
+	src/version.js \
 	src/dig/util.js \
 	src/dig/data.js \
 	src/dig/data/priority-queue.js \
