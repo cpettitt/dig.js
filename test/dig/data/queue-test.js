@@ -1,6 +1,6 @@
 require('../../test-env');
 
-describe('new dig.data.Queue', function() {
+describe('dig.data.Queue', function() {
   describe("constructor", function() {
     it("Queue() returns an empty queue", function() {
       var q = new dig.data.Queue();
@@ -13,7 +13,7 @@ describe('new dig.data.Queue', function() {
       assert.equal(1, q.dequeue());
     });
 
-    it("should throw an error if new was not used", function() {
+    it("throws an error if new was not used", function() {
       assert.throws(function() { dig.data.Queue(); });
     });
   });
