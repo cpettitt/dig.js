@@ -1,7 +1,7 @@
 /*
  * Implementation derived from wikipedia: http://en.wikipedia.org/wiki/Dijkstra's_algorithm
  */
-dig.alg.sp.dijkstra = function(graph, source) {
+dig.alg.dijkstra = function(graph, source) {
   var results = {};
   var q = new dig_data_PriorityQueue();
   var maxDist = Number.POSITIVE_INFINITY;

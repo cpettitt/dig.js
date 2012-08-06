@@ -2,7 +2,7 @@
  * Floyd Warshall algorithm derived from Wikipedia:
  * http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
  */
-dig.alg.sp.floydWarshall = function(graph) {
+dig.alg.floydWarshall = function(graph) {
   var results = {};
   var nodes = graph.nodes();
   var altDistance;

@@ -21,9 +21,8 @@ all: \
 	src/dig/alg.js \
 	src/dig/alg/tarjan.js \
 	src/dig/alg/topsort.js \
-	src/dig/alg/sp.js \
-	src/dig/alg/sp/dijkstra.js \
-	src/dig/alg/sp/floyd-warshall.js \
+	src/dig/alg/dijkstra.js \
+	src/dig/alg/floyd-warshall.js \
 	src/dig/dot.js \
 	src/post.js
 

@@ -1,6 +1,6 @@
-require("../../../test-env");
+require("../../test-env");
 
-var graphs = require("../../../test-graphs");
+var graphs = require("../../test-graphs");
 
 // Helper function for checking results. Checks that result[i] matches the
 // supplied `distance` and `predecessor`.
@@ -37,29 +37,29 @@ function expectCount(result, n) {
   assert.equal(n, count);
 }
 
-describe("dig.alg.sp.dijkstra", function() {
+describe("dig.alg.dijkstra", function() {
   it("should handle node1 graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.node1, 1);
+    var results = dig.alg.dijkstra(graphs.node1, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
   it("should handle node2 graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.node2, 1);
+    var results = dig.alg.dijkstra(graphs.node2, 1);
     expect(results, 1, 0);
     expect(results, 2);
     expectCount(results, 2);
   });
 
   it("should handle edge1 graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.edge1, 1);
+    var results = dig.alg.dijkstra(graphs.edge1, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
   });
 
   it("should handle edge2 graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.edge2, 1);
+    var results = dig.alg.dijkstra(graphs.edge2, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expect(results, 3, 2, 2);
@@ -67,20 +67,20 @@ describe("dig.alg.sp.dijkstra", function() {
   });
 
   it("should handle selfLoop graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.selfLoop, 1);
+    var results = dig.alg.dijkstra(graphs.selfLoop, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
   it("should handle cycle2 graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.cycle2, 1);
+    var results = dig.alg.dijkstra(graphs.cycle2, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
   });
 
   it("should handle diamond graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.diamond, 1);
+    var results = dig.alg.dijkstra(graphs.diamond, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expect(results, 3, 1, 1);
@@ -89,7 +89,7 @@ describe("dig.alg.sp.dijkstra", function() {
   });
 
   it("should handle nestedCycle2 graph", function() {
-    var results = dig.alg.sp.dijkstra(graphs.nestedCycle2, 0);
+    var results = dig.alg.dijkstra(graphs.nestedCycle2, 0);
     expect(results, 0, 0);
     expect(results, 1, 1, 0);
     expect(results, 2, 2, 1);

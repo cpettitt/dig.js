@@ -1,6 +1,6 @@
-require("../../../test-env");
+require("../../test-env");
 
-var graphs = require("../../../test-graphs");
+var graphs = require("../../test-graphs");
 
 function removeEntry(result, i, j) {
   var entry = result[i][j];
@@ -49,9 +49,9 @@ function expectNoMore(result) {
   assert.deepEqual({}, result);
 }
 
-describe("dig.alg.sp.floydWarshall", function() {
+describe("dig.alg.floydWarshall", function() {
   it("should handle node1 graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.node1);
+    var results = dig.alg.floydWarshall(graphs.node1);
 
     expect(results, 1, 1, 0);
 
@@ -59,7 +59,7 @@ describe("dig.alg.sp.floydWarshall", function() {
   });
 
   it("should handle node2 graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.node2);
+    var results = dig.alg.floydWarshall(graphs.node2);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2);
@@ -71,7 +71,7 @@ describe("dig.alg.sp.floydWarshall", function() {
   });
 
   it("should handle edge1 graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.edge1);
+    var results = dig.alg.floydWarshall(graphs.edge1);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2, 1, 1);
@@ -83,7 +83,7 @@ describe("dig.alg.sp.floydWarshall", function() {
   });
 
   it("should handle edge2 graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.edge2);
+    var results = dig.alg.floydWarshall(graphs.edge2);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2, 1, 1);
@@ -101,7 +101,7 @@ describe("dig.alg.sp.floydWarshall", function() {
   });
 
   it("should handle selfLoop graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.selfLoop);
+    var results = dig.alg.floydWarshall(graphs.selfLoop);
 
     expect(results, 1, 1, 0);
 
@@ -109,7 +109,7 @@ describe("dig.alg.sp.floydWarshall", function() {
   });
 
   it("should handle cycle2 graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.cycle2);
+    var results = dig.alg.floydWarshall(graphs.cycle2);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2, 1, 1);
@@ -121,7 +121,7 @@ describe("dig.alg.sp.floydWarshall", function() {
   });
 
   it("should handle diamond graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.diamond);
+    var results = dig.alg.floydWarshall(graphs.diamond);
 
     expect(results, 1, 1, 0);
     expect(results, 1, 2, 1, 1);
@@ -147,7 +147,7 @@ describe("dig.alg.sp.floydWarshall", function() {
   });
 
   it("should handle nestCycle2 graph", function() {
-    var results = dig.alg.sp.floydWarshall(graphs.nestedCycle2);
+    var results = dig.alg.floydWarshall(graphs.nestedCycle2);
 
     expect(results, 0, 0, 0);
     expect(results, 0, 1, 1, 0);
