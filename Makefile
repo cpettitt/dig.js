@@ -24,6 +24,7 @@ all: \
 	src/dig/alg/sp.js \
 	src/dig/alg/sp/dijkstra.js \
 	src/dig/alg/sp/floyd-warshall.js \
+	src/dig/dot.js \
 	src/post.js
 
 dig.js: Makefile
