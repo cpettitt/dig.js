@@ -1,7 +1,7 @@
 dig.data.Stack = (function() {
   function Stack() {
     if (!(this instanceof Stack)) {
-      throw new Error("Constructor called without using `new`"); 
+      throw new Error("Constructor called without using `new`");
     }
 
     dig_util_defineProperty(this, "_data", {
@@ -34,7 +34,7 @@ dig.data.Stack = (function() {
     },
 
     has: function(elem) {
-      return elem in this._data.onStack; 
+      return elem in this._data.onStack;
     }
   };
 
