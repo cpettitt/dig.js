@@ -1,4 +1,4 @@
-dig.data.Stack = (function() {
+var dig_data_Stack = dig.data.Stack = (function() {
   function Stack() {
     if (!(this instanceof Stack)) {
       throw new Error("Constructor called without using `new`");

@@ -1,4 +1,4 @@
-var dig_data_Queue = (function() {
+var dig_data_Queue = dig.data.Queue = (function() {
   function Queue(arr) {
     if (!(this instanceof Queue)) {
       throw new Error("Constructor called without using `new`");
@@ -45,5 +45,3 @@ var dig_data_Queue = (function() {
 
   return Queue;
 })();
-
-dig.data.Queue = dig_data_Queue;

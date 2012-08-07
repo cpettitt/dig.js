@@ -1,4 +1,4 @@
-dig.alg.topsort = function(graph) {
+var dig_alg_topsort = dig.alg.topsort = function(graph) {
   var visited = {};
   var stack = {};
   var results = [];

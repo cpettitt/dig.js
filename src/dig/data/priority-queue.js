@@ -1,4 +1,4 @@
-var dig_data_PriorityQueue = (function() {
+var dig_data_PriorityQueue = dig.data.PriorityQueue = (function() {
   function PriorityQueue() {
     if (!(this instanceof PriorityQueue)) {
       throw new Error("Constructor called without using `new`");
@@ -108,5 +108,3 @@ var dig_data_PriorityQueue = (function() {
 
   return PriorityQueue;
 })();
-
-dig.data.PriorityQueue = dig_data_PriorityQueue;
