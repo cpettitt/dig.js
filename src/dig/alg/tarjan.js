@@ -1,6 +1,6 @@
 // Algorithm derived from: 
 // http://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
-dig.alg.tarjan = function(graph) {
+var dig_alg_tarjan = function(graph) {
   var index = 0;
   var stack = new dig.data.Stack();
   var visited = {}; // node -> index + lowlink
@@ -45,3 +45,5 @@ dig.alg.tarjan = function(graph) {
 
   return results;
 };
+
+dig.alg.tarjan = dig_alg_tarjan;

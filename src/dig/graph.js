@@ -196,6 +196,15 @@ dig.Graph = (function() {
 
     neighbors: function(node) {
       return this.predecessors(node).concat(this.successors(node));
+    },
+
+    isAcyclic: function() {
+      var components = dig_alg_tarjan(this);
+      var self = this;
+      return dig_util_all(components, function(component) {
+        var v = component[0];
+        return component.length === 1 && !self.hasEdge(v, v);
+      });
     }
   };
 

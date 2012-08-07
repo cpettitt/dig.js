@@ -1,5 +1,7 @@
 require("../test-env");
 
+var graphs = require("../test-graphs");
+
 describe("new dig.Graph", function() {
   describe("graph() constructor", function() {
     it("returns an empty graph", function() {
@@ -474,6 +476,60 @@ describe("new dig.Graph", function() {
 
     it("throws an error when the node is not in the graph", function() {
       assert.throws(function() { new dig.Graph().neighbors(1); });
+    });
+  });
+
+  describe("isAcyclic()", function() {
+    it("returns true for node1", function() {
+      assert.isTrue(graphs.node1.isAcyclic());
+    });
+
+    it("returns true for node2", function() {
+      assert.isTrue(graphs.node2.isAcyclic());
+    });
+
+    it("returns true for edge1", function() {
+      assert.isTrue(graphs.edge1.isAcyclic());
+    });
+
+    it("returns true for edge2", function() {
+      assert.isTrue(graphs.edge2.isAcyclic());
+    });
+
+    it("returns false for selfLoop", function() {
+      assert.isFalse(graphs.selfLoop.isAcyclic());
+    });
+
+    it("returns false for cycle2", function() {
+      assert.isFalse(graphs.cycle2.isAcyclic());
+    });
+
+    it("returns false for nestedCycle2", function() {
+      assert.isFalse(graphs.nestedCycle2.isAcyclic());
+    });
+
+    it("returns false for cycle3", function() {
+      assert.isFalse(graphs.cycle3.isAcyclic());
+    });
+
+    it("returns false for nestedCycle3", function() {
+      assert.isFalse(graphs.nestedCycle3.isAcyclic());
+    });
+
+    it("returns false for bridgedCycle", function() {
+      assert.isFalse(graphs.bridgedCycle.isAcyclic());
+    });
+
+    it("returns false for twoCycle3", function() {
+      assert.isFalse(graphs.twoCycle3.isAcyclic());
+    });
+
+    it("returns false for scc3", function() {
+      assert.isFalse(graphs.scc3.isAcyclic());
+    });
+
+    it("returns true for diamond", function() {
+      assert.isTrue(graphs.diamond.isAcyclic());
     });
   });
 });
