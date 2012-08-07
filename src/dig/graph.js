@@ -205,6 +205,12 @@ dig.Graph = (function() {
         var v = component[0];
         return component.length === 1 && !self.hasEdge(v, v);
       });
+    },
+
+    equals: function(graph) {
+      return this.order() === graph.order() &&
+             dig_util_all(this.nodes(), function(v) { return graph.hasNode(v); }) &&
+             dig_util_all(this.edges(), function(e) { return graph.hasEdge(e.from, e.to); });
     }
   };
 

@@ -532,4 +532,47 @@ describe("new dig.Graph", function() {
       assert.isTrue(graphs.diamond.isAcyclic());
     });
   });
+
+  describe("equals(graph)", function() {
+    it("returns true for the same graph", function() {
+      assert.isTrue(graphs.scc3.equals(graphs.scc3));
+    });
+
+    it("returns true for a graph that has the same nodes and edges", function() {
+      var graph = new dig.Graph();
+      graph.addNodes(1, 2);
+      graph.addEdge(1, 2);
+
+      var graph2 = new dig.Graph();
+      graph2.addNodes(1, 2);
+      graph2.addEdge(1, 2);
+
+      assert.isTrue(graph.equals(graph2));
+      assert.isTrue(graph2.equals(graph));
+    });
+
+    it("returns false for graphs that have different nodes", function() {
+      var graph = new dig.Graph();
+      graph.addNode(1);
+
+      var graph2 = new dig.Graph();
+      graph2.addNode(2);
+
+      assert.isFalse(graph.equals(graph2));
+      assert.isFalse(graph2.equals(graph));
+    });
+
+    it("returns false for graphs that have different edges", function() {
+      var graph = new dig.Graph();
+      graph.addNodes(1, 2, 3);
+      graph.addEdge(1, 2);
+
+      var graph2 = new dig.Graph();
+      graph2.addNodes(1, 2, 3);
+      graph2.addEdge(2, 3);
+
+      assert.isFalse(graph.equals(graph2));
+      assert.isFalse(graph2.equals(graph));
+    });
+  });
 });
