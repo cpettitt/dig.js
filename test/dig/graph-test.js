@@ -2,7 +2,7 @@ require("../test-env");
 
 var graphs = require("../test-graphs");
 
-describe("new dig.Graph", function() {
+describe("dig.Graph", function() {
   describe("graph() constructor", function() {
     it("returns an empty graph", function() {
       var g = new dig.Graph();
@@ -530,6 +530,28 @@ describe("new dig.Graph", function() {
 
     it("returns true for diamond", function() {
       assert.isTrue(graphs.diamond.isAcyclic());
+    });
+  });
+
+  describe("isConnected()", function() {
+    it("returns false for an empty graph", function() {
+      assert.isFalse(new dig.Graph().isConnected());
+    });
+
+    it("returns true for node1", function() {
+      assert.isTrue(graphs.node1.isConnected());
+    });
+
+    it("returns false for node2", function() {
+      assert.isFalse(graphs.node2.isConnected());
+    });
+
+    it("treats the graph as undirected", function() {
+      assert.isTrue(graphs.edge1.isConnected());
+    });
+
+    it("returns true for scc3", function() {
+      assert.isTrue(graphs.scc3.isConnected());
     });
   });
 

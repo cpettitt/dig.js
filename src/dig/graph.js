@@ -207,6 +207,10 @@ dig.Graph = (function() {
       });
     },
 
+    isConnected: function() {
+      return dig_alg_components(this).length == 1;
+    },
+
     equals: function(graph) {
       return this.order() === graph.order() &&
              dig_util_all(this.nodes(), function(v) { return graph.hasNode(v); }) &&
