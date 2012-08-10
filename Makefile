@@ -20,6 +20,7 @@ all: \
 	src/dig/data/stack.js \
 	src/dig/graph.js \
 	src/dig/alg.js \
+	src/dig/alg/components.js \
 	src/dig/alg/tarjan.js \
 	src/dig/alg/topsort.js \
 	src/dig/alg/dijkstra.js \
