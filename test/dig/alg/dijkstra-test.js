@@ -38,27 +38,27 @@ function expectCount(result, n) {
 }
 
 describe("dig.alg.dijkstra", function() {
-  it("should handle node1 graph", function() {
+  it("handles node1 graph", function() {
     var results = dig.alg.dijkstra(graphs.node1, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
-  it("should handle node2 graph", function() {
+  it("handles node2 graph", function() {
     var results = dig.alg.dijkstra(graphs.node2, 1);
     expect(results, 1, 0);
     expect(results, 2);
     expectCount(results, 2);
   });
 
-  it("should handle edge1 graph", function() {
+  it("handles edge1 graph", function() {
     var results = dig.alg.dijkstra(graphs.edge1, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
   });
 
-  it("should handle edge2 graph", function() {
+  it("handles edge2 graph", function() {
     var results = dig.alg.dijkstra(graphs.edge2, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
@@ -66,20 +66,20 @@ describe("dig.alg.dijkstra", function() {
     expectCount(results, 3);
   });
 
-  it("should handle selfLoop graph", function() {
+  it("handles selfLoop graph", function() {
     var results = dig.alg.dijkstra(graphs.selfLoop, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
-  it("should handle cycle2 graph", function() {
+  it("handles cycle2 graph", function() {
     var results = dig.alg.dijkstra(graphs.cycle2, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
   });
 
-  it("should handle diamond graph", function() {
+  it("handles diamond graph", function() {
     var results = dig.alg.dijkstra(graphs.diamond, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
@@ -88,7 +88,7 @@ describe("dig.alg.dijkstra", function() {
     expectCount(results, 4);
   });
 
-  it("should handle nestedCycle2 graph", function() {
+  it("handles nestedCycle2 graph", function() {
     var results = dig.alg.dijkstra(graphs.nestedCycle2, 0);
     expect(results, 0, 0);
     expect(results, 1, 1, 0);
