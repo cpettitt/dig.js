@@ -1,4 +1,4 @@
-dig.Graph = (function() {
+dig.DiGraph = (function() {
   function _copyObj(obj) {
     var copy = {};
     for (var k in obj) {
@@ -17,69 +17,40 @@ dig.Graph = (function() {
     return nodes[node];
   }
 
-  function Graph(graph) {
+  function DiGraph() {
     var nodes = this._nodes = {};
     this._order = 0;
-    if (graph) {
-      var graphNodes = graph._nodes;
-      for (i in graphNodes) {
-        var node = graphNodes[i];
-        nodes[i] = {
-          predecessors: _copyObj(node.predecessors),
-          successors: _copyObj(node.successors)
-        };
-        this._order++;
-      };
-    }
+    this._size = 0;
   }
 
-  Graph.prototype = {
+  DiGraph.prototype = {
     order: function() {
       return this._order;
     },
 
     size: function() {
-      return this.edges().length;
+      return this._size;
+    },
+
+    equals: function(graph) {
+      return this.order() === graph.order() &&
+             dig_util_all(this.nodes(), function(v) { return graph.hasNode(v); }) &&
+             dig_util_all(this.edges(), function(e) { return graph.hasEdge(e.from, e.to); });
+    },
+
+    copy: function() {
+      var g = new DiGraph();
+      dig_util_forEach(this.nodes(), function(v) {
+        g.addNode(v);
+      });
+      dig_util_forEach(this.edges(), function(e) {
+        g.addEdge(e.from, e.to);
+      });
+      return g;
     },
 
     nodes: function() {
       return dig_util_objToArr(this._nodes);
-    },
-
-    edges: function() {
-      var edges = [];
-      for (var i in this._nodes) {
-        for (var j in this._nodes[i].successors) {
-          edges.push({from: i, to: j});
-        };
-      };
-      return edges;
-    },
-
-    sources: function() {
-      var sources = [];
-      var self = this;
-      dig_util_forEach(this.nodes(), function(i) { 
-        if (self.indegree(i) == 0) {
-          sources.push(i);
-        }
-      });
-      return sources;
-    },
-
-    sinks: function() {
-      var sinks = [];
-      var self = this;
-      dig_util_forEach(this.nodes(), function(i) {
-        if (self.outdegree(i) === 0) {
-          sinks.push(i);
-        }
-      });
-      return sinks;
-    },
-
-    copy: function() {
-      return new Graph(this);
     },
 
     hasNode: function(node) {
@@ -120,6 +91,16 @@ dig.Graph = (function() {
       return false;
     },
 
+    edges: function() {
+      var edges = [];
+      for (var i in this._nodes) {
+        for (var j in this._nodes[i].successors) {
+          edges.push({from: i, to: j});
+        };
+      };
+      return edges;
+    },
+
     hasEdge: function(from, to) {
       return this.hasNode(from) && to in this._nodes[from].successors;
     },
@@ -130,6 +111,7 @@ dig.Graph = (function() {
       if (!this.hasEdge(from, to)) {
         fromNode.successors[to] = true;
         toNode.predecessors[from] = true;
+        this._size++;
         return true;
       }
       return false;
@@ -151,6 +133,7 @@ dig.Graph = (function() {
       if (this.hasEdge(from, to)) {
         delete this._nodes[from].successors[to];
         delete this._nodes[to].predecessors[from];
+        this._size--;
         return true;
       }
       return false;
@@ -219,12 +202,27 @@ dig.Graph = (function() {
       return dig_alg_components(this).length == 1;
     },
 
-    equals: function(graph) {
-      return this.order() === graph.order() &&
-             dig_util_all(this.nodes(), function(v) { return graph.hasNode(v); }) &&
-             dig_util_all(this.edges(), function(e) { return graph.hasEdge(e.from, e.to); });
+    sources: function() {
+      var sources = [];
+      var self = this;
+      dig_util_forEach(this.nodes(), function(i) { 
+        if (self.indegree(i) == 0) {
+          sources.push(i);
+        }
+      });
+      return sources;
+    },
+
+    sinks: function() {
+      var sinks = [];
+      var self = this;
+      dig_util_forEach(this.nodes(), function(i) {
+        if (self.outdegree(i) === 0) {
+          sinks.push(i);
+        }
+      });
+      return sinks;
     }
   };
-
-  return Graph;
+  return DiGraph;
 })();

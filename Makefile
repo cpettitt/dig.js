@@ -18,7 +18,7 @@ all: \
 	src/dig/data/priority-queue.js \
 	src/dig/data/queue.js \
 	src/dig/data/stack.js \
-	src/dig/graph.js \
+	src/dig/digraph.js \
 	src/dig/alg.js \
 	src/dig/alg/components.js \
 	src/dig/alg/tarjan.js \
