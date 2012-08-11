@@ -195,7 +195,15 @@ dig.Graph = (function() {
     },
 
     neighbors: function(node) {
-      return this.predecessors(node).concat(this.successors(node));
+      var entry = _safeGetNode(this, node);
+      var obj = {};
+      for (var k in entry.predecessors) {
+        obj[k] = true;
+      }
+      for (var k in entry.successors) {
+        obj[k] = true;
+      }
+      return dig_util_objToArr(obj);
     },
 
     isAcyclic: function() {

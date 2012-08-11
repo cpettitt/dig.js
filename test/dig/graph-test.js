@@ -468,6 +468,14 @@ describe("dig.Graph", function() {
       assert.deepEqual([1, 2], g.neighbors(3).sort());
     });
 
+    it("returns each neighbor only once", function() {
+      var g = new dig.Digraph();
+      g.addNode(1);
+      g.addNode(2);
+      g.addPath(1, 2, 1);
+      assert.deepEqual([1], g.neighbors(2));
+    });
+
     it("throws an error when the node is not in the graph", function() {
       assert.throws(function() { new dig.Graph().neighbors(1); });
     });
