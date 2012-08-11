@@ -158,7 +158,7 @@ describe("dig.Graph", function() {
   });
 
   describe("addNode(node)", function() {
-    it("allows primitives to be added", function() {
+    it("coerces nodes to strings", function() {
       var g = new dig.Graph();
       g.addNode(1);
       g.addNode("a");
@@ -166,20 +166,14 @@ describe("dig.Graph", function() {
       g.addNode(undefined);
       g.addNode(null);
       assert.isTrue(g.hasNode(1));
+      assert.isTrue(g.hasNode("1"));
       assert.isTrue(g.hasNode("a"));
       assert.isTrue(g.hasNode(false));
+      assert.isTrue(g.hasNode("false"));
       assert.isTrue(g.hasNode(undefined));
+      assert.isTrue(g.hasNode("undefined"));
       assert.isTrue(g.hasNode(null));
-    });
-
-    it("allows objects to be added", function() {
-      var obj1 = {key: "obj1"};
-      var obj2 = {key: "obj2"};
-      var g = new dig.Graph();
-      g.addNode(obj1);
-      g.addNode(obj2);
-      assert.isTrue(g.hasNode(obj1));
-      assert.isTrue(g.hasNode(obj2));
+      assert.isTrue(g.hasNode("null"));
     });
 
     it("returns true if a new node is added", function() {
