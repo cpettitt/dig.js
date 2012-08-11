@@ -72,4 +72,8 @@ describe("dig.alg.tarjan", function() {
   it("finds 4 components in diamond", function() {
     assert.deepEqual([[1], [2], [3], [4]], tarjan(graphs.diamond));
   });
+
+  it("throws an error for undirected graphs", function() {
+    assert.throws(function() { dig.alg.tarjan(graphs.node1.undirected()); });
+  });
 });

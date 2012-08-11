@@ -22,7 +22,7 @@ var dig_alg_dijkstra = dig.alg.dijkstra = function(graph, source) {
       break;
     } 
 
-    dig_util_forEach(graph.successors(nodeU), function(nodeV) {
+    dig_util_forEach(graph.neighbors(nodeU), function(nodeV) {
       v = results[nodeV];
       // TODO: support weighted edges
       altDist = u.distance + 1;

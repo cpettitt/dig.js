@@ -50,125 +50,251 @@ function expectNoMore(result) {
 }
 
 describe("dig.alg.floydWarshall", function() {
-  it("handles node1 graph", function() {
-    var results = dig.alg.floydWarshall(graphs.node1);
+  describe("directed graphs", function() {
+    it("handles node1 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.node1);
 
-    expect(results, 1, 1, 0);
+      expect(results, 1, 1, 0);
 
-    expectNoMore(results);
+      expectNoMore(results);
+    });
+
+    it("handles node2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.node2);
+
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2);
+
+      expect(results, 2, 1);
+      expect(results, 2, 2, 0);
+
+      expectNoMore(results);
+    });
+
+    it("handles edge1 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.edge1);
+
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+
+      expect(results, 2, 1);
+      expect(results, 2, 2, 0);
+
+      expectNoMore(results);
+    });
+
+    it("handles edge2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.edge2);
+
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+      expect(results, 1, 3, 2, 2);
+
+      expect(results, 2, 1);
+      expect(results, 2, 2, 0);
+      expect(results, 2, 3, 1, 2);
+
+      expect(results, 3, 1);
+      expect(results, 3, 2);
+      expect(results, 3, 3, 0);
+
+      expectNoMore(results);
+    });
+
+    it("handles selfLoop graph", function() {
+      var results = dig.alg.floydWarshall(graphs.selfLoop);
+
+      expect(results, 1, 1, 0);
+
+      expectNoMore(results);
+    });
+
+    it("handles cycle2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.cycle2);
+
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+
+      expect(results, 2, 1, 1, 2);
+      expect(results, 2, 2, 0);
+
+      expectNoMore(results);
+    });
+
+    it("handles diamond graph", function() {
+      var results = dig.alg.floydWarshall(graphs.diamond);
+
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+      expect(results, 1, 3, 1, 1);
+      expect(results, 1, 4, 2, [2, 3]);
+
+      expect(results, 2, 1);
+      expect(results, 2, 2, 0);
+      expect(results, 2, 3);
+      expect(results, 2, 4, 1, 2);
+
+      expect(results, 3, 1);
+      expect(results, 3, 2);
+      expect(results, 3, 3, 0);
+      expect(results, 3, 4, 1, 3);
+
+      expect(results, 4, 1);
+      expect(results, 4, 2);
+      expect(results, 4, 3);
+      expect(results, 4, 4, 0);
+
+      expectNoMore(results);
+    });
+
+    it("handles nestCycle2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.nestedCycle2);
+
+      expect(results, 0, 0, 0);
+      expect(results, 0, 1, 1, 0);
+      expect(results, 0, 2, 2, 1);
+      expect(results, 0, 3, 3, 2);
+
+      expect(results, 1, 0);
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+      expect(results, 1, 3, 2, 2);
+
+      expect(results, 2, 0);
+      expect(results, 2, 1, 1, 2);
+      expect(results, 2, 2, 0);
+      expect(results, 2, 3, 1, 2);
+
+      expect(results, 3, 0);
+      expect(results, 3, 1);
+      expect(results, 3, 2);
+      expect(results, 3, 3, 0);
+
+      expectNoMore(results);
+    });
   });
 
-  it("handles node2 graph", function() {
-    var results = dig.alg.floydWarshall(graphs.node2);
+  describe("undirected graphs", function() {
+    it("handles node1 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.node1.undirected());
 
-    expect(results, 1, 1, 0);
-    expect(results, 1, 2);
+      expect(results, 1, 1, 0);
 
-    expect(results, 2, 1);
-    expect(results, 2, 2, 0);
+      expectNoMore(results);
+    });
 
-    expectNoMore(results);
-  });
+    it("handles node2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.node2.undirected());
 
-  it("handles edge1 graph", function() {
-    var results = dig.alg.floydWarshall(graphs.edge1);
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2);
 
-    expect(results, 1, 1, 0);
-    expect(results, 1, 2, 1, 1);
+      expect(results, 2, 1);
+      expect(results, 2, 2, 0);
 
-    expect(results, 2, 1);
-    expect(results, 2, 2, 0);
+      expectNoMore(results);
+    });
 
-    expectNoMore(results);
-  });
+    it("handles edge1 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.edge1.undirected());
 
-  it("handles edge2 graph", function() {
-    var results = dig.alg.floydWarshall(graphs.edge2);
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
 
-    expect(results, 1, 1, 0);
-    expect(results, 1, 2, 1, 1);
-    expect(results, 1, 3, 2, 2);
+      expect(results, 2, 1, 1, 2);
+      expect(results, 2, 2, 0);
 
-    expect(results, 2, 1);
-    expect(results, 2, 2, 0);
-    expect(results, 2, 3, 1, 2);
+      expectNoMore(results);
+    });
 
-    expect(results, 3, 1);
-    expect(results, 3, 2);
-    expect(results, 3, 3, 0);
+    it("handles edge2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.edge2.undirected());
 
-    expectNoMore(results);
-  });
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+      expect(results, 1, 3, 2, 2);
 
-  it("handles selfLoop graph", function() {
-    var results = dig.alg.floydWarshall(graphs.selfLoop);
+      expect(results, 2, 1, 1, 2);
+      expect(results, 2, 2, 0);
+      expect(results, 2, 3, 1, 2);
 
-    expect(results, 1, 1, 0);
+      expect(results, 3, 1, 2, 2);
+      expect(results, 3, 2, 1, 3);
+      expect(results, 3, 3, 0);
 
-    expectNoMore(results);
-  });
+      expectNoMore(results);
+    });
 
-  it("handles cycle2 graph", function() {
-    var results = dig.alg.floydWarshall(graphs.cycle2);
+    it("handles selfLoop graph", function() {
+      var results = dig.alg.floydWarshall(graphs.selfLoop.undirected());
 
-    expect(results, 1, 1, 0);
-    expect(results, 1, 2, 1, 1);
+      expect(results, 1, 1, 0);
 
-    expect(results, 2, 1, 1, 2);
-    expect(results, 2, 2, 0);
+      expectNoMore(results);
+    });
 
-    expectNoMore(results);
-  });
+    it("handles cycle2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.cycle2.undirected());
 
-  it("handles diamond graph", function() {
-    var results = dig.alg.floydWarshall(graphs.diamond);
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
 
-    expect(results, 1, 1, 0);
-    expect(results, 1, 2, 1, 1);
-    expect(results, 1, 3, 1, 1);
-    expect(results, 1, 4, 2, [2, 3]);
+      expect(results, 2, 1, 1, 2);
+      expect(results, 2, 2, 0);
 
-    expect(results, 2, 1);
-    expect(results, 2, 2, 0);
-    expect(results, 2, 3);
-    expect(results, 2, 4, 1, 2);
+      expectNoMore(results);
+    });
 
-    expect(results, 3, 1);
-    expect(results, 3, 2);
-    expect(results, 3, 3, 0);
-    expect(results, 3, 4, 1, 3);
+    it("handles diamond graph", function() {
+      var results = dig.alg.floydWarshall(graphs.diamond.undirected());
 
-    expect(results, 4, 1);
-    expect(results, 4, 2);
-    expect(results, 4, 3);
-    expect(results, 4, 4, 0);
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+      expect(results, 1, 3, 1, 1);
+      expect(results, 1, 4, 2, [2, 3]);
 
-    expectNoMore(results);
-  });
+      expect(results, 2, 1, 1, 2);
+      expect(results, 2, 2, 0);
+      expect(results, 2, 3, 2, [1, 4]);
+      expect(results, 2, 4, 1, 2);
 
-  it("handles nestCycle2 graph", function() {
-    var results = dig.alg.floydWarshall(graphs.nestedCycle2);
+      expect(results, 3, 1, 1, 3);
+      expect(results, 3, 2, 2, [1, 4]);
+      expect(results, 3, 3, 0);
+      expect(results, 3, 4, 1, 3);
 
-    expect(results, 0, 0, 0);
-    expect(results, 0, 1, 1, 0);
-    expect(results, 0, 2, 2, 1);
-    expect(results, 0, 3, 3, 2);
+      expect(results, 4, 1, 2, [2, 3]);
+      expect(results, 4, 2, 1, 4);
+      expect(results, 4, 3, 1, 4);
+      expect(results, 4, 4, 0);
 
-    expect(results, 1, 0);
-    expect(results, 1, 1, 0);
-    expect(results, 1, 2, 1, 1);
-    expect(results, 1, 3, 2, 2);
+      expectNoMore(results);
+    });
 
-    expect(results, 2, 0);
-    expect(results, 2, 1, 1, 2);
-    expect(results, 2, 2, 0);
-    expect(results, 2, 3, 1, 2);
+    it("handles nestCycle2 graph", function() {
+      var results = dig.alg.floydWarshall(graphs.nestedCycle2.undirected());
 
-    expect(results, 3, 0);
-    expect(results, 3, 1);
-    expect(results, 3, 2);
-    expect(results, 3, 3, 0);
+      expect(results, 0, 0, 0);
+      expect(results, 0, 1, 1, 0);
+      expect(results, 0, 2, 2, 1);
+      expect(results, 0, 3, 3, 2);
 
-    expectNoMore(results);
+      expect(results, 1, 0, 1, 1);
+      expect(results, 1, 1, 0);
+      expect(results, 1, 2, 1, 1);
+      expect(results, 1, 3, 2, 2);
+
+      expect(results, 2, 0, 2, 1);
+      expect(results, 2, 1, 1, 2);
+      expect(results, 2, 2, 0);
+      expect(results, 2, 3, 1, 2);
+
+      expect(results, 3, 0, 3, 1);
+      expect(results, 3, 1, 2, 2);
+      expect(results, 3, 2, 1, 3);
+      expect(results, 3, 3, 0);
+
+      expectNoMore(results);
+    });
   });
 });

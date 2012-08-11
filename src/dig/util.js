@@ -24,9 +24,19 @@ function dig_util_objToArr(obj) {
   return arr;
 }
 
-function dig_util_all(arr, func) {
+function dig_util_any(arr, pred) {
   for (var i = 0; i < arr.length; ++i) {
-    if (!func(arr[i])) {
+    if (pred(arr[i])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function dig_util_all(arr, pred) {
+  for (var i = 0; i < arr.length; ++i) {
+    if (!pred(arr[i])) {
       return false;
     }
   }

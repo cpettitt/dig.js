@@ -3,9 +3,13 @@ var dig_alg_topsort = dig.alg.topsort = function(graph) {
   var stack = {};
   var results = [];
 
+  if (!graph.isDirected()) {
+    throw new Error("topsort can only be called for directed graphs");
+  }
+
   function visit(node) {
     if (node in stack) {
-      throw new Error("Graph has at least one cycle!");
+      throw new Error("graph has at least one cycle!");
     }
 
     if (!(node in visited)) {
@@ -21,7 +25,7 @@ var dig_alg_topsort = dig.alg.topsort = function(graph) {
 
   var sinks = graph.sinks();
   if (graph.order() != 0 && sinks.length == 0) {
-    throw new Error("Graph has at least one cycle!");
+    throw new Error("graph has at least one cycle!");
   }
 
   dig_util_forEach(graph.sinks(), function(sink) {

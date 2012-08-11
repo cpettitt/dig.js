@@ -40,4 +40,8 @@ describe("dig.alg.topsort", function() {
   it("throws an error for nestedCycle2 graph", function() {
     assert.throws(function() { dig.alg.topsort(graphs.nestedCycle2); });
   });
+
+  it("throws an error for acyclic graphs", function() {
+    assert.throws(function() { dig.alg.topsort(graphs.node1.asUGraph()); });
+  });
 });

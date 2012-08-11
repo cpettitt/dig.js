@@ -1,14 +1,4 @@
 dig.DiGraph = (function() {
-  function _copyObj(obj) {
-    var copy = {};
-    for (var k in obj) {
-      if (obj.hasOwnProperty(k)) {
-        copy[k] = obj[k];
-      }
-    }
-    return copy;
-  }
-
   function _safeGetNode(graph, node) {
     var nodes = graph._nodes;
     if (!(node in nodes)) {
@@ -32,10 +22,11 @@ dig.DiGraph = (function() {
       return this._size;
     },
 
-    equals: function(graph) {
-      return this.order() === graph.order() &&
-             dig_util_all(this.nodes(), function(v) { return graph.hasNode(v); }) &&
-             dig_util_all(this.edges(), function(e) { return graph.hasEdge(e.from, e.to); });
+    equals: function(digraph) {
+      return digraph instanceof DiGraph &&
+             this.order() === digraph.order() &&
+             dig_util_all(this.nodes(), function(v) { return digraph.hasNode(v); }) &&
+             dig_util_all(this.edges(), function(e) { return digraph.hasEdge(e.from, e.to); });
     },
 
     copy: function() {
@@ -177,15 +168,29 @@ dig.DiGraph = (function() {
       return dig_util_objToArr(_safeGetNode(this, node).successors);
     },
 
-    neighbors: function(node) {
+    neighbors: function(node, direction) {
       var entry = _safeGetNode(this, node);
       var obj = {};
-      for (var k in entry.predecessors) {
-        obj[k] = true;
+
+      var indir = direction === "in" || direction === "both";
+      var outdir = direction === undefined || direction === "out" || direction === "both";
+
+      if (!indir && !outdir) {
+        throw new Error("Invalid direction specified: " + direction);
       }
-      for (var k in entry.successors) {
-        obj[k] = true;
+
+      if (indir) {
+        for (var k in entry.predecessors) {
+          obj[k] = true;
+        }
       }
+
+      if (outdir) {
+        for (var k in entry.successors) {
+          obj[k] = true;
+        }
+      }
+
       return dig_util_objToArr(obj);
     },
 
@@ -196,10 +201,6 @@ dig.DiGraph = (function() {
         var v = component[0];
         return component.length === 1 && !self.hasEdge(v, v);
       });
-    },
-
-    isConnected: function() {
-      return dig_alg_components(this).length == 1;
     },
 
     sources: function() {
@@ -222,7 +223,26 @@ dig.DiGraph = (function() {
         }
       });
       return sinks;
-    }
+    },
+
+    isDirected: function() {
+      return true;
+    },
+
+    directed: function() {
+      return this.copy();
+    },
+
+    undirected: function() {
+      var g = new dig.UGraph();
+      dig_util_forEach(this.nodes(), function(v) {
+        g.addNode(v);
+      });
+      dig_util_forEach(this.edges(), function(e) {
+        g.addEdge(e.from, e.to);
+      });
+      return g;
+    },
   };
   return DiGraph;
 })();

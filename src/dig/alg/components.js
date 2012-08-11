@@ -3,8 +3,6 @@
  * connected component of an undirected graph includes nodes that are connected
  * to all other nodes in the component by a path.
  *
- * This algorithm treats the input graph as an undirected graph.
- *
  * For more information about connected components, see:
  *
  *    http://en.wikipedia.org/wiki/Connected_component_(graph_theory)
@@ -12,6 +10,10 @@
 var dig_alg_components = dig.alg.components = function(graph) {
   var results = [];
   var visited = {};
+
+  if (graph.isDirected()) {
+    throw new Error("components can only be used on undirected graphs");
+  }
 
   function dfs(v, component) {
     if (!(v in visited)) {

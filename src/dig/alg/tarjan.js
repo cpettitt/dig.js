@@ -6,6 +6,10 @@ var dig_alg_tarjan = dig.alg.tarjan = function(graph) {
   var visited = {}; // node -> index + lowlink
   var results = [];
 
+  if (!graph.isDirected()) {
+    throw new Error("tarjan can only be called for directed graphs");
+  }
+
   function scc(v) {
     var vEntry;
 

@@ -1,89 +1,102 @@
 require("../test-env");
 
 var graphs = require("../test-graphs");
+var abstract = require("./abstract-graph-test");
 
-describe("dig.Diraph", function() {
+describe("dig.DiGraph", function() {
+  var ctor = function() { return new dig.DiGraph(); };
+
   describe("constructor", function() {
-    it("returns an empty graph", function() {
-      var g = new dig.DiGraph();
-      assert.deepEqual([], g.nodes());
-    });
+    abstract.describeConstructor(ctor);
   });
 
   describe("order()", function() {
-    it("returns the number of nodes in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      assert.equal(2, g.order());
-    });
-
-    it("returns 0 for a graph with no nodes", function() {
-      assert.equal(0, new dig.DiGraph().order());
-    });
-
-    it("decreases when a node is removed", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.removeNode(1);
-      assert.equal(0, g.order());
-    });
-
-    it("does not change when adding the same node a second time", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(1);
-      assert.equal(1, g.order());
-    });
+    abstract.describeOrder(ctor);
   });
 
   describe("size()", function() {
-    it("returns the number of edges in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addEdge(1, 2);
-      assert.equal(1, g.size());
-    });
+    abstract.describeSize(ctor);
+  });
 
-    it("returns 0 for a graph with no edges", function() {
-      assert.equal(0, new dig.DiGraph().size());
-    });
-
-    it("decreases when a node is removed", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addEdge(1, 2);
-      g.removeEdge(1, 2);
-      assert.equal(0, g.size());
-    });
+  describe("copy()", function() {
+    abstract.describeCopy(ctor);
   });
 
   describe("nodes()", function() {
-    it("returns all nodes in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      assert.deepEqual([1, 2].sort(), g.nodes().sort());
-    });
+    abstract.describeNodes(ctor);
+  });
+
+  describe("hasNode(node)", function() {
+    abstract.describeHasNode(ctor);
+  });
+
+  describe("addNode(node)", function() {
+    abstract.describeAddNode(ctor);
+  });
+
+  describe("addNodes(node-0, ..., node-n)", function() {
+    abstract.describeAddNodes(ctor);
+  });
+
+  describe("removeNode(node)", function() {
+    abstract.describeRemoveNode(ctor);
   });
 
   describe("edges()", function() {
+    abstract.describeEdges(ctor);
+
     it("returns all edges in the graph", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
+      g.addNodes(1, 2);
       g.addEdge(1, 2);
       assert.deepEqual([{from: 1, to: 2}], g.edges());
     });
   });
 
+  describe("hasEdge(v, w)", function() {
+    abstract.describeHasEdge(ctor);
+
+    it("hasEdge(v, w) does not necessarily imply hasEdge(w, v)", function() {
+      var g = ctor();
+      g.addNodes(1, 2);
+      g.addEdge(1, 2);
+      assert.isFalse(g.hasEdge(2, 1));
+    });
+  });
+
+  describe("addEdge(v, w)", function() {
+    it("adds a directed edge from v to w", function() {
+      var g = new dig.DiGraph();
+      g.addNodes(1, 2);
+      g.addEdge(1, 2);
+      assert.isTrue(g.hasEdge(1, 2));
+    });
+
+    abstract.describeAddEdge(ctor);
+  });
+
+  describe("addPath(node-0, ..., node-n)", function() {
+    abstract.describeAddPath(ctor);
+
+    it("does not add the same edge twice", function() {
+      var g = ctor();
+      g.addNodes(1, 2, 3);
+      g.addPath(1, 2, 3, 2, 3);
+      assert.isTrue(g.hasEdge(1, 2));
+      assert.isTrue(g.hasEdge(2, 3));
+      assert.isTrue(g.hasEdge(3, 2));
+      assert.equal(3, g.size());
+    });
+  });
+
+  describe("removeEdge(v, w)", function() {
+    abstract.describeRemoveEdge(ctor);
+  });
+
   describe("sources()", function() {
     it("returns all nodes in the graph with an indegree of 0", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
+      g.addNodes(1, 2);
       g.addEdge(1, 2);
       assert.equal(1, g.sources());
     });
@@ -92,279 +105,16 @@ describe("dig.Diraph", function() {
   describe("sinks()", function() {
     it("returns all nodes in the graph with an outdegree of 0", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
+      g.addNodes(1, 2);
       g.addEdge(1, 2);
       assert.equal(2, g.sinks());
-    });
-  });
-
-  describe("copy()", function() {
-    var source, copy;
-
-    beforeEach(function() {
-      source = new dig.DiGraph();
-      source.addNode(1);
-      source.addNode(2);
-      source.addEdge(1, 2);
-
-      copy = source.copy();
-    });
-
-    it("copies all nodes from the source graph", function() {
-      assert.isTrue(copy.hasNode(1));
-      assert.isTrue(copy.hasNode(2));
-    });
-
-    it("has the same order as the source graph", function() {
-      assert.equal(source.order(), copy.order());
-    });
-
-    it("doesn't share node changes from copy to source", function() {
-      copy.addNode(3);
-      assert.isFalse(source.hasNode(3));
-    });
-
-    it("doesn't share node changes from source to copy", function() {
-      source.addNode(4);
-      assert.isFalse(copy.hasNode(4));
-    });
-
-    it("copies all edges from the source graph", function() {
-      assert.isTrue(copy.hasEdge(1, 2));
-    });
-
-    it("doesn't share edge changes from copy to source", function() {
-      copy.addEdge(2, 1);
-      assert.isFalse(source.hasEdge(2, 1));
-    });
-
-    it("doesn't share edge changes from source to copy", function() {
-      source.addEdge(2, 1);
-      assert.isFalse(copy.hasEdge(2, 1));
-    });
-  });
-
-  describe("hasNode(node)", function() {
-    it("returns true if the node is in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      assert.isTrue(g.hasNode(1));
-    });
-
-    it("returns false if the node is not in the graph", function() {
-      assert.isFalse(new dig.DiGraph().hasNode(1));
-    });
-  });
-
-  describe("addNode(node)", function() {
-    it("coerces nodes to strings", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode("a");
-      g.addNode(false);
-      g.addNode(undefined);
-      g.addNode(null);
-      assert.isTrue(g.hasNode(1));
-      assert.isTrue(g.hasNode("1"));
-      assert.isTrue(g.hasNode("a"));
-      assert.isTrue(g.hasNode(false));
-      assert.isTrue(g.hasNode("false"));
-      assert.isTrue(g.hasNode(undefined));
-      assert.isTrue(g.hasNode("undefined"));
-      assert.isTrue(g.hasNode(null));
-      assert.isTrue(g.hasNode("null"));
-    });
-
-    it("returns true if a new node is added", function() {
-      assert.isTrue(new dig.DiGraph().addNode(1));
-    });
-
-    it("returns false if an existing node is added", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      assert.isFalse(g.addNode(1));
-    });
-  });
-
-  describe("addNodes(node-0, ..., node-n)", function() {
-    it("adds no nodes for 0 arguments", function() {
-      var g = new dig.DiGraph();
-      g.addNodes();
-      assert.deepEqual([], g.nodes());
-    });
-
-    it("allows a vararg list of nodes to be added", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2, 3, 4);
-      assert.isTrue(g.hasNode(1));
-      assert.isTrue(g.hasNode(2));
-      assert.isTrue(g.hasNode(3));
-      assert.isTrue(g.hasNode(4));
-    });
-
-    it("returns undefined", function() {
-      var g = new dig.DiGraph();
-      assert.isUndefined(g.addNodes(1, 2, 3, 4));
-    });
-
-    it("does not add a node twice", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2, 2);
-      assert.isTrue(g.hasNode(1));
-      assert.isTrue(g.hasNode(2));
-      assert.equal(2, g.order());
-    });
-  });
-
-  describe("removeNode(node)", function() {
-    it("returns true if the node was removed from the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      assert.isTrue(g.removeNode(1));
-    });
-
-    it("returns false if the node was not in the graph", function() {
-      assert.isFalse(new dig.DiGraph().removeNode(1)); 
-    });
-  });
-
-  describe("hasEdge(from, to)", function() {
-    it("returns true if the edge is in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addEdge(1, 2);
-      assert.isTrue(g.hasEdge(1, 2));
-    });
-
-    it("returns false if the edge is not in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addEdge(1, 2);
-      assert.isFalse(g.hasEdge(2, 1));
-    });
-  });
-
-  describe("addEdge(from, to)", function() {
-    it("adds a directed edge from one node to another", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addEdge(1, 2);
-      assert.isTrue(g.hasEdge(1, 2));
-    });
-
-    it("returns true if the edge was added", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      assert.isTrue(g.addEdge(1, 2));
-    });
-
-    it("returns false if the edge was already in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addEdge(1, 2);
-      assert.isFalse(g.addEdge(1, 2));
-    });
-
-    it("throws an error ifone of the nodes was not in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      assert.throws(function() { g.addEdge(1, 2); });
-      assert.isFalse(g.hasEdge(1, 2));
-    });
-  });
-
-  describe("addPath(node-0, ..., node-n)", function() {
-    it("adds no edge for 0 arguments", function() {
-      var g = new dig.DiGraph();
-      g.addPath();
-      assert.deepEqual([], g.edges());
-    });
-
-    it("adds no edge for 1 argument", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addPath(1);
-      assert.deepEqual([], g.edges());
-    });
-
-    it("adds a single edge for 2 arguments", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2);
-      g.addPath(1, 2);
-      assert.isTrue(g.hasEdge(1, 2));
-      assert.equal(1, g.size());
-    });
-
-    it("adds edges pairwise (node-1, node-2), (node-2, node-3)", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2, 3);
-      g.addPath(1, 2, 3);
-      assert.isTrue(g.hasEdge(1, 2));
-      assert.isTrue(g.hasEdge(2, 3));
-      assert.equal(2, g.size());
-    });
-
-    it("does not add the same edge twice", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2, 3);
-      g.addPath(1, 2, 3, 2, 3);
-      assert.isTrue(g.hasEdge(1, 2));
-      assert.isTrue(g.hasEdge(2, 3));
-      assert.isTrue(g.hasEdge(3, 2));
-      assert.equal(3, g.size());
-    });
-
-    it("allows cycles to be added", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2);
-      g.addPath(1, 2, 1);
-      assert.isTrue(g.hasEdge(1, 2));
-      assert.isTrue(g.hasEdge(2, 1));
-    });
-
-    it("throws an error for edges with a node not in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2);
-      assert.throws(function() { g.addPath(1, 2, 3); });
-    });
-
-    it("returns undefined", function() {
-      var g = new dig.DiGraph();
-      g.addNodes(1, 2);
-      assert.isUndefined(g.addPath(1, 2));
-    });
-  });
-
-  describe("removeEdge(from, to)", function() {
-    it("returns true if the edge was removed from the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addEdge(1, 2);
-      assert.isTrue(g.removeEdge(1, 2));
-      assert.isFalse(g.hasEdge(1, 2));
-    });
-
-    it("returns false if the edge is not in the graph", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      assert.isFalse(g.removeEdge(1, 2));
     });
   });
 
   describe("indegree(node)", function() {
     it("returns the number of in-edges to a node", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addNode(3);
+      g.addNodes(1, 2, 3);
       g.addEdge(1, 2);
       g.addEdge(1, 3);
       g.addEdge(2, 3);
@@ -381,9 +131,7 @@ describe("dig.Diraph", function() {
   describe("outdegree(node)", function() {
     it("returns the number of out-edges from a node", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addNode(3);
+      g.addNodes(1, 2, 3);
       g.addEdge(1, 2);
       g.addEdge(1, 3);
       g.addEdge(2, 3);
@@ -397,31 +145,14 @@ describe("dig.Diraph", function() {
     });
   });
 
-  describe("degree(node)", function() {
-    it("returns the number of in- and out-edges for a node", function() {
-      var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addNode(3);
-      g.addEdge(1, 2);
-      g.addEdge(1, 3);
-      g.addEdge(2, 3);
-      assert.equal(2, g.degree(1));
-      assert.equal(2, g.degree(2));
-      assert.equal(2, g.degree(3));
-    });
-
-    it("throws an error when the node is not in the graph", function() {
-      assert.throws(function() { new dig.DiGraph().degree(1); });
-    });
+  describe("degree(v)", function() {
+    abstract.describeDegree(ctor);
   });
 
   describe("predecessors(node)", function() {
     it("returns the nodes that have an out-edge to a node", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addNode(3);
+      g.addNodes(1, 2, 3);
       g.addEdge(1, 2);
       g.addEdge(1, 3);
       g.addEdge(2, 3);
@@ -438,9 +169,7 @@ describe("dig.Diraph", function() {
   describe("successors(node)", function() {
     it("returns the nodes that have an in-edge from a node", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addNode(3);
+      g.addNodes(1, 2, 3);
       g.addEdge(1, 2);
       g.addEdge(1, 3);
       g.addEdge(2, 3);
@@ -454,30 +183,102 @@ describe("dig.Diraph", function() {
     });
   });
 
-  describe("neighbors(node)", function() {
-    it("returns the nodes that share an edge with a node", function() {
+  describe("neighbors(v)", function() {
+    it("returns all successors of v", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
-      g.addNode(3);
+      g.addNodes(1, 2, 3);
       g.addEdge(1, 2);
       g.addEdge(1, 3);
-      g.addEdge(2, 3);
       assert.deepEqual([2, 3], g.neighbors(1).sort());
-      assert.deepEqual([1, 3], g.neighbors(2).sort());
-      assert.deepEqual([1, 2], g.neighbors(3).sort());
+      assert.deepEqual([], g.neighbors(2).sort());
+      assert.deepEqual([], g.neighbors(3).sort());
     });
 
     it("returns each neighbor only once", function() {
       var g = new dig.DiGraph();
-      g.addNode(1);
-      g.addNode(2);
+      g.addNodes(1, 2);
       g.addPath(1, 2, 1);
       assert.deepEqual([1], g.neighbors(2));
     });
 
     it("throws an error when the node is not in the graph", function() {
-      assert.throws(function() { new dig.DiGraph().neighbors(1); });
+      assert.throws(function() { new dig.UGraph().neighbors(1); });
+    });
+  });
+
+  describe("neighbors(v, 'both')", function() {
+    it("returns all nodes adjacent to v", function() {
+      var g = new dig.DiGraph();
+      g.addNodes(1, 2, 3);
+      g.addEdge(1, 2);
+      g.addEdge(1, 3);
+      assert.deepEqual([2, 3], g.neighbors(1, 'both').sort());
+      assert.deepEqual([1], g.neighbors(2, 'both').sort());
+      assert.deepEqual([1], g.neighbors(3, 'both').sort());
+    });
+
+    it("throws an error when the node is not in the graph", function() {
+      assert.throws(function() { new dig.DiGraph().neighbors(1, 'both'); });
+    });
+  });
+
+  describe("neighbors(v, 'out')", function() {
+    it("acts the same as successors(v)", function() {
+      var g = new dig.DiGraph();
+      g.addNodes(1, 2, 3);
+      g.addEdge(1, 2);
+      g.addEdge(1, 3);
+      g.addEdge(2, 3);
+      assert.deepEqual(g.successors(1).sort(), g.neighbors(1, 'out'));
+      assert.deepEqual(g.successors(2).sort(), g.neighbors(2, 'out'));
+      assert.deepEqual(g.successors(3).sort(), g.neighbors(3, 'out'));
+    });
+  });
+
+  describe("neighbors(v, 'in')", function() {
+    it("acts the same as predecessors(v)", function() {
+      var g = new dig.DiGraph();
+      g.addNodes(1, 2, 3);
+      g.addEdge(1, 2);
+      g.addEdge(1, 3);
+      g.addEdge(2, 3);
+      assert.deepEqual(g.predecessors(1).sort(), g.neighbors(1, 'in'));
+      assert.deepEqual(g.predecessors(2).sort(), g.neighbors(2, 'in'));
+      assert.deepEqual(g.predecessors(3).sort(), g.neighbors(3, 'in'));
+    });
+  });
+
+  describe("neighbors(v, x)", function() {
+    it("throws an error if x is not in {undefined, 'in', 'out', 'both'}", function() {
+      var g = new dig.DiGraph();
+      g.addNode(1);
+      assert.throws(function() { g.neighbors(1, 'x'); });
+    });
+  });
+
+  describe("isDirected()", function() {
+    it("always returns true", function() {
+      assert.isTrue(new dig.DiGraph().isDirected());
+    });
+  });
+
+  describe("directed()", function() {
+    it("returns a directed graph", function() {
+      assert.isTrue(new dig.DiGraph().directed().isDirected());
+    });
+  });
+
+  describe("undirected()", function() {
+    it("returns an undirected graph", function() {
+      assert.isFalse(new dig.DiGraph().undirected().isDirected());
+    });
+
+    it("creates an undirected edge for each directed edge", function() {
+      var g = new dig.DiGraph();
+      g.addNodes(1, 2);
+      g.addEdge(1, 2);
+      assert.isTrue(g.undirected().hasEdge(1, 2));
+      assert.isTrue(g.undirected().hasEdge(2, 1));
     });
   });
 
@@ -535,68 +336,7 @@ describe("dig.Diraph", function() {
     });
   });
 
-  describe("isConnected()", function() {
-    it("returns false for an empty graph", function() {
-      assert.isFalse(new dig.DiGraph().isConnected());
-    });
-
-    it("returns true for node1", function() {
-      assert.isTrue(graphs.node1.isConnected());
-    });
-
-    it("returns false for node2", function() {
-      assert.isFalse(graphs.node2.isConnected());
-    });
-
-    it("treats the graph as undirected", function() {
-      assert.isTrue(graphs.edge1.isConnected());
-    });
-
-    it("returns true for scc3", function() {
-      assert.isTrue(graphs.scc3.isConnected());
-    });
-  });
-
   describe("equals(graph)", function() {
-    it("returns true for the same graph", function() {
-      assert.isTrue(graphs.scc3.equals(graphs.scc3));
-    });
-
-    it("returns true for a graph that has the same nodes and edges", function() {
-      var graph = new dig.DiGraph();
-      graph.addNodes(1, 2);
-      graph.addEdge(1, 2);
-
-      var graph2 = new dig.DiGraph();
-      graph2.addNodes(1, 2);
-      graph2.addEdge(1, 2);
-
-      assert.isTrue(graph.equals(graph2));
-      assert.isTrue(graph2.equals(graph));
-    });
-
-    it("returns false for graphs that have different nodes", function() {
-      var graph = new dig.DiGraph();
-      graph.addNode(1);
-
-      var graph2 = new dig.DiGraph();
-      graph2.addNode(2);
-
-      assert.isFalse(graph.equals(graph2));
-      assert.isFalse(graph2.equals(graph));
-    });
-
-    it("returns false for graphs that have different edges", function() {
-      var graph = new dig.DiGraph();
-      graph.addNodes(1, 2, 3);
-      graph.addEdge(1, 2);
-
-      var graph2 = new dig.DiGraph();
-      graph2.addNodes(1, 2, 3);
-      graph2.addEdge(2, 3);
-
-      assert.isFalse(graph.equals(graph2));
-      assert.isFalse(graph2.equals(graph));
-    });
+    abstract.describeEquals(ctor);
   });
 });
