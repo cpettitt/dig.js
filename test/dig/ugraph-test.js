@@ -42,6 +42,14 @@ describe("dig.UGraph", function() {
     abstract.describeAddNodes(ctor);
   });
 
+  describe("nodeLabel(u)", function() {
+    abstract.describeNodeLabelGetter(ctor);
+  });
+
+  describe("nodeLabel(u, label)", function() {
+    abstract.describeNodeLabelSetter(ctor);
+  });
+
   describe("removeNode(node)", function() {
     abstract.describeRemoveNode(ctor);
   });

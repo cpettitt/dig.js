@@ -62,10 +62,8 @@ dig.UGraph = (function() {
     },
 
     directed: function() {
-      var g = new dig.DiGraph();
-      dig_util_forEach(this.nodes(), function(v) {
-        g.addNode(v);
-      });
+      var g = this._digraph.directed();
+      // Add edges in both directions
       dig_util_forEach(this.edges(), function(e) {
         g.addEdge(e.from, e.to);
         g.addEdge(e.to, e.from);
@@ -99,7 +97,7 @@ dig.UGraph = (function() {
   };
 
   _delegate("order", "size",
-            "nodes", "hasNode", "addNode", "addNodes", "removeNode",
+            "nodes", "hasNode", "addNode", "addNodes", "nodeLabel", "removeNode",
             "edges", "degree");
 
   return UGraph;

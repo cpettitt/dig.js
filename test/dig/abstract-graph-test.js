@@ -61,40 +61,42 @@ exports.describeCopy = function(ctor) {
   beforeEach(function() {
     source = ctor();
     source.addNodes(1, 2, 3);
+    source.nodeLabel(1, "a");
     source.addEdge(1, 2);
 
     copy = source.copy();
   });
 
   it("copies all nodes from the source graph", function() {
+    assert.equal(source.order(), copy.order());
     assert.isTrue(copy.hasNode(1));
     assert.isTrue(copy.hasNode(2));
+    assert.isTrue(copy.hasNode(3));
+    assert.equal(source.nodeLabel(1), copy.nodeLabel(1));
+    assert.equal(source.nodeLabel(2), copy.nodeLabel(2));
+    assert.equal(source.nodeLabel(3), copy.nodeLabel(3));
   });
 
-  it("has the same order as the source graph", function() {
-    assert.equal(source.order(), copy.order());
-  });
-
-  it("doesn't share node changes from copy to source", function() {
+  it("doesn't share node changes between copy and source", function() {
     copy.addNode(4);
     assert.isFalse(source.hasNode(4));
-  });
+    copy.nodeLabel(2, "b");
+    assert.isUndefined(source.nodeLabel(2));
 
-  it("doesn't share node changes from source to copy", function() {
-    source.addNode(4);
-    assert.isFalse(copy.hasNode(4));
+    source.addNode(5);
+    assert.isFalse(copy.hasNode(5));
+    source.nodeLabel(3, "c");
+    assert.isUndefined(copy.nodeLabel(3));
   });
 
   it("copies all edges from the source graph", function() {
     assert.isTrue(copy.hasEdge(1, 2));
   });
 
-  it("doesn't share edge changes from copy to source", function() {
-    copy.addEdge(2, 3);
-    assert.isFalse(source.hasEdge(2, 3));
-  });
+  it("doesn't share edge changes between copy and source", function() {
+    copy.addEdge(1, 3);
+    assert.isFalse(source.hasEdge(1, 3));
 
-  it("doesn't share edge changes from source to copy", function() {
     source.addEdge(2, 3);
     assert.isFalse(copy.hasEdge(2, 3));
   });
@@ -221,6 +223,59 @@ exports.describeAddNodes = function(ctor) {
     assert.isTrue(g.hasNode(1));
     assert.isTrue(g.hasNode(2));
     assert.equal(2, g.order());
+  });
+};
+
+exports.describeNodeLabelGetter = function(ctor) {
+  it("returns node label or undefined if the node is unlabelled", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+
+    assert.isUndefined(g.nodeLabel(1));
+
+    g.nodeLabel(2, "xyz");
+    assert.equal("xyz", g.nodeLabel(2));
+
+    // Check again to make sure that caling nodeLabel did not remove the label
+    assert.equal("xyz", g.nodeLabel(2));
+  });
+
+  it("throws an error if the node doesn't exist", function() {
+    assert.throws(function() { ctor().nodeLabel(1); });
+  });
+};
+
+exports.describeNodeLabelSetter = function(ctor) {
+  it("sets a label", function() {
+    var g = ctor();
+    g.addNode(1);
+
+    var prev = g.nodeLabel(1, "a");
+    assert.equal("a", g.nodeLabel(1));
+    assert.isUndefined(prev);
+  });
+
+  it("replaces a label if it exists", function() {
+    var g = ctor();
+    g.addNode(1);
+
+    g.nodeLabel(1, "a");
+    var prev = g.nodeLabel(1, "b");
+    assert.equal("b", g.nodeLabel(1));
+    assert.equal("a", prev);
+  });
+
+  it("allows any arbitrary object", function() {
+    var g = ctor();
+    g.addNodes(1);
+
+    var obj = {k: 1};
+    g.nodeLabel(1, obj);
+    assert.strictEqual(obj, g.nodeLabel(1));
+  });
+
+  it("throws an error if the node doesn't exist", function() {
+    assert.throws(function() { ctor().nodeLabel(1, "xyz"); });
   });
 };
 

@@ -7,6 +7,19 @@ dig.DiGraph = (function() {
     return nodes[node];
   }
 
+  function _copyTo(self, g) {
+    dig_util_forEach(self.nodes(), function(u) {
+      g.addNode(u);
+      var nodeLabel = self.nodeLabel(u);
+      if (nodeLabel !== undefined) {
+        g.nodeLabel(u, nodeLabel);
+      }
+    });
+    dig_util_forEach(self.edges(), function(e) {
+      g.addEdge(e.from, e.to);
+    });
+  }
+
   function DiGraph() {
     var nodes = this._nodes = {};
     this._order = 0;
@@ -31,12 +44,7 @@ dig.DiGraph = (function() {
 
     copy: function() {
       var g = new DiGraph();
-      dig_util_forEach(this.nodes(), function(v) {
-        g.addNode(v);
-      });
-      dig_util_forEach(this.edges(), function(e) {
-        g.addEdge(e.from, e.to);
-      });
+      _copyTo(this, g);
       return g;
     },
 
@@ -52,7 +60,7 @@ dig.DiGraph = (function() {
       if (!this.hasNode(node)) {
         this._nodes[node] = {
           predecessors: {},
-          successors: {}
+          successors: {},
         };
         this._order++;
         return true;
@@ -63,6 +71,17 @@ dig.DiGraph = (function() {
     addNodes: function() {
       for (var i = 0; i < arguments.length; ++i) {
         this.addNode(arguments[i]);
+      }
+    },
+
+    nodeLabel: function(u, label) {
+      var entry = _safeGetNode(this, u);
+      if (arguments.length == 1) {
+        return entry.label;
+      } else {
+        var prev = entry.label;
+        entry.label = label;
+        return prev;
       }
     },
 
@@ -235,12 +254,7 @@ dig.DiGraph = (function() {
 
     undirected: function() {
       var g = new dig.UGraph();
-      dig_util_forEach(this.nodes(), function(v) {
-        g.addNode(v);
-      });
-      dig_util_forEach(this.edges(), function(e) {
-        g.addEdge(e.from, e.to);
-      });
+      _copyTo(this, g);
       return g;
     },
   };
