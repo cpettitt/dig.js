@@ -33,8 +33,10 @@ dig.UGraph = (function() {
       return this._digraph.hasEdge.apply(this._digraph, _orderVertices(v, w));
     },
 
-    addEdge: function(v, w) {
-      return this._digraph.addEdge.apply(this._digraph, _orderVertices(v, w));
+    addEdge: function(u, v, label) {
+      var args = _orderVertices(u, v);
+      args.push(label);
+      return this._digraph.addEdge.apply(this._digraph, args);
     },
 
     addPath: function() {
@@ -47,6 +49,17 @@ dig.UGraph = (function() {
           prev = curr;
         }
       }
+    },
+
+    edgeLabel: function(u, v, label) {
+      if (arguments.length < 2 || arguments.length > 3) {
+        throw new Error("Wrong number of arguments: " + arguments.length);
+      }
+      var args = _orderVertices(u, v);
+      if (arguments.length === 3) {
+        args.push(arguments[2]);
+      }
+      return this._digraph.edgeLabel.apply(this._digraph, args);
     },
 
     removeEdge: function(v, w) {
@@ -62,17 +75,13 @@ dig.UGraph = (function() {
     },
 
     directed: function() {
-      var g = this._digraph.directed();
+      var g = this._digraph.copy();
       // Add edges in both directions
       dig_util_forEach(this.edges(), function(e) {
         g.addEdge(e.from, e.to);
         g.addEdge(e.to, e.from);
       });
       return g;
-    },
-
-    undirected: function() {
-      return this.copy();
     },
 
     isAcyclic: function() {

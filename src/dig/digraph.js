@@ -5,9 +5,15 @@ dig.DiGraph = (function() {
       throw new Error("Node not in graph: " + node);
     }
     return nodes[node];
+  };
+
+  function _edgeKey(u, v) {
+    var uStr = u.toString();
+    var vStr = v.toString();
+    return uStr.length + ":" + uStr + vStr;
   }
 
-  function _copyTo(self, g) {
+  function _copyNodesTo(self, g) {
     dig_util_forEach(self.nodes(), function(u) {
       g.addNode(u);
       var nodeLabel = self.nodeLabel(u);
@@ -15,16 +21,18 @@ dig.DiGraph = (function() {
         g.nodeLabel(u, nodeLabel);
       }
     });
-    dig_util_forEach(self.edges(), function(e) {
-      g.addEdge(e.from, e.to);
-    });
-  }
+  };
+
+  function _unlabelEdgeMerge(es) {
+    return undefined;
+  };
 
   function DiGraph() {
-    var nodes = this._nodes = {};
+    this._nodes = {};
+    this._edges = {};
     this._order = 0;
     this._size = 0;
-  }
+  };
 
   DiGraph.prototype = {
     order: function() {
@@ -44,7 +52,10 @@ dig.DiGraph = (function() {
 
     copy: function() {
       var g = new DiGraph();
-      _copyTo(this, g);
+      _copyNodesTo(this, g);
+      dig_util_forEach(this.edges(), function(e) {
+        g.addEdge(e.from, e.to);
+      });
       return g;
     },
 
@@ -115,12 +126,13 @@ dig.DiGraph = (function() {
       return this.hasNode(from) && to in this._nodes[from].successors;
     },
 
-    addEdge: function(from, to) {
-      var fromNode = _safeGetNode(this, from);
-      var toNode = _safeGetNode(this, to);
-      if (!this.hasEdge(from, to)) {
-        fromNode.successors[to] = true;
-        toNode.predecessors[from] = true;
+    addEdge: function(u, v, label) {
+      var fromNode = _safeGetNode(this, u);
+      var toNode = _safeGetNode(this, v);
+      if (!this.hasEdge(u, v)) {
+        fromNode.successors[v] = true;
+        toNode.predecessors[u] = true;
+        this._edges[_edgeKey(u, v)] = label;
         this._size++;
         return true;
       }
@@ -136,6 +148,25 @@ dig.DiGraph = (function() {
           this.addEdge(prev, curr);
           prev = curr;
         }
+      }
+    },
+
+    edgeLabel: function(u, v, label) {
+      if (arguments.length < 2 || arguments.length > 3) {
+        throw new Error("Wrong number of arguments: " + arguments.length);
+      }
+
+      var key = _edgeKey(u, v);
+      if (!(key in this._edges)) {
+        throw new Error("No such edge: (" + u + ", " + v + ")");
+      }
+
+      if (arguments.length === 2) {
+        return this._edges[key];
+      } else {
+        var prev = this._edges[key];
+        this._edges[key] = label;
+        return prev;
       }
     },
 
@@ -248,13 +279,26 @@ dig.DiGraph = (function() {
       return true;
     },
 
-    directed: function() {
-      return this.copy();
-    },
-
-    undirected: function() {
+    undirected: function(edgeMerge) {
       var g = new dig.UGraph();
-      _copyTo(this, g);
+      var visitedEdges = {};
+
+      if (edgeMerge === undefined) {
+        edgeMerge = _unlabelEdgeMerge;
+      }
+
+      _copyNodesTo(this, g);
+      var self = this;
+      dig_util_forEach(this.edges(), function(e) {
+        if (!(_edgeKey(e.from, e.to) in visitedEdges)) {
+          visitedEdges[_edgeKey(e.from, e.to)] = visitedEdges[_edgeKey(e.to, e.from)] = true;
+          var es = [e];
+          if (self.hasEdge(e.to, e.from)) {
+            es.push({from: e.to, to: e.from});
+          }
+          g.addEdge(e.from, e.to, edgeMerge(es));
+        }
+      });
       return g;
     },
   };

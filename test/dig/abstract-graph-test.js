@@ -335,6 +335,13 @@ exports.describeAddEdge = function(ctor) {
     assert.isFalse(g.addEdge(1, 2));
   });
 
+  it("allows an optional label to added to the edge", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    g.addEdge(1, 2, "a");
+    assert.equal("a", g.edgeLabel(1, 2));
+  });
+
   it("throws an error if one of the nodes was not in the graph", function() {
     var g = ctor();
     g.addNode(1);
@@ -393,6 +400,67 @@ exports.describeAddPath = function(ctor) {
     var g = ctor();
     g.addNodes(1, 2);
     assert.isUndefined(g.addPath(1, 2));
+  });
+};
+
+exports.describeEdgeLabelGetter = function(ctor) {
+  it("returns edge label or undefined if the edge is unlabelled", function() {
+    var g = ctor();
+    g.addNodes(1, 2, 3);
+    g.addPath(1, 2, 3);
+
+    assert.isUndefined(g.edgeLabel(1, 2));
+
+    g.edgeLabel(2, 3, "a");
+    assert.equal("a", g.edgeLabel(2, 3));
+
+    // Check again to make sure that caling edgeLabel did not remove the label
+    assert.equal("a", g.edgeLabel(2, 3));
+  });
+
+  it("throws an error if the edge doesn't exist", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    assert.throws(function() { g.edgeLabel(1, 2); });
+  });
+};
+
+exports.describeEdgeLabelSetter = function(ctor) {
+  it("sets a label", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    g.addEdge(1, 2);
+
+    var prev = g.edgeLabel(1, 2, "a");
+    assert.equal("a", g.edgeLabel(1, 2));
+    assert.isUndefined(prev);
+  });
+
+  it("replaces a label if it exists", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    g.addEdge(1, 2);
+
+    g.edgeLabel(1, 2, "a");
+    var prev = g.edgeLabel(1, 2, "b");
+    assert.equal("b", g.edgeLabel(1, 2));
+    assert.equal("a", prev);
+  });
+
+  it("allows any arbitrary object", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    g.addEdge(1, 2);
+
+    var obj = {k: 1};
+    g.edgeLabel(1, 2, obj);
+    assert.strictEqual(obj, g.edgeLabel(1, 2));
+  });
+
+  it("throws an error if the edge doesn't exist", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    assert.throws(function() { g.edgeLabel(1, 2, "a"); });
   });
 };
 

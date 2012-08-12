@@ -72,8 +72,8 @@ describe("dig.DiGraph", function() {
     });
   });
 
-  describe("addEdge(v, w)", function() {
-    it("adds a directed edge from v to w", function() {
+  describe("addEdge(u, v, [label])", function() {
+    it("adds a directed edge from u to v", function() {
       var g = new dig.DiGraph();
       g.addNodes(1, 2);
       g.addEdge(1, 2);
@@ -95,6 +95,14 @@ describe("dig.DiGraph", function() {
       assert.isTrue(g.hasEdge(3, 2));
       assert.equal(3, g.size());
     });
+  });
+
+  describe("edgeLabel(u, v)", function() {
+    abstract.describeEdgeLabelGetter(ctor);
+  });
+
+  describe("edgeLabel(u, v, label)", function() {
+    abstract.describeEdgeLabelSetter(ctor);
   });
 
   describe("removeEdge(v, w)", function() {
@@ -270,12 +278,6 @@ describe("dig.DiGraph", function() {
     });
   });
 
-  describe("directed()", function() {
-    it("returns a directed graph", function() {
-      assert.isTrue(new dig.DiGraph().directed().isDirected());
-    });
-  });
-
   describe("undirected()", function() {
     it("returns an undirected graph", function() {
       assert.isFalse(new dig.DiGraph().undirected().isDirected());
@@ -287,6 +289,32 @@ describe("dig.DiGraph", function() {
       g.addEdge(1, 2);
       assert.isTrue(g.undirected().hasEdge(1, 2));
       assert.isTrue(g.undirected().hasEdge(2, 1));
+    });
+
+    it("creates unlaballed edges by default", function() {
+      var g = new dig.DiGraph();
+      g.addNodes(1, 2);
+      g.addEdge(1, 2, "a");
+      assert.isUndefined(g.undirected().edgeLabel(1, 2));
+      assert.isUndefined(g.undirected().edgeLabel(2, 1));
+    });
+
+    it("allows a custom label merge strategy to be used", function() {
+      var g = new dig.DiGraph();
+      g.addNodes(1, 2);
+      g.addEdge(1, 2, 6);
+      g.addEdge(2, 1, 7);
+
+      function sum(es) {
+        var sum = 0;
+        es.forEach(function(e) {
+          sum += g.edgeLabel(e.from, e.to);
+        });
+        return sum;
+      }
+
+      assert.equal(13, g.undirected(sum).edgeLabel(1, 2));
+      assert.equal(13, g.undirected(sum).edgeLabel(2, 1));
     });
   });
 

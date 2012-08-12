@@ -81,8 +81,8 @@ describe("dig.UGraph", function() {
     });
   });
 
-  describe("addEdge(v, w)", function() {
-    it("adds an undirected edge from one v to w", function() {
+  describe("addEdge(u, v, [label])", function() {
+    it("adds an undirected edge between u and v", function() {
       var g = new dig.UGraph();
       g.addNode(1);
       g.addNode(2);
@@ -105,6 +105,22 @@ describe("dig.UGraph", function() {
       assert.isTrue(g.hasEdge(2, 3));
       assert.equal(2, g.size());
     });
+  });
+
+  describe("edgeLabel(u, v)", function() {
+    abstract.describeEdgeLabelGetter(ctor);
+
+    it("allows access to an edge label from either direction", function() {
+      var g = new dig.UGraph();
+      g.addNodes(1, 2);
+      g.addEdge(1, 2);
+      g.edgeLabel(1, 2, "a");
+      assert.equal("a", g.edgeLabel(2, 1));
+    });
+  });
+
+  describe("edgeLabel(u, v, label)", function() {
+    abstract.describeEdgeLabelSetter(ctor);
   });
 
   describe("removeEdge(v, w)", function() {
@@ -156,12 +172,6 @@ describe("dig.UGraph", function() {
       g.addEdge(1, 2);
       assert.isTrue(g.directed().hasEdge(1, 2));
       assert.isTrue(g.directed().hasEdge(2, 1));
-    });
-  });
-
-  describe("undirected()", function() {
-    it("returns an undirected graph", function() {
-      assert.isFalse(new dig.UGraph().undirected().isDirected());
     });
   });
 

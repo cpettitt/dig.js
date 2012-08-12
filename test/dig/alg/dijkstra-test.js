@@ -37,50 +37,54 @@ function expectCount(result, n) {
   assert.equal(n, count);
 }
 
-function commonGraphs(type) {
+function commonGraphs(undirected) {
   it("yields {1: 0} for dijkstra(node1, 1)", function() {
-    var results = dig.alg.dijkstra(graphs.node1[type](), 1);
+    var g = graphs.node1;
+    if (undirected) { g = g.undirected(); }
+    var results = dig.alg.dijkstra(g, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
   it("yields {1: 0, 2: INFINITE} for dijkstra(node2, 1)", function() {
-    var results = dig.alg.dijkstra(graphs.node2[type](), 1);
+    var g = graphs.node2;
+    if (undirected) { g = g.undirected(); }
+    var results = dig.alg.dijkstra(g, 1);
     expect(results, 1, 0);
     expect(results, 2);
     expectCount(results, 2);
   });
 
   it("yields {1: 0, 2: 1} for dijkstra(edge1, 1)", function() {
-    var results = dig.alg.dijkstra(graphs.edge1[type](), 1);
+    var g = graphs.edge1;
+    if (undirected) { g = g.undirected(); }
+    var results = dig.alg.dijkstra(g, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
   });
 
-  it("yields {1: 0, 2: 1, 3: 2} for dijkstra(edge2, 1)", function() {
-    var results = dig.alg.dijkstra(graphs.edge2[type](), 1);
-    expect(results, 1, 0);
-    expect(results, 2, 1, 1);
-    expect(results, 3, 2, 2);
-    expectCount(results, 3);
-  });
-
   it("yields {1: 0} for dijkstra(selfLoop, 1)", function() {
-    var results = dig.alg.dijkstra(graphs.selfLoop[type](), 1);
+    var g = graphs.selfLoop;
+    if (undirected) { g = g.undirected(); }
+    var results = dig.alg.dijkstra(g, 1);
     expect(results, 1, 0);
     expectCount(results, 1);
   });
 
   it("yields {1: 0, 2: 1} for dijkstra(cycle2, 1)", function() {
-    var results = dig.alg.dijkstra(graphs.cycle2[type](), 1);
+    var g = graphs.cycle2;
+    if (undirected) { g = g.undirected(); }
+    var results = dig.alg.dijkstra(g, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expectCount(results, 2);
   });
 
   it("yields {1: 0, 2: 1, 3: 1, 4: 2} for dijkstra(diamond, 1)", function() {
-    var results = dig.alg.dijkstra(graphs.diamond[type](), 1);
+    var g = graphs.diamond;
+    if (undirected) { g = g.undirected(); }
+    var results = dig.alg.dijkstra(g, 1);
     expect(results, 1, 0);
     expect(results, 2, 1, 1);
     expect(results, 3, 1, 1);
@@ -89,7 +93,9 @@ function commonGraphs(type) {
   });
 
   it("yields {0: 0, 1: 1, 2: 2, 3: 3} for dijkstra(nestedCycle2, 0)", function() {
-    var results = dig.alg.dijkstra(graphs.nestedCycle2[type](), 0);
+    var g = graphs.nestedCycle2;
+    if (undirected) { g = g.undirected(); }
+    var results = dig.alg.dijkstra(g, 0);
     expect(results, 0, 0);
     expect(results, 1, 1, 0);
     expect(results, 2, 2, 1);
