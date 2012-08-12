@@ -27,6 +27,21 @@ dig.DiGraph = (function() {
     return undefined;
   };
 
+  function _nodesEqual(lhs, rhs) {
+    return lhs.order() === rhs.order() &&
+           dig_util_all(lhs.nodes(), function(v) {
+             return rhs.hasNode(v) && lhs.nodeLabel(v) === rhs.nodeLabel(v);
+           });
+  }
+
+  function _edgesEqual(lhs, rhs) {
+    return lhs.size() === rhs.size() &&
+           dig_util_all(lhs.edges(), function(e) {
+             return rhs.hasEdge(e.from, e.to) &&
+                    lhs.edgeLabel(e.from, e.to) === rhs.edgeLabel(e.from, e.to);
+           });
+  }
+
   function DiGraph() {
     this._nodes = {};
     this._edges = {};
@@ -43,11 +58,14 @@ dig.DiGraph = (function() {
       return this._size;
     },
 
-    equals: function(digraph) {
-      return digraph instanceof DiGraph &&
-             this.order() === digraph.order() &&
-             dig_util_all(this.nodes(), function(v) { return digraph.hasNode(v); }) &&
-             dig_util_all(this.edges(), function(e) { return digraph.hasEdge(e.from, e.to); });
+    equals: function(g) {
+      if (g === this) {
+        return true;
+      }
+
+      return g instanceof DiGraph &&
+             _nodesEqual(this, g) &&
+             _edgesEqual(this, g);
     },
 
     copy: function() {
@@ -301,6 +319,10 @@ dig.DiGraph = (function() {
       });
       return g;
     },
+
+    toString: function() {
+      return dig_dot_write(this);
+    }
   };
   return DiGraph;
 })();

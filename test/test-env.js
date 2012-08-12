@@ -22,3 +22,9 @@ assert.memberOf = function(set, actual, message) {
     assert.fail(actual, set, message, "memberOf");
   }
 };
+
+assert.graphEqual = function(expected, actual) {
+  if (!expected.equals(actual)) {
+    assert.fail(expected, actual, "\n" + expected + "\ndoes not equal:\n\n" + actual);
+  }
+};

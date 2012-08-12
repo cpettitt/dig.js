@@ -24,9 +24,7 @@ dig.UGraph = (function() {
 
     equals: function(ugraph) {
       return ugraph instanceof UGraph &&
-             this.order() === ugraph.order() &&
-             dig_util_all(this.nodes(), function(v) { return ugraph.hasNode(v); }) &&
-             dig_util_all(this.edges(), function(e) { return ugraph.hasEdge(e.from, e.to); });
+             this._digraph.equals(ugraph._digraph);
     },
 
     hasEdge: function(v, w) {
@@ -103,6 +101,10 @@ dig.UGraph = (function() {
     isConnected: function() {
       return dig_alg_components(this).length == 1;
     },
+
+    toString: function() {
+      return dig_dot_write(this);
+    }
   };
 
   _delegate("order", "size",

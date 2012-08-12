@@ -127,6 +127,19 @@ exports.describeEquals = function(ctor) {
     assert.isFalse(graph2.equals(graph));
   });
 
+  it("returns false for graphs that have different node labels", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    g.addEdge(1, 2);
+
+    var g2 = ctor();
+    g2.addNodes(1, 2);
+    g2.addEdge(1, 2, "a");
+
+    assert.isFalse(g.equals(g2));
+    assert.isFalse(g2.equals(g));
+  });
+
   it("returns false for graphs that have different edges", function() {
     var graph = ctor();
     graph.addNodes(1, 2, 3);
@@ -138,6 +151,19 @@ exports.describeEquals = function(ctor) {
 
     assert.isFalse(graph.equals(graph2));
     assert.isFalse(graph2.equals(graph));
+  });
+
+  it("returns false for graphs that have different edge labels", function() {
+    var g = ctor();
+    g.addNodes(1, 2, 3);
+    g.addEdge(1, 2);
+
+    var g2 = ctor();
+    g2.addNodes(1, 2, 3);
+    g2.addEdge(1, 2, "a");
+
+    assert.isFalse(g.equals(g2));
+    assert.isFalse(g2.equals(g));
   });
 };
 
