@@ -23,9 +23,12 @@ var dig_alg_prim = dig.alg.prim = function(graph, weight) {
   // Start from an arbitary node
   q.decrease(graph.nodes()[0], 0);
 
-  var u, v;
+  var u, v, parent;
   while (q.size() > 0) {
     u = q.removeMin();
+    if (u in parents) {
+      result.addEdge(u, parents[u]);
+    }
     dig_util_forEach(graph.neighbors(u), function(v) {
       var pri = q.priority(v);
       if (pri !== undefined) {
@@ -37,12 +40,6 @@ var dig_alg_prim = dig.alg.prim = function(graph, weight) {
       }
     });
   }
-
-  dig_util_forEach(graph.nodes(), function(v) {
-    if (v in parents) {
-      result.addEdge(v, parents[v]);
-    }
-  });
 
   return result;
 };
