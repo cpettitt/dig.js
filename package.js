@@ -1,4 +1,6 @@
-require('./index');
+dig = {};
+
+require('./src/version.js');
 
 var sys = require('sys');
 

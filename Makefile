@@ -7,9 +7,9 @@ MOCHA_OPTS?=-R spec
 PEGJS?=$(NODE_MODULES)/pegjs/bin/pegjs
 
 all: \
+	package.json \
 	dig.js \
-	dig.min.js \
-	package.json
+	dig.min.js
 
 src/dig/dot-grammar.js:
 	$(PEGJS) -e dig_dot_parser src/dig/dot-grammar.pegjs $@
@@ -35,7 +35,7 @@ src/dig/dot-grammar.js:
 	src/dig/dot-grammar.js \
 	src/post.js
 
-dig.js: Makefile
+dig.js: Makefile $(NODE_MODULES)
 	@rm -f $@
 	cat $(filter %.js,$^) > $@
 	@chmod a-w $@
@@ -45,7 +45,10 @@ dig.min.js: dig.js
 	$(JS_MIN) dig.js > dig.min.js
 	@chmod a-w $@
 
-package.json: dig.js package.js
+$(NODE_MODULES): package.json
+	$(NPM) install
+
+package.json: src/version.js package.js
 	@rm -f $@
 	$(NODE) package.js > $@
 	@chmod a-w $@

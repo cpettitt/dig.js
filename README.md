@@ -11,7 +11,6 @@ Before building this library you need to install the npm node package manager
 
 Then follow these steps in this directory:
 
-    $ npm install
     $ make
 
 This will build two libraries in this directory: `dig.js` and `dig.min.js`. The
