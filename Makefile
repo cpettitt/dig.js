@@ -4,11 +4,15 @@ NODE_MODULES?=./node_modules
 JS_MIN?=$(NODE_MODULES)/uglify-js/bin/uglifyjs
 MOCHA?=$(NODE_MODULES)/mocha/bin/mocha
 MOCHA_OPTS?=-R spec
+PEGJS?=$(NODE_MODULES)/pegjs/bin/pegjs
 
 all: \
 	dig.js \
 	dig.min.js \
 	package.json
+
+src/dig/dot-grammar.js:
+	$(PEGJS) -e dig_dot_parser src/dig/dot-grammar.pegjs $@
 
 .INTERMEDIATE dig.js: \
 	src/pre.js \
@@ -28,6 +32,7 @@ all: \
 	src/dig/alg/tarjan.js \
 	src/dig/alg/topsort.js \
 	src/dig/dot.js \
+	src/dig/dot-grammar.js \
 	src/post.js
 
 dig.js: Makefile

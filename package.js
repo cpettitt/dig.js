@@ -20,7 +20,8 @@ sys.puts(JSON.stringify({
   ],
   "devDependencies": {
     "mocha": "1.3.x",
-    "uglify-js": "1.3.x"
+    "uglify-js": "1.3.x",
+    "pegjs": "0.7.0"
   },
   "author": "Chris Pettitt <chris@samsarin.com>",
   "repository": {

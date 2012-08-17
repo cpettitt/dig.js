@@ -1,9 +1,9 @@
+
 // Simplified DOT grammar
 //
 // Not supported (yet):
 //
 //    * HTML IDs
-//    * ports
 
 {
     var directed;
@@ -26,10 +26,10 @@ start
       }
 
 stmtList
-    = first:stmt rest:(_* [;]? _* inner:stmt ';'?)* {
+    = first:stmt _* ';'? rest:(_* inner:stmt _* ';'?)* {
         var result = [first];
         for (var i = 0; i < rest.length; ++i) {
-            result.push(rest[i][3]);
+            result.push(rest[i][1]);
         }
         return result;
       }
@@ -57,7 +57,7 @@ nodeStmt
     = id:nodeId _* attrs:attrList? { return {type: "node", id: id, attrs: attrs || {}}; }
 
 edgeStmt
-    = lhs:(subgraphStmt / nodeId) _* rhs:edgeRHS _* attrs:attrList? ';'? {
+    = lhs:(nodeIdOrSubgraph) _* rhs:edgeRHS _* attrs:attrList? {
         var elems = [lhs];
         for (var i = 0; i < rhs.length; ++i) {
             elems.push(rhs[i]);
@@ -93,7 +93,7 @@ aList
       }
 
 edgeRHS
-    = ("--" !{ return directed; } / "->" &{ return directed; }) _* rhs:(subgraphStmt / nodeId) _* rest:edgeRHS? {
+    = ("--" !{ return directed; } / "->" &{ return directed; }) _* rhs:(nodeIdOrSubgraph) _* rest:edgeRHS? {
         var result = [rhs];
         for (var i = 0; i < rest.length; ++i) {
             result.push(rest[i]);
@@ -107,6 +107,10 @@ idDef
         result[k] = v[3];
         return result;
       }
+
+nodeIdOrSubgraph
+    = subgraphStmt
+    / id:nodeId { return { type: "node", id: id, attrs: {} }; }
 
 nodeId
     = id:id _* port? { return id; }
@@ -146,4 +150,3 @@ comment "comment"
 _
     = whitespace
     / comment
-
