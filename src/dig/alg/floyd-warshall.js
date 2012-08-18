@@ -1,5 +1,13 @@
 /*
- * Floyd Warshall algorithm derived from Wikipedia:
+ * This algorithm returns the solution for the all-pairs shortest path problem.
+ * It returns a matrix `mat[u][v]` with elements
+ * `{ distance: d, predecessor: p }` such that `d` is the shortest weighted
+ * distance from `u` to `v` and `[u .. p, v]` is the shortest path to `v`.
+ * 
+ * This algorithm takes O(|V|^3) time.
+ *
+ * See wikipedia page for more details:
+ *
  * http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
  */
 var dig_alg_floydWarshall = dig.alg.floydWarshall = function(graph) {

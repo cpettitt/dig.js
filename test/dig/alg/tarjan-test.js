@@ -26,42 +26,42 @@ var tarjan = function(graph) {
 
 describe("dig.alg.tarjan", function() {
   it("finds 1 component in node1", function() {
-    assert.deepEqual([[1]], tarjan(graphs.node1));
+    assert.deepEqual([[1]], tarjan(graphs.directed.node1));
   });
 
   it("finds 2 components in node2", function() {
-    assert.deepEqual([[1], [2]], tarjan(graphs.node2));
+    assert.deepEqual([[1], [2]], tarjan(graphs.directed.node2));
   });
 
   it("finds 2 components in edge1", function() {
-    assert.deepEqual([[1], [2]], tarjan(graphs.edge1));
+    assert.deepEqual([[1], [2]], tarjan(graphs.directed.edge1));
   });
 
   it("finds 1 component in selfLoop", function() {
-    assert.deepEqual([[1]], tarjan(graphs.selfLoop));
+    assert.deepEqual([[1]], tarjan(graphs.directed.selfLoop));
   });
 
   it("finds 1 component in cycle2", function() {
-    assert.deepEqual([[1, 2]], tarjan(graphs.cycle2));
+    assert.deepEqual([[1, 2]], tarjan(graphs.directed.cycle2));
   });
 
   it("finds 1 component in cycle3", function() {
-    assert.deepEqual([[1, 2, 3]], tarjan(graphs.cycle3));
+    assert.deepEqual([[1, 2, 3]], tarjan(graphs.directed.cycle3));
   });
 
   it("finds 1 component in bridgedCycle", function() {
-    assert.deepEqual([[1, 2, 3]], tarjan(graphs.bridgedCycle));
+    assert.deepEqual([[1, 2, 3]], tarjan(graphs.directed.bridgedCycle));
   });
 
   it("finds 3 components in scc3", function() {
-    assert.deepEqual([[1, 2, 5], [3, 4, 8], [6, 7]], tarjan(graphs.scc3));
+    assert.deepEqual([[1, 2, 5], [3, 4, 8], [6, 7]], tarjan(graphs.directed.scc3));
   });
 
   it("finds 4 components in diamond", function() {
-    assert.deepEqual([[1], [2], [3], [4]], tarjan(graphs.diamond));
+    assert.deepEqual([[1], [2], [3], [4]], tarjan(graphs.directed.diamond));
   });
 
   it("throws an error for undirected graphs", function() {
-    assert.throws(function() { dig.alg.tarjan(graphs.node1.undirected()); });
+    assert.throws(function() { dig.alg.tarjan(graphs.directed.node1.undirected()); });
   });
 });

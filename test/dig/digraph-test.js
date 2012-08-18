@@ -320,43 +320,43 @@ describe("dig.DiGraph", function() {
 
   describe("isAcyclic()", function() {
     it("returns true for node1", function() {
-      assert.isTrue(graphs.node1.isAcyclic());
+      assert.isTrue(graphs.directed.node1.isAcyclic());
     });
 
     it("returns true for node2", function() {
-      assert.isTrue(graphs.node2.isAcyclic());
+      assert.isTrue(graphs.directed.node2.isAcyclic());
     });
 
     it("returns true for edge1", function() {
-      assert.isTrue(graphs.edge1.isAcyclic());
+      assert.isTrue(graphs.directed.edge1.isAcyclic());
     });
 
     it("returns true for edge2", function() {
-      assert.isTrue(graphs.edge2.isAcyclic());
+      assert.isTrue(graphs.directed.edge2.isAcyclic());
     });
 
     it("returns false for selfLoop", function() {
-      assert.isFalse(graphs.selfLoop.isAcyclic());
+      assert.isFalse(graphs.directed.selfLoop.isAcyclic());
     });
 
     it("returns false for cycle2", function() {
-      assert.isFalse(graphs.cycle2.isAcyclic());
+      assert.isFalse(graphs.directed.cycle2.isAcyclic());
     });
 
     it("returns false for cycle3", function() {
-      assert.isFalse(graphs.cycle3.isAcyclic());
+      assert.isFalse(graphs.directed.cycle3.isAcyclic());
     });
 
     it("returns false for bridgedCycle", function() {
-      assert.isFalse(graphs.bridgedCycle.isAcyclic());
+      assert.isFalse(graphs.directed.bridgedCycle.isAcyclic());
     });
 
     it("returns false for scc3", function() {
-      assert.isFalse(graphs.scc3.isAcyclic());
+      assert.isFalse(graphs.directed.scc3.isAcyclic());
     });
 
     it("returns true for diamond", function() {
-      assert.isTrue(graphs.diamond.isAcyclic());
+      assert.isTrue(graphs.directed.diamond.isAcyclic());
     });
   });
 

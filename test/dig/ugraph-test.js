@@ -177,45 +177,27 @@ describe("dig.UGraph", function() {
 
   describe("isAcyclic()", function() {
     it("returns true for node1", function() {
-      assert.isTrue(graphs.node1.undirected().isAcyclic());
+      assert.isTrue(graphs.undirected.node1.isAcyclic());
     });
 
     it("returns true for node2", function() {
-      assert.isTrue(graphs.node2.undirected().isAcyclic());
+      assert.isTrue(graphs.undirected.node2.isAcyclic());
     });
 
     it("returns true for edge1", function() {
-      assert.isTrue(graphs.edge1.undirected().isAcyclic());
+      assert.isTrue(graphs.undirected.edge1.isAcyclic());
     });
 
     it("returns true for edge2", function() {
-      assert.isTrue(graphs.edge2.undirected().isAcyclic());
+      assert.isTrue(graphs.undirected.edge2.isAcyclic());
     });
 
     it("returns false for selfLoop", function() {
-      assert.isFalse(graphs.selfLoop.undirected().isAcyclic());
-    });
-
-    it("returns false for cycle2", function() {
-      // In an acyclic graph this is the same as edge1
-      assert.isTrue(graphs.cycle2.undirected().isAcyclic());
-    });
-
-    it("returns false for cycle3", function() {
-      assert.isFalse(graphs.cycle3.undirected().isAcyclic());
-    });
-
-    it("returns false for bridgedCycle", function() {
-      // In an acyclic graph this is the same as edge2
-      assert.isTrue(graphs.bridgedCycle.undirected().isAcyclic());
-    });
-
-    it("returns false for scc3", function() {
-      assert.isFalse(graphs.scc3.undirected().isAcyclic());
+      assert.isFalse(graphs.undirected.selfLoop.isAcyclic());
     });
 
     it("returns false for diamond", function() {
-      assert.isFalse(graphs.diamond.undirected().isAcyclic());
+      assert.isFalse(graphs.undirected.diamond.isAcyclic());
     });
   });
 
@@ -225,19 +207,19 @@ describe("dig.UGraph", function() {
     });
 
     it("returns true for node1", function() {
-      assert.isTrue(graphs.node1.undirected().isConnected());
+      assert.isTrue(graphs.undirected.node1.isConnected());
     });
 
     it("returns false for node2", function() {
-      assert.isFalse(graphs.node2.undirected().isConnected());
+      assert.isFalse(graphs.undirected.node2.isConnected());
     });
 
-    it("treats the graph as undirected", function() {
-      assert.isTrue(graphs.edge1.undirected().isConnected());
+    it("returns true for edge1", function() {
+      assert.isTrue(graphs.undirected.edge1.isConnected());
     });
 
-    it("returns true for scc3", function() {
-      assert.isTrue(graphs.scc3.undirected().isConnected());
+    it("returns true for diamond", function() {
+      assert.isTrue(graphs.undirected.diamond.isConnected());
     });
   });
 });

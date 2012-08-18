@@ -4,8 +4,8 @@ var graphs = require("../test-graphs");
 
 describe("dig.dot.write", function() {
   it("can serialize all directed test graphs", function() {
-    for (var g in graphs) {
-      var src = graphs[g];
+    for (var g in graphs.directed) {
+      var src = graphs.directed[g];
       var serialized = dig.dot.write(src);
       var parsed = dig.dot.read(serialized);
       assert.graphEqual(src, parsed);
@@ -13,8 +13,8 @@ describe("dig.dot.write", function() {
   });
 
   it("can serialize all undirected test graphs", function() {
-    for (var g in graphs) {
-      var src = graphs[g].undirected();
+    for (var g in graphs.undirected) {
+      var src = graphs.undirected[g];
       var serialized = dig.dot.write(src);
       var parsed = dig.dot.read(serialized);
       assert.graphEqual(src, parsed);

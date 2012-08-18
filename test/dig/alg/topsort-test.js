@@ -4,32 +4,32 @@ var graphs = require("../../test-graphs");
 
 describe("dig.alg.topsort", function() {
   it("handles node1 graph", function() {
-    assert.deepEqual([1], dig.alg.topsort(graphs.node1));
+    assert.deepEqual([1], dig.alg.topsort(graphs.directed.node1));
   });
 
   it("handles node2 graph", function() {
-    var results = dig.alg.topsort(graphs.node2);
+    var results = dig.alg.topsort(graphs.directed.node2);
     assert.deepEqual([1, 2], results.sort());
   });
 
   it("handles edge1 graph", function() {
-    assert.deepEqual([1, 2], dig.alg.topsort(graphs.edge1));
+    assert.deepEqual([1, 2], dig.alg.topsort(graphs.directed.edge1));
   });
 
   it("handles edge2 graph", function() {
-    assert.deepEqual([1, 2, 3], dig.alg.topsort(graphs.edge2));
+    assert.deepEqual([1, 2, 3], dig.alg.topsort(graphs.directed.edge2));
   });
 
   it("throws an error for selfLoop graph", function() {
-    assert.throws(function() { dig.alg.topsort(graphs.selfLoop); });
+    assert.throws(function() { dig.alg.topsort(graphs.directed.selfLoop); });
   });
 
   it("throws an error for cycle2 graph", function() {
-    assert.throws(function() { dig.alg.topsort(graphs.cycle2); });
+    assert.throws(function() { dig.alg.topsort(graphs.directed.cycle2); });
   });
 
   it("handles diamond graph", function() {
-    var results = dig.alg.topsort(graphs.diamond);
+    var results = dig.alg.topsort(graphs.directed.diamond);
     assert.equal(4, results.length);
     assert.equal(1, results[0]);
     assert.equal(4, results[3]);
@@ -38,10 +38,10 @@ describe("dig.alg.topsort", function() {
   });
 
   it("throws an error for nestedCycle2 graph", function() {
-    assert.throws(function() { dig.alg.topsort(graphs.nestedCycle2); });
+    assert.throws(function() { dig.alg.topsort(graphs.directed.nestedCycle2); });
   });
 
-  it("throws an error for acyclic graphs", function() {
-    assert.throws(function() { dig.alg.topsort(graphs.node1.asUGraph()); });
+  it("throws an error for undirected graphs", function() {
+    assert.throws(function() { dig.alg.topsort(graphs.undirected.node1); });
   });
 });
