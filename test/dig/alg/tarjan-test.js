@@ -45,24 +45,12 @@ describe("dig.alg.tarjan", function() {
     assert.deepEqual([[1, 2]], tarjan(graphs.cycle2));
   });
 
-  it("finds 3 component in nestedCycle2", function() {
-    assert.deepEqual([[0], [1, 2], [3]], tarjan(graphs.nestedCycle2));
-  });
-
   it("finds 1 component in cycle3", function() {
     assert.deepEqual([[1, 2, 3]], tarjan(graphs.cycle3));
   });
 
-  it("finds 3 components in nestedCycle3", function() {
-    assert.deepEqual([[0], [1, 2, 3], [4]], tarjan(graphs.nestedCycle3));
-  });
-
   it("finds 1 component in bridgedCycle", function() {
     assert.deepEqual([[1, 2, 3]], tarjan(graphs.bridgedCycle));
-  });
-
-  it("finds 2 components in twoCycle3", function() {
-    assert.deepEqual([[1, 2, 3], [4, 5, 6]], tarjan(graphs.twoCycle3));
   });
 
   it("finds 3 components in scc3", function() {

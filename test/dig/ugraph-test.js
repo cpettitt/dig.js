@@ -201,26 +201,13 @@ describe("dig.UGraph", function() {
       assert.isTrue(graphs.cycle2.undirected().isAcyclic());
     });
 
-    it("returns false for nestedCycle2", function() {
-      // In an acyclic graph this is the same as edge2
-      assert.isTrue(graphs.nestedCycle2.undirected().isAcyclic());
-    });
-
     it("returns false for cycle3", function() {
       assert.isFalse(graphs.cycle3.undirected().isAcyclic());
-    });
-
-    it("returns false for nestedCycle3", function() {
-      assert.isFalse(graphs.nestedCycle3.undirected().isAcyclic());
     });
 
     it("returns false for bridgedCycle", function() {
       // In an acyclic graph this is the same as edge2
       assert.isTrue(graphs.bridgedCycle.undirected().isAcyclic());
-    });
-
-    it("returns false for twoCycle3", function() {
-      assert.isFalse(graphs.twoCycle3.undirected().isAcyclic());
     });
 
     it("returns false for scc3", function() {

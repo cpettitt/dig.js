@@ -146,32 +146,6 @@ describe("dig.alg.floydWarshall", function() {
 
       expectNoMore(results);
     });
-
-    it("handles nestCycle2 graph", function() {
-      var results = dig.alg.floydWarshall(graphs.nestedCycle2);
-
-      expect(results, 0, 0, 0);
-      expect(results, 0, 1, 1, 0);
-      expect(results, 0, 2, 2, 1);
-      expect(results, 0, 3, 3, 2);
-
-      expect(results, 1, 0);
-      expect(results, 1, 1, 0);
-      expect(results, 1, 2, 1, 1);
-      expect(results, 1, 3, 2, 2);
-
-      expect(results, 2, 0);
-      expect(results, 2, 1, 1, 2);
-      expect(results, 2, 2, 0);
-      expect(results, 2, 3, 1, 2);
-
-      expect(results, 3, 0);
-      expect(results, 3, 1);
-      expect(results, 3, 2);
-      expect(results, 3, 3, 0);
-
-      expectNoMore(results);
-    });
   });
 
   describe("undirected graphs", function() {
@@ -267,32 +241,6 @@ describe("dig.alg.floydWarshall", function() {
       expect(results, 4, 2, 1, 4);
       expect(results, 4, 3, 1, 4);
       expect(results, 4, 4, 0);
-
-      expectNoMore(results);
-    });
-
-    it("handles nestCycle2 graph", function() {
-      var results = dig.alg.floydWarshall(graphs.nestedCycle2.undirected());
-
-      expect(results, 0, 0, 0);
-      expect(results, 0, 1, 1, 0);
-      expect(results, 0, 2, 2, 1);
-      expect(results, 0, 3, 3, 2);
-
-      expect(results, 1, 0, 1, 1);
-      expect(results, 1, 1, 0);
-      expect(results, 1, 2, 1, 1);
-      expect(results, 1, 3, 2, 2);
-
-      expect(results, 2, 0, 2, 1);
-      expect(results, 2, 1, 1, 2);
-      expect(results, 2, 2, 0);
-      expect(results, 2, 3, 1, 2);
-
-      expect(results, 3, 0, 3, 1);
-      expect(results, 3, 1, 2, 2);
-      expect(results, 3, 2, 1, 3);
-      expect(results, 3, 3, 0);
 
       expectNoMore(results);
     });

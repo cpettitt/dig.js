@@ -343,24 +343,12 @@ describe("dig.DiGraph", function() {
       assert.isFalse(graphs.cycle2.isAcyclic());
     });
 
-    it("returns false for nestedCycle2", function() {
-      assert.isFalse(graphs.nestedCycle2.isAcyclic());
-    });
-
     it("returns false for cycle3", function() {
       assert.isFalse(graphs.cycle3.isAcyclic());
     });
 
-    it("returns false for nestedCycle3", function() {
-      assert.isFalse(graphs.nestedCycle3.isAcyclic());
-    });
-
     it("returns false for bridgedCycle", function() {
       assert.isFalse(graphs.bridgedCycle.isAcyclic());
-    });
-
-    it("returns false for twoCycle3", function() {
-      assert.isFalse(graphs.twoCycle3.isAcyclic());
     });
 
     it("returns false for scc3", function() {

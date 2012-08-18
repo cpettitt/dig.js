@@ -1,4 +1,3 @@
-
 // Simplified DOT grammar
 //
 // Not supported (yet):
@@ -144,7 +143,7 @@ whitespace "whitespace"
     = [ \t\r\n]+
 
 comment "comment"
-    = "//" ([^\n])+
+    = "//" ([^\n])*
     / "/*" (!"*/" .)* "*/"
 
 _

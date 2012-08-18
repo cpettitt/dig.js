@@ -91,17 +91,6 @@ function commonGraphs(undirected) {
     expect(results, 4, 2, [2, 3]);
     expectCount(results, 4);
   });
-
-  it("yields {0: 0, 1: 1, 2: 2, 3: 3} for dijkstra(nestedCycle2, 0)", function() {
-    var g = graphs.nestedCycle2;
-    if (undirected) { g = g.undirected(); }
-    var results = dig.alg.dijkstra(g, 0);
-    expect(results, 0, 0);
-    expect(results, 1, 1, 0);
-    expect(results, 2, 2, 1);
-    expect(results, 3, 3, 2);
-    expectCount(results, 4);
-  });
 }
 
 describe("dig.alg.dijkstra", function() {

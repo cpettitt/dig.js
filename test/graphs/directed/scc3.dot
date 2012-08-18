@@ -1,0 +1,13 @@
+// 3 strongly-connected components
+//
+// Source: http://en.wikipedia.org/wiki/File:Scc.png
+digraph {
+    1 -> 2 -> 5 -> 1
+    6 -> 7 -> 6
+    3 -> 4 -> 8 -> 4 -> 3
+    2 -> 3
+    2 -> 6
+    3 -> 7
+    5 -> 6
+    8 -> 7
+}
