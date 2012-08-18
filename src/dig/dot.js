@@ -61,7 +61,10 @@ var dig_dot_read = dig.dot.read = function(dot) {
               throw new Error("Unsupported type incident on edge: " + elem.type);
           }
         });
-        break;    
+        break;
+      case "attr":
+        // Ignore attrs
+        break;
       default:
         throw new Error("Unsupported statement type: " + stmt.type);
     }
