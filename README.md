@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/cpettitt/dig.js.png)](http://travis-ci.org/cpettitt/dig.js)
 dig - Graph Algorithms for JavaScript
 =====================================
 
