@@ -1,0 +1,15 @@
+// 6 node graph with weighted edges.
+//
+// Source: http://en.wikipedia.org/wiki/Prim's_algorithm
+graph {
+    A -- B [label=1]
+    A -- D [label=3]
+    B -- C [label=3]
+    B -- D [label=2]
+    B -- E [label=6]
+    B -- F [label=5]
+    C -- E [label=4]
+    C -- F [label=4]
+    D -- E [label=3]
+    E -- F [label=2]
+}
