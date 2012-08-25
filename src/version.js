@@ -1,1 +1,1 @@
-dig.version = "0.0.4";
+dig.version = "0.0.5";
