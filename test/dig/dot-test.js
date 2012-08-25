@@ -44,11 +44,11 @@ describe("dig.dot.write(graph)", function() {
 describe("dig.dot.alg.initRank(graph)", function() {
   it("can rank the diamon graph", function() {
     var g = graphs.directed.diamond;
-    var g2 = dig.dot.alg.initRank(g);
-    assert.equal(0, g2.nodeLabel(1));
-    assert.equal(1, g2.nodeLabel(2));
-    assert.equal(1, g2.nodeLabel(3));
-    assert.equal(2, g2.nodeLabel(4));
+    dig.dot.alg.initRank(g);
+    assert.equal(0, g.nodeLabel(1));
+    assert.equal(1, g.nodeLabel(2));
+    assert.equal(1, g.nodeLabel(3));
+    assert.equal(2, g.nodeLabel(4));
   });
 
   it("throws an error for undirected graphs", function() {

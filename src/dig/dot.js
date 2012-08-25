@@ -80,10 +80,11 @@ var dig_dot_read = dig.dot.read = function(dot) {
 // For now we use a BFS algorithm to assign ranks. This algorithm requires
 // at least one source and requires that all nodes are reachable from the
 // graph sources (i.e. no strongly connected components).
+//
+// This algorithm modifies the supplied graph in place.
+//
 // TODO support weighted edges
 var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
-  g = g.copy();
-
   var ranks = dig_alg_levels(g, g.sources());
 
   // Make sure we visited everything
@@ -97,6 +98,4 @@ var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
   dig_util_forEach(dig_util_objToArr(ranks), function(u) {
     g.nodeLabel(u, ranks[u]);   
   });
-
-  return g;
 }
