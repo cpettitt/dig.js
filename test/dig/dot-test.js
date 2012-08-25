@@ -79,8 +79,14 @@ describe("dig.dot.alg.acyclic(graph)", function() {
 });
 
 describe("dig.dot.alg.initRank(graph)", function() {
-  it("can rank the diamon graph", function() {
-    var g = graphs.directed.diamond;
+  it("can rank a singleton graph", function() {
+    var g = graphs.directed.node1;
+    dig.dot.alg.initRank(g);
+    assert.equal(0, g.nodeLabel(1));
+  });
+
+  it("can rank the diamond graph", function() {
+    var g = graphs.directed.diamond.copy();
     dig.dot.alg.initRank(g);
     assert.equal(0, g.nodeLabel(1));
     assert.equal(1, g.nodeLabel(2));
@@ -88,13 +94,21 @@ describe("dig.dot.alg.initRank(graph)", function() {
     assert.equal(2, g.nodeLabel(4));
   });
 
+  it("can rank a graph with multiple inedge constraints", function() {
+    var g = dig.dot.read("digraph { 1 -> 2 -> 3; 1 -> 3 }");
+    dig.dot.alg.initRank(g);
+    assert.equal(0, g.nodeLabel(1));
+    assert.equal(1, g.nodeLabel(2));
+    assert.equal(2, g.nodeLabel(3));
+  });
+
   it("throws an error for undirected graphs", function() {
-    var g = graphs.undirected.edge2;
+    var g = graphs.undirected.edge2.copy();
     assert.throws(function() { dig.dot.alg.initRank(g); });
   });
 
   it("throws an error for a graph with a strongly connected component", function() {
-    var g = graphs.directed.scc3;
+    var g = graphs.directed.scc3.copy();
     assert.throws(function() { dig.dot.alg.initRank(g); });
   });
 });

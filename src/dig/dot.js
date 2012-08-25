@@ -77,11 +77,35 @@ var dig_dot_read = dig.dot.read = function(dot) {
   return graph;
 }
 
-// Given a directed graph this function will transform the graph in place into
-// a directed acyclic graph (DAG) by reversing edges that participate in
-// cycles. This algorithm currently just uses a basic DFS traversal.
-//
-// This algorithm does not preserve labels for reversed edges.
+/*
+ * Sets the label of nodes in the given graph to their rank according to the
+ * Sugiyama layout.
+ *
+ * Pre-conditions:
+ *
+ *  1. Input graph is connected
+ */
+var dig_dot_alg_rank = dig.dot.alg.rank = function(g) {
+  var acyclic = g.copy();
+  dig_dot_alg_acyclic(acyclic);
+  dig_dot_alg_initRank(acyclic);
+
+  dig_util_forEach(g.nodes(), function(u) {
+    g.nodeLabel(u, acyclic.nodeLabel(u));
+  });
+}
+
+/*
+ * Given a directed graph this function will transform the graph in place into
+ * a directed acyclic graph (DAG) by reversing edges that participate in
+ * cycles. This algorithm currently just uses a basic DFS traversal.
+ *
+ * Post-conditions:
+ *
+ *  1. Input graph is acyclic
+ *
+ * This algorithm does not preserve labels for reversed edges.
+ */
 var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
   var onStack = {};
   var visited = {};
@@ -110,25 +134,47 @@ var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
   });
 }
 
-// For now we use a BFS algorithm to assign ranks. This algorithm requires
-// at least one source and requires that all nodes are reachable from the
-// graph sources (i.e. no strongly connected components).
-//
-// This algorithm modifies the supplied graph in place.
-//
-// TODO support weighted edges
+/*
+ * This function assigns an initial feasible ranking to all nodes in the graph.
+ * A feasible ranking is one such that for all edges e, length(e) >=
+ * min_length(e). For our purposes min_length(e) is always 1 and length(e)
+ * is defined as rank(v) - rank(u) for (u, v) = e.
+ *
+ * Pre-conditions:
+ *
+ *  1. Input graph is connected
+ *  2. Input graph is acyclic
+ *
+ * Post-conditions:
+ *
+ *  1. Nodes in the input graph are labelled by their rank
+ */
 var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
-  var ranks = dig_alg_levels(g, g.sources());
-
-  // Make sure we visited everything
-  var visitCount = 0;
-  dig_util_forEach(dig_util_objToArr(ranks), function() { ++visitCount; });
-
-  if (visitCount != g.order()) {
-    throw new Error("One or more strongly connected components in the input graph: " + g);
-  }
-
-  dig_util_forEach(dig_util_objToArr(ranks), function(u) {
-    g.nodeLabel(u, ranks[u]);   
+  var pq = new dig_data_PriorityQueue();
+  dig_util_forEach(g.nodes(), function(u) {
+    pq.add(u, g.indegree(u));
   });
+
+  var level = 0;
+  var inLevel = [];
+  while (pq.size() > 0) {
+    for (var min = pq.min(); pq.priority(min) === 0; min = pq.min()) {
+      pq.removeMin();
+      inLevel.push(min);
+    }
+
+    if (inLevel.length === 0) {
+      throw new Error("Input graph is not acyclic!");
+    }
+
+    dig_util_forEach(inLevel, function(u) {
+      g.nodeLabel(u, level);
+      dig_util_forEach(g.successors(u), function(v) {
+        pq.decrease(v, pq.priority(v) - 1);
+      });
+    });
+
+    level++;
+    inLevel = [];
+  }
 }
