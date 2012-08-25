@@ -78,8 +78,8 @@ var dig_dot_read = dig.dot.read = function(dot) {
 }
 
 /*
- * Sets the label of nodes in the given graph to their rank according to the
- * Sugiyama layout.
+ * Returns an array of ranks, with each rank contains an array of nodes in the
+ * rank. Nodes in each rank do not have a particular order.
  *
  * Pre-conditions:
  *
@@ -88,11 +88,7 @@ var dig_dot_read = dig.dot.read = function(dot) {
 var dig_dot_alg_rank = dig.dot.alg.rank = function(g) {
   var acyclic = g.copy();
   dig_dot_alg_acyclic(acyclic);
-  dig_dot_alg_initRank(acyclic);
-
-  dig_util_forEach(g.nodes(), function(u) {
-    g.nodeLabel(u, acyclic.nodeLabel(u));
-  });
+  return dig_dot_alg_initRank(acyclic);
 }
 
 /*
@@ -135,7 +131,9 @@ var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
 }
 
 /*
- * This function assigns an initial feasible ranking to all nodes in the graph.
+ * Finds a feasible ranking (description below) for the given graph and
+ * returns the ranking via an object that maps node keys to ranks.
+ *
  * A feasible ranking is one such that for all edges e, length(e) >=
  * min_length(e). For our purposes min_length(e) is always 1 and length(e)
  * is defined as rank(v) - rank(u) for (u, v) = e.
@@ -144,10 +142,6 @@ var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
  *
  *  1. Input graph is connected
  *  2. Input graph is acyclic
- *
- * Post-conditions:
- *
- *  1. Nodes in the input graph are labelled by their rank
  */
 var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
   var pq = new dig_data_PriorityQueue();
@@ -155,26 +149,29 @@ var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
     pq.add(u, g.indegree(u));
   });
 
-  var level = 0;
-  var inLevel = [];
+  var ranks = {};
+  var current = [];
+  var rankNum = 0;
   while (pq.size() > 0) {
     for (var min = pq.min(); pq.priority(min) === 0; min = pq.min()) {
       pq.removeMin();
-      inLevel.push(min);
+      ranks[min] = rankNum;
+      current.push(min);
     }
 
-    if (inLevel.length === 0) {
+    if (current.length === 0) {
       throw new Error("Input graph is not acyclic!");
     }
 
-    dig_util_forEach(inLevel, function(u) {
-      g.nodeLabel(u, level);
+    dig_util_forEach(current, function(u) {
       dig_util_forEach(g.successors(u), function(v) {
         pq.decrease(v, pq.priority(v) - 1);
       });
     });
 
-    level++;
-    inLevel = [];
+    current = [];
+    rankNum++;
   }
+
+  return ranks;
 }

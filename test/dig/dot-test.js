@@ -74,32 +74,26 @@ describe("dig.dot.alg.acyclic(graph)", function() {
     assert.equal(3, g.degree(2));
     assert.equal(3, g.degree(3));
     assert.equal(2, g.degree(4));
-    console.log(dig.dot.write(g));
   });
 });
 
 describe("dig.dot.alg.initRank(graph)", function() {
   it("can rank a singleton graph", function() {
     var g = graphs.directed.node1;
-    dig.dot.alg.initRank(g);
-    assert.equal(0, g.nodeLabel(1));
+    var ranks = dig.dot.alg.initRank(g);
+    assert.deepEqual({1: 0}, ranks);
   });
 
   it("can rank the diamond graph", function() {
-    var g = graphs.directed.diamond.copy();
-    dig.dot.alg.initRank(g);
-    assert.equal(0, g.nodeLabel(1));
-    assert.equal(1, g.nodeLabel(2));
-    assert.equal(1, g.nodeLabel(3));
-    assert.equal(2, g.nodeLabel(4));
+    var g = graphs.directed.diamond;
+    var ranks = dig.dot.alg.initRank(g);
+    assert.deepEqual({1: 0, 2: 1, 3: 1, 4: 2}, ranks);
   });
 
   it("can rank a graph with multiple inedge constraints", function() {
     var g = dig.dot.read("digraph { 1 -> 2 -> 3; 1 -> 3 }");
-    dig.dot.alg.initRank(g);
-    assert.equal(0, g.nodeLabel(1));
-    assert.equal(1, g.nodeLabel(2));
-    assert.equal(2, g.nodeLabel(3));
+    var ranks = dig.dot.alg.initRank(g);
+    assert.deepEqual({1: 0, 2: 1, 3: 2}, ranks);
   });
 
   it("throws an error for undirected graphs", function() {
