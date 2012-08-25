@@ -43,23 +43,20 @@ describe("dig.dot.write(graph)", function() {
 
 describe("dig.dot.alg.acyclic(graph)", function() {
   it("does not change an acyclic graph", function() {
-    var g = graphs.directed.diamond.copy();
-    dig.dot.alg.acyclic(g);
+    var g = dig.dot.alg.acyclic(graphs.directed.diamond);
     assert.graphEqual(graphs.directed.diamond, g);
     assert.isTrue(g.isAcyclic());
   });
 
   it("deletes an edge to make a cyclic graph acyclic", function() {
-    var g = graphs.directed.cycle2.copy();
-    dig.dot.alg.acyclic(g);
+    var g = dig.dot.alg.acyclic(graphs.directed.cycle2);
     assert.isTrue(g.isAcyclic());
     assert.equal(1, g.degree(1));
     assert.equal(1, g.degree(2));
   });
 
   it("reverses an edge to make a cyclic graph acyclic", function() {
-    var g = graphs.directed.cycle3.copy();
-    dig.dot.alg.acyclic(g);
+    var g = dig.dot.alg.acyclic(graphs.directed.cycle3);
     assert.isTrue(g.isAcyclic());
     assert.equal(2, g.degree(1));
     assert.equal(2, g.degree(2));
@@ -67,8 +64,8 @@ describe("dig.dot.alg.acyclic(graph)", function() {
   });
 
   it("will reverse multiple edges if necessary", function() {
-    var g = dig.dot.read("digraph { 1 -> 2 -> 3 -> 1; 3 -> 4 -> 2; }");
-    dig.dot.alg.acyclic(g);
+    var input = dig.dot.read("digraph { 1 -> 2 -> 3 -> 1; 3 -> 4 -> 2; }");
+    var g = dig.dot.alg.acyclic(input);
     assert.isTrue(g.isAcyclic());
     assert.equal(2, g.degree(1));
     assert.equal(3, g.degree(2));
