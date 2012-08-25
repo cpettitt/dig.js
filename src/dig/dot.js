@@ -77,6 +77,39 @@ var dig_dot_read = dig.dot.read = function(dot) {
   return graph;
 }
 
+// Given a directed graph this function will transform the graph in place into
+// a directed acyclic graph (DAG) by reversing edges that participate in
+// cycles. This algorithm currently just uses a basic DFS traversal.
+//
+// This algorithm does not preserve labels for reversed edges.
+var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
+  var onStack = {};
+  var visited = {};
+
+  function dfs(u) {
+    if (u in visited) {
+      return;
+    }
+    visited[u] = true;
+    onStack[u] = true;
+    dig_util_forEach(g.successors(u), function(v) {
+      if (v in onStack) {
+        if (!g.hasEdge(v, u)) {
+          g.addEdge(v, u);
+        }
+        g.removeEdge(u, v);
+      } else {
+        dfs(v);
+      }
+    });
+    delete onStack[u];
+  }
+
+  dig_util_forEach(g.nodes(), function(u) {
+    dfs(u);
+  });
+}
+
 // For now we use a BFS algorithm to assign ranks. This algorithm requires
 // at least one source and requires that all nodes are reachable from the
 // graph sources (i.e. no strongly connected components).
