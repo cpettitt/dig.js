@@ -6,6 +6,8 @@ dig is a library of graph algorithms for use with JavaScript.
 Building
 ========
 
+[![Build Status](https://secure.travis-ci.org/cpettitt/dig.js.png)](http://travis-ci.org/cpettitt/dig.js)
+
 Before building this library you need to install the npm node package manager
 [1].
 
