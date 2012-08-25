@@ -28,6 +28,7 @@ src/dig/dot-grammar.js:
 	src/dig/alg/components.js \
 	src/dig/alg/dijkstra.js \
 	src/dig/alg/floyd-warshall.js \
+	src/dig/alg/levels.js \
 	src/dig/alg/prim.js \
 	src/dig/alg/tarjan.js \
 	src/dig/alg/topsort.js \

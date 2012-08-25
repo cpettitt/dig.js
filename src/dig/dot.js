@@ -84,34 +84,19 @@ var dig_dot_read = dig.dot.read = function(dot) {
 var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
   g = g.copy();
 
-  var queue = new dig.data.Queue();
-  var seen = {};
-
-  dig_util_forEach(g.sources(), function(u) {
-    queue.enqueue({node: u, rank: 0});
-    seen[u] = true;
-  });
-
-  var curr;
-  while (queue.size() !== 0) {
-    curr = queue.dequeue();
-    g.nodeLabel(curr.node, curr.rank);
-
-    dig_util_forEach(g.successors(curr.node), function(u) {
-      if (!(u in seen)) {
-        queue.enqueue({node: u, rank: curr.rank + 1});
-        seen[u] = true;
-      }
-    });
-  }
+  var ranks = dig_alg_levels(g, g.sources());
 
   // Make sure we visited everything
   var visitCount = 0;
-  dig_util_forEach(dig_util_objToArr(seen), function() { ++visitCount; });
+  dig_util_forEach(dig_util_objToArr(ranks), function() { ++visitCount; });
 
   if (visitCount != g.order()) {
     throw new Error("One or more strongly connected components in the input graph: " + g);
   }
+
+  dig_util_forEach(dig_util_objToArr(ranks), function(u) {
+    g.nodeLabel(u, ranks[u]);   
+  });
 
   return g;
 }
