@@ -103,3 +103,24 @@ describe("dig.dot.alg.initRank(graph)", function() {
     assert.throws(function() { dig.dot.alg.initRank(g); });
   });
 });
+
+describe("dig.dot.alg.initOrder(graph, ranks)", function() {
+  it("returns an array ordering for graphs", function() {
+    var g = graphs.directed.diamond;
+    var ranks = {1: 0, 2: 1, 3: 1, 4: 2};
+    var rankArr = dig.dot.alg.initOrder(g, ranks);
+    assert.deepEqual([1], rankArr[0]);
+    assert.deepEqual([2, 3], rankArr[1].sort());
+    assert.deepEqual([4], rankArr[2]);
+    assert.equal(3, rankArr.length);
+  });
+
+  it("works for graphs with multiple min-rank nodes", function() {
+    var g = dig.dot.read("digraph { 1 -> 3; 1 -> 4; 2 -> 5 }");
+    var ranks = {1: 0, 2: 0, 3: 1, 4: 1, 5: 1};
+    var rankArr = dig.dot.alg.initOrder(g, ranks);
+    assert.deepEqual([1, 2], rankArr[0].sort());
+    assert.deepEqual([3, 4, 5], rankArr[1].sort());
+    assert.equal(2, rankArr.length);
+  });
+});

@@ -178,3 +178,49 @@ var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
 
   return ranks;
 }
+
+/*
+ * Given a graph and a map of nodes to ranks, this function returns an array
+ * of ranks where each rank has nodes ordered to minimize edge crossings.
+ *
+ * NOTE: this is a work in progress
+ */
+var dig_dot_alg_order = dig.dot.alg.order = function(g, ranks) {
+  return dig_dot_alg_initOrder(g, ranks);
+}
+
+/*
+ * Returns an array of ranks where each rank has a list of nodes in the given
+ * rank. This initial pass attempts to generate a good starting point from
+ * which to generate an ordering with minimal edge crossings, but almost
+ * certainly some iteration will reduce edge crossing.
+ */
+var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g, ranks) {
+  // We currently use DFS as described in the graphviz paper.
+
+  var rankArr = [];
+  var visited = {};
+
+  function dfs(u) {
+    if (u in visited) {
+      return;
+    }
+    visited[u] = true;
+
+    var rankNum = ranks[u];
+    var rank = (rankArr[rankNum] = rankArr[rankNum] || []);
+    rank.push(u);
+
+    dig_util_forEach(g.successors(u), function(v) {
+      dfs(v);
+    });
+  }
+
+  dig_util_forEach(g.nodes(), function(u) {
+    if (ranks[u] === 0) {
+      dfs(u);
+    }
+  });
+
+  return rankArr;
+}
