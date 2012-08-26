@@ -1,45 +1,6 @@
-require("../test-env");
+require("../../test-env");
 
-var graphs = require("../test-graphs");
-
-describe("dig.dot.write(graph)", function() {
-  it("can serialize all directed test graphs", function() {
-    for (var g in graphs.directed) {
-      var src = graphs.directed[g];
-      var serialized = dig.dot.write(src);
-      var parsed = dig.dot.read(serialized);
-      assert.graphEqual(src, parsed);
-    }
-  });
-
-  it("can serialize all undirected test graphs", function() {
-    for (var g in graphs.undirected) {
-      var src = graphs.undirected[g];
-      var serialized = dig.dot.write(src);
-      var parsed = dig.dot.read(serialized);
-      assert.graphEqual(src, parsed);
-    }
-  });
-
-  it("can serialize node labels", function() {
-    var src = new dig.DiGraph();
-    src.addNode("n1");
-    src.nodeLabel("n1", "label1");
-    var serialized = dig.dot.write(src);
-    var parsed = dig.dot.read(serialized);
-    assert.graphEqual(src, parsed);
-  });
-
-  it("can serialize edge labels", function() {
-    var src = new dig.DiGraph();
-    src.addNode("n1");
-    src.addNode("n2");
-    src.addEdge("n1", "n2", "label1");
-    var serialized = dig.dot.write(src);
-    var parsed = dig.dot.read(serialized);
-    assert.graphEqual(src, parsed);
-  });
-});
+var graphs = require("../../test-graphs");
 
 describe("dig.dot.alg.acyclic(graph)", function() {
   it("does not change an acyclic graph", function() {
@@ -120,7 +81,7 @@ describe("dig.dot.alg.initRank(graph)", function() {
 
 describe("dig.dot.alg.addDummyNodes(graph)", function() {
   it("does not change a graph with unit length edges", function() {
-    var g = graphs.directed.edge1;
+    var g = graphs.directed.edge1.copy();
     g.nodeLabel(1, 0);
     g.nodeLabel(2, 1);
     var g2 = dig.dot.alg.addDummyNodes(g);
@@ -128,7 +89,7 @@ describe("dig.dot.alg.addDummyNodes(graph)", function() {
   });
 
   it("inserts nodes between incident nodes separated by more than one rank", function() {
-    var g = graphs.directed.edge1;
+    var g = graphs.directed.edge1.copy();
     g.nodeLabel(1, 0);
     g.nodeLabel(2, 2);
 
@@ -141,7 +102,7 @@ describe("dig.dot.alg.addDummyNodes(graph)", function() {
   });
 
   it("assigns the correct rank when inserting nodes", function() {
-    var g = graphs.directed.edge1;
+    var g = graphs.directed.edge1.copy();
     g.nodeLabel(1, 0);
     g.nodeLabel(2, 2);
 
@@ -152,7 +113,7 @@ describe("dig.dot.alg.addDummyNodes(graph)", function() {
 
 describe("dig.dot.alg.initOrder(graph)", function() {
   it("returns an array ordering for graphs", function() {
-    var g = graphs.directed.diamond;
+    var g = graphs.directed.diamond.copy();
     g.nodeLabel(1, 0);
     g.nodeLabel(2, 1);
     g.nodeLabel(3, 1);

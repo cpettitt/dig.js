@@ -11,8 +11,8 @@ all: \
 	dig.js \
 	dig.min.js
 
-src/dig/dot-grammar.js:
-	$(PEGJS) -e dig_dot_parser src/dig/dot-grammar.pegjs $@
+src/dig/dot/grammar.js:
+	$(PEGJS) -e dig_dot_parser src/dig/dot/grammar.pegjs $@
 
 .INTERMEDIATE dig.js: \
 	src/pre.js \
@@ -33,7 +33,10 @@ src/dig/dot-grammar.js:
 	src/dig/alg/tarjan.js \
 	src/dig/alg/topsort.js \
 	src/dig/dot.js \
-	src/dig/dot-grammar.js \
+	src/dig/dot/layout.js \
+	src/dig/dot/read.js \
+	src/dig/dot/write.js \
+	src/dig/dot/grammar.js \
 	src/post.js
 
 dig.js: Makefile $(NODE_MODULES)
