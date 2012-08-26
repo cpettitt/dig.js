@@ -83,21 +83,9 @@ var dig_dot_read = dig.dot.read = function(dot) {
  * NOTE: this is a work in progress.
  */
 var dig_dot_layout = dig.dot.layout = function(g) {
-  var ranked = dig_dot_alg_rank(g);
-  return dig_dot_alg_order(ranked);
-}
-
-/*
- * Returns an array of ranks, with each rank contains an array of nodes in the
- * rank. Nodes in each rank do not have a particular order.
- *
- * Pre-conditions:
- *
- *  1. Input graph is connected
- */
-var dig_dot_alg_rank = dig.dot.alg.rank = function(g) {
-  var acyclic = dig_dot_alg_acyclic(g);
-  return dig_dot_alg_initRank(acyclic);
+  var aux = dig_dot_alg_acyclic(g);
+  aux = dig_dot_alg_rank(aux);
+  return dig_dot_alg_order(aux);
 }
 
 /*
@@ -141,6 +129,19 @@ var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
   });
 
   return g;
+}
+
+/*
+ * Returns an array of ranks, with each rank contains an array of nodes in the
+ * rank. Nodes in each rank do not have a particular order.
+ *
+ * Pre-conditions:
+ *
+ *  1. Input graph is connected
+ *  2. Input graph is acyclic
+ */
+var dig_dot_alg_rank = dig.dot.alg.rank = function(g) {
+  return dig_dot_alg_initRank(g);
 }
 
 /*
