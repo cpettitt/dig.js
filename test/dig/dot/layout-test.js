@@ -140,3 +140,25 @@ describe("dig.dot.alg.initOrder(graph)", function() {
     assert.equal(2, ranks.length);
   });
 });
+
+describe("dig.dot.alg.bcc(graph, norths, souths)", function() {
+  it("returns 0 for a single edge", function() {
+    var g = graphs.directed.edge1;
+    assert.equal(0, dig.dot.alg.bcc(g, [1], [2]));
+  });
+
+  it("returns 1 for a graph with an x structure", function() {
+    var g = dig.dot.read("digraph { 1 -> 4; 2 -> 3 }");
+    assert.equal(1, dig.dot.alg.bcc(g, [1, 2], [3, 4]));
+  });
+
+  it("returns 0 for a graph with parallel edges", function() {
+    var g = dig.dot.read("digraph { 1 -> 3; 2 -> 4 }");
+    assert.equal(0, dig.dot.alg.bcc(g, [1, 2], [3, 4]));
+  });
+
+  it("returns 12 for barth example", function() {
+    var g = dig.dot.read("digraph { n0 -> s0; n1 -> s1; n1 -> s2; n2 -> s0; n2 -> s3; n2 -> s4; n3 -> s0; n3 -> s2; n4 -> s3; n5 -> s2; n5 -> s4;}");
+    assert.equal(12, dig.dot.alg.bcc(g, ["n0", "n1", "n2", "n3", "n4", "n5"], ["s0", "s1", "s2", "s3", "s4"]));
+  });
+});
