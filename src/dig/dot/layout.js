@@ -197,20 +197,55 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
  */
 var dig_dot_alg_barycenter = dig.dot.alg.barycenter = function(g, fixed, movable) {
   var fixedPos = dig_dot_alg_nodePosMap(g, fixed);
-  var weights = [];
+  var weights = {};
   for (var i = 0; i < movable.length; ++i) {
     var weight = -1;
+    var u = movable[i];
     var sucs = g.neighbors(movable[i], "both");
     if (sucs.length > 0) {
       weight = 0;
-      dig_util_forEach(sucs, function(u) {
-        weight = fixedPos[u];
+      dig_util_forEach(sucs, function(v) {
+        weight = fixedPos[v];
       });
       weight = weight / sucs.length;
     }
-    weights[i] = weight;
+    weights[u] = weight;
   }
   return weights;
+}
+
+/*
+ * Sorts the given rank in ascending order using the given weights. The
+ * barycenter algorithm sets a nodes weight to -1 if it has no neighbors. For
+ * sorting purposes, we treat such nodes as fixed - they are not moved during
+ * the sort.
+ */
+var dig_dot_alg_barycenterSort = dig.dot.alg.barycenterSort = function(rank, weights) {
+  var result = [];
+
+  rank = rank.slice(0);
+  
+  // Move fixed nodes into the result array first
+  for (var i = 0; i < rank.length; ++i) {
+    var u = rank[i];
+    if (weights[u] === -1) {
+      result[i] = u;
+      rank[i] = null;
+    }
+  }
+
+  var sorted = dig_util_radixSort(rank, 1, function(_, u) { return weights[u]; });
+  var nextIdx = 0;
+  for (var i = 0; i < sorted.length; ++i) {
+    if (sorted[i] !== null) {
+      while (result[nextIdx] !== undefined) {
+        ++nextIdx;
+      }
+      result[nextIdx] = sorted[i];
+    }
+  }
+
+  return result;
 }
 
 /*

@@ -169,7 +169,7 @@ describe("dig.dot.alg.barycenter(graph, fixed, movable)", function() {
     var fixed = [3, 4];
     var movable = [1, 2];
 
-    assert.deepEqual([0.5, 1], dig.dot.alg.barycenter(g, fixed, movable));
+    assert.deepEqual({1: 0.5, 2: 1}, dig.dot.alg.barycenter(g, fixed, movable));
   });
 
   it("handles neighbors in either direction (successors or predecessors)", function() {
@@ -177,7 +177,7 @@ describe("dig.dot.alg.barycenter(graph, fixed, movable)", function() {
     var fixed = [1, 2];
     var movable = [3, 4];
 
-    assert.deepEqual([0, 0.5], dig.dot.alg.barycenter(g, fixed, movable));
+    assert.deepEqual({3: 0, 4: 0.5}, dig.dot.alg.barycenter(g, fixed, movable));
   });
 
   it("returns -1 for nodes with no neighbors", function() {
@@ -185,6 +185,22 @@ describe("dig.dot.alg.barycenter(graph, fixed, movable)", function() {
     var fixed = [1];
     var movable = [2, 3];
 
-    assert.deepEqual([0, -1], dig.dot.alg.barycenter(g, fixed, movable));
+    assert.deepEqual({2: 0, 3: -1}, dig.dot.alg.barycenter(g, fixed, movable));
+  });
+});
+
+describe("dig.dot.alg.barycenterSort(rank, weights)", function() {
+  it("sorts based on the given weights", function() {
+    var rank = [3, 2, 4, 1];
+    var weights = {3: 6, 2: 4, 4: 8, 1: 2};
+
+    assert.deepEqual([1, 2, 3, 4], dig.dot.alg.barycenterSort(rank, weights));
+  });
+
+  it("leaves -1 in fixed positions", function() {
+    var rank = [3, 2, 4, 1];
+    var weights = {3: 6, 2: -1, 4: 8, 1: 2};
+
+    assert.deepEqual([1, 2, 3, 4], dig.dot.alg.barycenterSort(rank, weights));
   });
 });
