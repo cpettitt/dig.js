@@ -191,22 +191,42 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
 }
 
 /*
+ * Weights each node by the average position of nodes in the adjacent rank.
+ * If a node has no edges to the adjacent rank then it receives the weight -1,
+ * which is used to indicate it should not be moved during sorting.
+ */
+var dig_dot_alg_barycenter = dig.dot.alg.barycenter = function(g, fixed, movable) {
+  var fixedPos = dig_dot_alg_nodePosMap(g, fixed);
+  var weights = [];
+  for (var i = 0; i < movable.length; ++i) {
+    var weight = -1;
+    var sucs = g.neighbors(movable[i], "both");
+    if (sucs.length > 0) {
+      weight = 0;
+      dig_util_forEach(sucs, function(u) {
+        weight = fixedPos[u];
+      });
+      weight = weight / sucs.length;
+    }
+    weights[i] = weight;
+  }
+  return weights;
+}
+
+/*
  * This algorithm finds the number of edge crossings between nodes in two
  * layers (called norths and souths here). The algorithm is derived from:
  *
  *    W. Barth et al., Bilayer Cross Counting, JGAA, 8(2) 179–194 (2004)
  */
 var dig_dot_alg_bcc = dig.dot.alg.bcc = function(g, norths, souths) {
-  var southRanks = {};
-  for (var i = 0; i < souths.length; ++i) {
-    southRanks[souths[i]] = i;
-  }
+  var southPos = dig_dot_alg_nodePosMap(g, souths);
 
   var es = [];
   for (var i = 0; i < norths.length; ++i) {
     var curr = [];
     dig_util_forEach(g.successors(norths[i]), function(v) {
-      curr.push(southRanks[v]);
+      curr.push(southPos[v]);
     });
     es = es.concat(dig_util_radixSort(curr, 1, function(x) { return x; }));
   }
@@ -236,4 +256,16 @@ var dig_dot_alg_bcc = dig.dot.alg.bcc = function(g, norths, souths) {
   }
 
   return crosscount;
+}
+
+/*
+ * Helper function that creates a position map based on the given graph and
+ * rank array.
+ */
+function dig_dot_alg_nodePosMap(g, rank) {
+  var pos = {};
+  for (var i = 0; i < rank.length; ++i) {
+    pos[rank[i]] = i;
+  }
+  return pos;
 }

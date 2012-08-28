@@ -162,3 +162,29 @@ describe("dig.dot.alg.bcc(graph, norths, souths)", function() {
     assert.equal(12, dig.dot.alg.bcc(g, ["n0", "n1", "n2", "n3", "n4", "n5"], ["s0", "s1", "s2", "s3", "s4"]));
   });
 });
+
+describe("dig.dot.alg.barycenter(graph, fixed, movable)", function() {
+  it("returns the average position of adjacent nodes in the fixed rank", function() {
+    var g = dig.dot.read("digraph { 3 -> 1; 4 -> 1; 4 -> 2 }");
+    var fixed = [3, 4];
+    var movable = [1, 2];
+
+    assert.deepEqual([0.5, 1], dig.dot.alg.barycenter(g, fixed, movable));
+  });
+
+  it("handles neighbors in either direction (successors or predecessors)", function() {
+    var g = dig.dot.read("digraph { 1 -> 3; 1 -> 4; 2 -> 4 }");
+    var fixed = [1, 2];
+    var movable = [3, 4];
+
+    assert.deepEqual([0, 0.5], dig.dot.alg.barycenter(g, fixed, movable));
+  });
+
+  it("returns -1 for nodes with no neighbors", function() {
+    var g = dig.dot.read("digraph { 1 -> 2; 3 }");
+    var fixed = [1];
+    var movable = [2, 3];
+
+    assert.deepEqual([0, -1], dig.dot.alg.barycenter(g, fixed, movable));
+  });
+});
