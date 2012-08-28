@@ -57,6 +57,9 @@ var dig_util_radixSort = dig.util.radixSort = function(array, k, keyFunc) {
     for (var i = 0; i < array.length; ++i) {
       var val = array[i];
       var key = keyFunc(j, val);
+      if (key !== Math.floor(key) || key < 0) {
+        throw new Error("Key is not a natural number: " + key);
+      }
       var bucket = buckets[key] = (buckets[key] || []);
       bucket.push(val);
     }

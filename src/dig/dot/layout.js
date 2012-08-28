@@ -118,9 +118,21 @@ var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
  * NOTE: this is a work in progress
  */
 var dig_dot_alg_order = dig.dot.alg.order = function(g) {
+  // TODO make this configurable
+  var MAX_ITERATIONS = 24;
+
   var g2 = dig_dot_alg_addDummyNodes(g);
   var ranks = dig_dot_alg_initOrder(g2);
-  return {ranks: ranks, graph: g2};
+  var best = ranks;
+
+  for (var i = 0; i < MAX_ITERATIONS; ++i) {
+    ranks = dig_dot_alg_graphBarycenterSort(g2, i, ranks);
+    if (dig_dot_alg_graphCrossCount(g, ranks) > dig_dot_alg_graphCrossCount(g, best)) {
+      best = ranks;
+    }
+  }
+
+  return {ranks: best, graph: g2};
 }
 
 /*
@@ -173,8 +185,10 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
     visited[u] = true;
 
     var rankNum = g.nodeLabel(u);
-    var rank = (ranks[rankNum] = ranks[rankNum] || []);
-    rank.push(u);
+    if (!(rankNum in ranks)) {
+      ranks[rankNum] = [];
+    }
+    ranks[rankNum].push(u);
 
     dig_util_forEach(g.successors(u), function(v) {
       dfs(v);
@@ -187,6 +201,21 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
     }
   });
 
+  return ranks;
+}
+
+var dig_dot_alg_graphBarycenterSort = dig.dot.alg.graphBarycenterSort = function(g, i, ranks) {
+  if (i % 2) {
+    for (var j = 1; j < ranks.length; ++j) {
+      var weights = dig_dot_alg_barycenter(g, ranks[j - 1], ranks[j]);
+      ranks[j] = dig_dot_alg_barycenterSort(ranks[j], weights);
+    }
+  } else {
+    for (var j = ranks.length - 2; j > 0; --j) {
+      var weights = dig_dot_alg_barycenter(g, ranks[j + 1], ranks[j]);
+      ranks[j] = dig_dot_alg_barycenterSort(ranks[j], weights);
+    }
+  }
   return ranks;
 }
 
@@ -205,7 +234,10 @@ var dig_dot_alg_barycenter = dig.dot.alg.barycenter = function(g, fixed, movable
     if (sucs.length > 0) {
       weight = 0;
       dig_util_forEach(sucs, function(v) {
-        weight = fixedPos[v];
+        // Only calculate the weight if the node is in the fixed rank
+        if (v in fixedPos) {
+          weight = fixedPos[v];
+        }
       });
       weight = weight / sucs.length;
     }
@@ -234,18 +266,30 @@ var dig_dot_alg_barycenterSort = dig.dot.alg.barycenterSort = function(rank, wei
     }
   }
 
-  var sorted = dig_util_radixSort(rank, 1, function(_, u) { return weights[u]; });
+  rank.sort(function(x, y) { return (x ? weights[x] : -1) - (y ? weights[y] : -1); });
+
   var nextIdx = 0;
-  for (var i = 0; i < sorted.length; ++i) {
-    if (sorted[i] !== null) {
+  for (var i = 0; i < rank.length; ++i) {
+    if (rank[i] !== null) {
       while (result[nextIdx] !== undefined) {
         ++nextIdx;
       }
-      result[nextIdx] = sorted[i];
+      result[nextIdx] = rank[i];
     }
   }
 
   return result;
+}
+
+/*
+ * Applies the bilayer cross count algorith, to each pair of layers in the graph.
+ */
+var dig_dot_alg_graphCrossCount = dig.dot.alg.graphCrossCount = function(g, ranks) {
+  var cc = 0;
+  for (var i = 1; i < ranks.length; ++i) {
+    cc += dig_dot_alg_bilayerCrossCount(g, ranks[i-1], ranks[i]);
+  }
+  return cc;
 }
 
 /*
@@ -254,16 +298,21 @@ var dig_dot_alg_barycenterSort = dig.dot.alg.barycenterSort = function(rank, wei
  *
  *    W. Barth et al., Bilayer Cross Counting, JGAA, 8(2) 179–194 (2004)
  */
-var dig_dot_alg_bcc = dig.dot.alg.bcc = function(g, norths, souths) {
+var dig_dot_alg_bilayerCrossCount = dig.dot.alg.bilayerCrossCount = function(g, norths, souths) {
   var southPos = dig_dot_alg_nodePosMap(g, souths);
+
 
   var es = [];
   for (var i = 0; i < norths.length; ++i) {
     var curr = [];
-    dig_util_forEach(g.successors(norths[i]), function(v) {
-      curr.push(southPos[v]);
+    var u = norths[i];
+    dig_util_forEach(g.neighbors(u, "both"), function(v) {
+      // v may not be in southPos is the edge is to a layer other than souths
+      if (v in southPos) {
+        curr.push(southPos[v]);
+      }
     });
-    es = es.concat(dig_util_radixSort(curr, 1, function(x) { return x; }));
+    es = es.concat(dig_util_radixSort(curr, 1, function(_, x) { return x; }));
   }
 
   var firstIdx = 1;

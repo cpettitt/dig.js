@@ -14,4 +14,10 @@ describe("dig.util.radixSort(arr, k, keyFunc)", function() {
     var sortFunc = function(x, y) { return x[0] - y[0] || x[1] - y[1]; }
     assert.deepEqual(toSort.slice(0).sort(sortFunc), dig.util.radixSort(toSort, 2, keyFunc));
   });
+
+  it("throws an error if the return value is not a natural number", function() {
+    var toSort = [0, -1, 1];
+    var keyFunc = function(_, x) { return x; }
+    assert.throws(function() { dig.util.radixSort(toSort, 1, keyFunc); });
+  });
 });

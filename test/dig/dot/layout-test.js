@@ -141,25 +141,57 @@ describe("dig.dot.alg.initOrder(graph)", function() {
   });
 });
 
-describe("dig.dot.alg.bcc(graph, norths, souths)", function() {
+describe("dig.dot.alg.graphCrossCount(graph, ranks)", function() {
+  it("returns 0 for an empty graph", function() {
+    var g = new dig.DiGraph();
+    assert.equal(0, dig.dot.alg.graphCrossCount(g, []));
+  });
+
+  it("returns 0 for a graph with one layer", function() {
+    var g = dig.dot.read("digraph { 1; 2; 3}");
+    assert.equal(0, dig.dot.alg.graphCrossCount(g, [[1, 2, 3]]));
+  });
+
+  it("matches bilayerCrossCount for 2 layers", function() {
+    var g = dig.dot.read("digraph { n0 -> s0; n1 -> s1; n1 -> s2; n2 -> s0; n2 -> s3; n2 -> s4; n3 -> s0; n3 -> s2; n4 -> s3; n5 -> s2; n5 -> s4;}");
+    assert.equal(12, dig.dot.alg.graphCrossCount(g, [["n0", "n1", "n2", "n3", "n4", "n5"], ["s0", "s1", "s2", "s3", "s4"]]));
+  });
+
+  it("works for graphs with more than 2 layers", function() {
+    var g = dig.dot.read("digraph { 1 -> 12; 2 -> 11; 11 -> 22; 12 -> 21 }");
+    assert.equal(2, dig.dot.alg.graphCrossCount(g, [[01, 02], [11, 12], [21, 22]]));
+  });
+});
+
+describe("dig.dot.alg.bilayerCrossCount(graph, norths, souths)", function() {
   it("returns 0 for a single edge", function() {
     var g = graphs.directed.edge1;
-    assert.equal(0, dig.dot.alg.bcc(g, [1], [2]));
+    assert.equal(0, dig.dot.alg.bilayerCrossCount(g, [1], [2]));
   });
 
   it("returns 1 for a graph with an x structure", function() {
     var g = dig.dot.read("digraph { 1 -> 4; 2 -> 3 }");
-    assert.equal(1, dig.dot.alg.bcc(g, [1, 2], [3, 4]));
+    assert.equal(1, dig.dot.alg.bilayerCrossCount(g, [1, 2], [3, 4]));
   });
 
   it("returns 0 for a graph with parallel edges", function() {
     var g = dig.dot.read("digraph { 1 -> 3; 2 -> 4 }");
-    assert.equal(0, dig.dot.alg.bcc(g, [1, 2], [3, 4]));
+    assert.equal(0, dig.dot.alg.bilayerCrossCount(g, [1, 2], [3, 4]));
+  });
+
+  it("returns 0 for a graph with 3 edges that don't overlap", function() {
+    var g = dig.dot.read("digraph { 01 -> 11; 02 -> 13; 02 -> 12; }");
+    assert.equal(0, dig.dot.alg.bilayerCrossCount(g, ["01", "02"], ["11", "13", "12"]));
   });
 
   it("returns 12 for barth example", function() {
     var g = dig.dot.read("digraph { n0 -> s0; n1 -> s1; n1 -> s2; n2 -> s0; n2 -> s3; n2 -> s4; n3 -> s0; n3 -> s2; n4 -> s3; n5 -> s2; n5 -> s4;}");
-    assert.equal(12, dig.dot.alg.bcc(g, ["n0", "n1", "n2", "n3", "n4", "n5"], ["s0", "s1", "s2", "s3", "s4"]));
+    assert.equal(12, dig.dot.alg.bilayerCrossCount(g, ["n0", "n1", "n2", "n3", "n4", "n5"], ["s0", "s1", "s2", "s3", "s4"]));
+  });
+
+  it("is not influenced by unrelated layers", function() {
+    var g = dig.dot.read("digraph { 1 -> 12; 2 -> 11; 11 -> 22; 12 -> 21 }");
+    assert.equal(1, dig.dot.alg.bilayerCrossCount(g, [01, 02], [11, 12]));
   });
 });
 
@@ -180,12 +212,20 @@ describe("dig.dot.alg.barycenter(graph, fixed, movable)", function() {
     assert.deepEqual({3: 0, 4: 0.5}, dig.dot.alg.barycenter(g, fixed, movable));
   });
 
-  it("returns -1 for nodes with no neighbors", function() {
+  it("assigns -1 weight to nodes with no neighbors", function() {
     var g = dig.dot.read("digraph { 1 -> 2; 3 }");
     var fixed = [1];
     var movable = [2, 3];
 
     assert.deepEqual({2: 0, 3: -1}, dig.dot.alg.barycenter(g, fixed, movable));
+  });
+
+  it("only uses nodes in the selected ranks to calculate weight", function() {
+    var g = dig.dot.read("digraph { 1 -> 2; 2 -> 3; 2 -> 4 }");
+    var fixed = [1];
+    var movable = [2];
+
+    assert.deepEqual({2: 0}, dig.dot.alg.barycenter(g, fixed, movable));
   });
 });
 
@@ -202,5 +242,13 @@ describe("dig.dot.alg.barycenterSort(rank, weights)", function() {
     var weights = {3: 6, 2: -1, 4: 8, 1: 2};
 
     assert.deepEqual([1, 2, 3, 4], dig.dot.alg.barycenterSort(rank, weights));
+  });
+});
+
+describe("dig.dot.alg.order(graph)", function() {
+  it("finds an optimal ordering for nodes", function() {
+    var g = dig.dot.read("digraph { 01 -> 11; 02 -> 12; 02 -> 13; 11 -> 22; 12 -> 21; 13 -> 22; 13 -> 23 }");
+    var result = dig.dot.alg.order(dig.dot.alg.rank(g));
+    assert.equal(0, dig.dot.alg.graphCrossCount(result.graph, result.ranks));
   });
 });
