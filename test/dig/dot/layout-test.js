@@ -2,6 +2,14 @@ require("../../test-env");
 
 var graphs = require("../../test-graphs");
 
+describe("dig.dot.layout(graph)", function() {
+  // Weak assertion for now :)
+  // TODO better tests
+  it("doesn't throw an exception", function() {
+    dig.dot.layout(dig.dot.read("digraph { a -> b -> d; a -> c -> d; }"));
+  });
+});
+
 describe("dig.dot.alg.acyclic(graph)", function() {
   it("does not change an acyclic graph", function() {
     var g = graphs.directed.diamond.copy();
