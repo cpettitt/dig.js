@@ -148,14 +148,13 @@ dig.dot.alg.order = function(g) {
   // TODO make this configurable
   var MAX_ITERATIONS = 24;
 
-  dig.dot.alg.addDummyNodes(g);
-  var ranks = dig.dot.alg.initOrder(g);
-  var best = ranks;
+  var layers = dig.dot.alg.initOrder(g);
+  var best = layers;
 
   for (var i = 0; i < MAX_ITERATIONS; ++i) {
-    ranks = dig.dot.alg.graphBarycenterSort(g, i, ranks);
-    if (dig.dot.alg.graphCrossCount(g, ranks) > dig.dot.alg.graphCrossCount(g, best)) {
-      best = ranks;
+    layers = dig.dot.alg.graphBarycenterSort(g, i, layers);
+    if (dig.dot.alg.graphCrossCount(g, layers) > dig.dot.alg.graphCrossCount(g, best)) {
+      best = layers;
     }
   }
 
