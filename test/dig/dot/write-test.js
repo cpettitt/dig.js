@@ -21,10 +21,11 @@ describe("dig.dot.write(graph)", function() {
     }
   });
 
-  it("can serialize node labels", function() {
+  it("can serialize node attributes", function() {
     var src = new dig.DiGraph();
     src.addNode("n1");
-    src.nodeLabel("n1", "label1");
+    src.node("n1").label = "label1";
+    src.node("n1").weight = "123";
     var serialized = dig.dot.write(src);
     var parsed = dig.dot.read(serialized);
     assert.graphEqual(src, parsed);
@@ -34,7 +35,7 @@ describe("dig.dot.write(graph)", function() {
     var src = new dig.DiGraph();
     src.addNode("n1");
     src.addNode("n2");
-    src.addEdge("n1", "n2", "label1");
+    src.addEdge("n1", "n2", {label: "label1", weight: "123"});
     var serialized = dig.dot.write(src);
     var parsed = dig.dot.read(serialized);
     assert.graphEqual(src, parsed);

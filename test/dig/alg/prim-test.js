@@ -4,7 +4,7 @@ graphs = require("../../test-graphs");
 
 function edgeLabel(g) {
   return function(u, v) {
-    return g.hasEdge(u, v) ? g.edgeLabel(u, v) : Number.POSITIVE_INFINITY;
+    return g.hasEdge(u, v) ? g.edge(u, v).label : Number.POSITIVE_INFINITY;
   }
 }
 

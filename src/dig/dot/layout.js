@@ -90,7 +90,7 @@ var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
   while (pq.size() > 0) {
     for (var min = pq.min(); pq.priority(min) === 0; min = pq.min()) {
       pq.removeMin();
-      g.nodeLabel(min, rankNum);
+      g.node(min).rank = rankNum;
       current.push(min);
     }
 
@@ -149,13 +149,13 @@ var dig_dot_alg_addDummyNodes = dig.dot.alg.addDummyNodes = function(g) {
     var origU = e.from,
         u = e.from,
         v = e.to,
-        rankU = g.nodeLabel(u) + 1,
-        rankV = g.nodeLabel(v);
+        rankU = g.node(u).rank + 1,
+        rankV = g.node(v).rank;
     g.removeEdge(u, v);
     while (rankU < rankV) {
       var w = "_dummy-" + origU + "-" + v + "-" + dummyCount++;
       g.addNode(w);
-      g.nodeLabel(w, rankU);
+      g.node(w).rank = rankU;
       g.addEdge(u, w);
       u = w;
       rankU++;
@@ -184,7 +184,7 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
     }
     visited[u] = true;
 
-    var rankNum = g.nodeLabel(u);
+    var rankNum = g.node(u).rank;
     if (!(rankNum in ranks)) {
       ranks[rankNum] = [];
     }
@@ -196,7 +196,7 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
   }
 
   dig_util_forEach(g.nodes(), function(u) {
-    if (g.nodeLabel(u) === 0) {
+    if (g.node(u).rank === 0) {
       dfs(u);
     }
   });

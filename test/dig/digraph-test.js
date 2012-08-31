@@ -30,7 +30,7 @@ describe("dig.DiGraph", function() {
     abstract.describeHasNode(ctor);
   });
 
-  describe("addNode(node)", function() {
+  describe("addNode(node, [attrs])", function() {
     abstract.describeAddNode(ctor);
   });
 
@@ -38,12 +38,8 @@ describe("dig.DiGraph", function() {
     abstract.describeAddNodes(ctor);
   });
 
-  describe("nodeLabel(u)", function() {
-    abstract.describeNodeLabelGetter(ctor);
-  });
-
-  describe("nodeLabel(u, label)", function() {
-    abstract.describeNodeLabelSetter(ctor);
+  describe("node(u)", function() {
+    abstract.describeNode(ctor);
   });
 
   describe("removeNode(node)", function() {
@@ -56,8 +52,8 @@ describe("dig.DiGraph", function() {
     it("returns all edges in the graph", function() {
       var g = new dig.DiGraph();
       g.addNodes(1, 2);
-      g.addEdge(1, 2);
-      assert.deepEqual([{from: 1, to: 2}], g.edges());
+      g.addEdge(1, 2, {xyz: 123});
+      assert.deepEqual([{from: 1, to: 2, attrs: {xyz: 123}}], g.edges());
     });
   });
 
@@ -72,7 +68,7 @@ describe("dig.DiGraph", function() {
     });
   });
 
-  describe("addEdge(u, v, [label])", function() {
+  describe("addEdge(u, v, [attrs])", function() {
     it("adds a directed edge from u to v", function() {
       var g = new dig.DiGraph();
       g.addNodes(1, 2);
@@ -97,12 +93,8 @@ describe("dig.DiGraph", function() {
     });
   });
 
-  describe("edgeLabel(u, v)", function() {
-    abstract.describeEdgeLabelGetter(ctor);
-  });
-
-  describe("edgeLabel(u, v, label)", function() {
-    abstract.describeEdgeLabelSetter(ctor);
+  describe("edge(u, v)", function() {
+    abstract.describeEdge(ctor);
   });
 
   describe("removeEdge(v, w)", function() {
@@ -291,30 +283,30 @@ describe("dig.DiGraph", function() {
       assert.isTrue(g.undirected().hasEdge(2, 1));
     });
 
-    it("creates unlaballed edges by default", function() {
+    it("removes edge attributes by default", function() {
       var g = new dig.DiGraph();
       g.addNodes(1, 2);
-      g.addEdge(1, 2, "a");
-      assert.isUndefined(g.undirected().edgeLabel(1, 2));
-      assert.isUndefined(g.undirected().edgeLabel(2, 1));
+      g.addEdge(1, 2, {a: 1});
+      assert.isUndefined(g.undirected().edge(1, 2).a);
+      assert.isUndefined(g.undirected().edge(2, 1).a);
     });
 
-    it("allows a custom label merge strategy to be used", function() {
+    it("allows a custom edge attribute merge strategy to be used", function() {
       var g = new dig.DiGraph();
       g.addNodes(1, 2);
-      g.addEdge(1, 2, 6);
-      g.addEdge(2, 1, 7);
+      g.addEdge(1, 2, {weight: 6});
+      g.addEdge(2, 1, {weight: 7});
 
       function sum(es) {
         var sum = 0;
         es.forEach(function(e) {
-          sum += g.edgeLabel(e.from, e.to);
+          sum += e.attrs.weight;
         });
-        return sum;
+        return {weight: sum};
       }
 
-      assert.equal(13, g.undirected(sum).edgeLabel(1, 2));
-      assert.equal(13, g.undirected(sum).edgeLabel(2, 1));
+      assert.equal(13, g.undirected(sum).edge(1, 2).weight);
+      assert.equal(13, g.undirected(sum).edge(2, 1).weight);
     });
   });
 

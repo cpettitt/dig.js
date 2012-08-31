@@ -1,36 +1,67 @@
+// A directed graph (V, E) where V is a set of nodes and E is a set of edges.
 dig.DiGraph = (function() {
-  function _safeGetNode(graph, node) {
-    var nodes = graph._nodes;
-    if (!(node in nodes)) {
-      throw new Error("Node not in graph: " + node);
+  // Returns the node object for u in V or throws an error if the node does
+  // node exist.
+  function _safeGetNode(g, u) {
+    var V = g._nodes;
+    if (!(u in V)) {
+      throw new Error("Node not in graph: " + u);
     }
-    return nodes[node];
+    return V[u];
   };
 
+  // Returns the edge object for (u, v) in E or throws an error if the edge
+  // does not exist.
+  function _safeGetEdge(g, u, v) {
+    var key = _edgeKey(u, v);
+    if (!(key in g._edges)) {
+      throw new Error("No such edge: (" + u + ", " + v + ")");
+    }
+    return g._edges[key];
+  }
+
+  // Creates a key that uniquely identifies the edge (u, v).
   function _edgeKey(u, v) {
     var uStr = u.toString();
     var vStr = v.toString();
     return uStr.length + ":" + uStr + vStr;
   }
 
+  // Copies the first level of keys and values from src to dst.
+  function _shallowCopyAttrs(src, dst) {
+    if (Object.prototype.toString.call(src) !== '[object Object]') {
+      throw new Error("Attributes are not an object: " + src);
+    }
+    for (var k in src) {
+      dst[k] = src[k];
+    }
+  }
+
+  // Checks for equality of all keys and values on the two objects.
+  function _shallowEqual(lhs, rhs) {
+    var lhsKeys = dig_util_objToArr(lhs);
+    var rhsKeys = dig_util_objToArr(rhs);
+    if (lhsKeys.length !== rhsKeys.length) {
+      return false;
+    }
+    for (var k in lhs) {
+      if (lhs[k] !== rhs[k]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   function _copyNodesTo(self, g) {
     dig_util_forEach(self.nodes(), function(u) {
-      g.addNode(u);
-      var nodeLabel = self.nodeLabel(u);
-      if (nodeLabel !== undefined) {
-        g.nodeLabel(u, nodeLabel);
-      }
+      g.addNode(u, self.node(u));
     });
-  };
-
-  function _unlabelEdgeMerge(es) {
-    return undefined;
   };
 
   function _nodesEqual(lhs, rhs) {
     return lhs.order() === rhs.order() &&
-           dig_util_all(lhs.nodes(), function(v) {
-             return rhs.hasNode(v) && lhs.nodeLabel(v) === rhs.nodeLabel(v);
+           dig_util_all(lhs.nodes(), function(u) {
+             return rhs.hasNode(u) && _shallowEqual(lhs.node(u), rhs.node(u));
            });
   }
 
@@ -38,7 +69,7 @@ dig.DiGraph = (function() {
     return lhs.size() === rhs.size() &&
            dig_util_all(lhs.edges(), function(e) {
              return rhs.hasEdge(e.from, e.to) &&
-                    lhs.edgeLabel(e.from, e.to) === rhs.edgeLabel(e.from, e.to);
+                    _shallowEqual(lhs.edge(e.from, e.to), rhs.edge(e.from, e.to));
            });
   }
 
@@ -70,9 +101,10 @@ dig.DiGraph = (function() {
 
     copy: function() {
       var g = new DiGraph();
-      _copyNodesTo(this, g);
-      dig_util_forEach(this.edges(), function(e) {
-        g.addEdge(e.from, e.to);
+      var self = this;
+      _copyNodesTo(self, g);
+      dig_util_forEach(self.edges(), function(e) {
+        g.addEdge(e.from, e.to, self.edge(e.from, e.to));
       });
       return g;
     },
@@ -85,16 +117,26 @@ dig.DiGraph = (function() {
       return node in this._nodes;
     },
 
-    addNode: function(node) {
-      if (!this.hasNode(node)) {
-        this._nodes[node] = {
+    addNode: function(node, attrs) {
+      if (arguments.length < 1 || arguments.length > 2) {
+        throw new Error("Too many or too few arguments. Argument count: " + arguments.length);
+      }
+
+      var entry = this._nodes[node];
+      var added = false;
+      if (!entry) {
+        entry = this._nodes[node] = {
           predecessors: {},
           successors: {},
+          attrs: {}
         };
         this._order++;
-        return true;
+        added = true;
       }
-      return false;
+      if (arguments.length >= 2) {
+        _shallowCopyAttrs(attrs, entry.attrs);
+      }
+      return added;
     },
 
     addNodes: function() {
@@ -103,15 +145,8 @@ dig.DiGraph = (function() {
       }
     },
 
-    nodeLabel: function(u, label) {
-      var entry = _safeGetNode(this, u);
-      if (arguments.length == 1) {
-        return entry.label;
-      } else {
-        var prev = entry.label;
-        entry.label = label;
-        return prev;
-      }
+    node: function(u) {
+      return _safeGetNode(this, u).attrs;
     },
 
     removeNode: function(node) {
@@ -132,29 +167,42 @@ dig.DiGraph = (function() {
 
     edges: function() {
       var edges = [];
-      for (var i in this._nodes) {
-        for (var j in this._nodes[i].successors) {
-          edges.push({from: i, to: j});
-        };
-      };
+      for (var k in this._edges) {
+        var edge = this._edges[k];
+        edges.push({from: edge.from, to: edge.to, attrs: edge.attrs});
+      }
       return edges;
     },
 
-    hasEdge: function(from, to) {
-      return this.hasNode(from) && to in this._nodes[from].successors;
+    hasEdge: function(u, v) {
+      return _edgeKey(u, v) in this._edges;
     },
 
-    addEdge: function(u, v, label) {
+    addEdge: function(u, v, attrs) {
+      if (arguments.length < 2 || arguments.length > 3) {
+        throw new Error("Too many or too few arguments. Argument count: " + arguments.length);
+      }
+
       var fromNode = _safeGetNode(this, u);
       var toNode = _safeGetNode(this, v);
-      if (!this.hasEdge(u, v)) {
+      var edgeKey = _edgeKey(u, v);
+      var entry = this._edges[edgeKey];
+      var added = false;
+      if (!entry) {
         fromNode.successors[v] = true;
         toNode.predecessors[u] = true;
-        this._edges[_edgeKey(u, v)] = label;
+        entry = this._edges[edgeKey] = {
+          from: u,
+          to: v,
+          attrs: {}
+        };
         this._size++;
-        return true;
+        added = true;
       }
-      return false;
+      if (arguments.length >= 3) {
+        _shallowCopyAttrs(attrs, entry.attrs);
+      }
+      return added;
     },
 
     addPath: function() {
@@ -169,29 +217,16 @@ dig.DiGraph = (function() {
       }
     },
 
-    edgeLabel: function(u, v, label) {
-      if (arguments.length < 2 || arguments.length > 3) {
-        throw new Error("Wrong number of arguments: " + arguments.length);
-      }
-
-      var key = _edgeKey(u, v);
-      if (!(key in this._edges)) {
-        throw new Error("No such edge: (" + u + ", " + v + ")");
-      }
-
-      if (arguments.length === 2) {
-        return this._edges[key];
-      } else {
-        var prev = this._edges[key];
-        this._edges[key] = label;
-        return prev;
-      }
+    edge: function(u, v) {
+      return _safeGetEdge(this, u, v).attrs;
     },
 
-    removeEdge: function(from, to) {
-      if (this.hasEdge(from, to)) {
-        delete this._nodes[from].successors[to];
-        delete this._nodes[to].predecessors[from];
+    removeEdge: function(u, v) {
+      var edgeKey = _edgeKey(u, v);
+      if (edgeKey in this._edges) {
+        delete this._nodes[u].successors[v];
+        delete this._nodes[v].predecessors[u];
+        delete this._edges[edgeKey];
         this._size--;
         return true;
       }
@@ -302,7 +337,7 @@ dig.DiGraph = (function() {
       var visitedEdges = {};
 
       if (edgeMerge === undefined) {
-        edgeMerge = _unlabelEdgeMerge;
+        edgeMerge = function() { return {}; }
       }
 
       _copyNodesTo(this, g);
@@ -312,7 +347,7 @@ dig.DiGraph = (function() {
           visitedEdges[_edgeKey(e.from, e.to)] = visitedEdges[_edgeKey(e.to, e.from)] = true;
           var es = [e];
           if (self.hasEdge(e.to, e.from)) {
-            es.push({from: e.to, to: e.from});
+            es.push({from: e.to, to: e.from, attrs: self.edge(e.to, e.from)});
           }
           g.addEdge(e.from, e.to, edgeMerge(es));
         }

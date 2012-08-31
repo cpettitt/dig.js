@@ -6,9 +6,7 @@ var dig_dot_read = dig.dot.read = function(dot) {
     switch (stmt.type) {
       case "node":
         var id = stmt.id;
-        var label = stmt.attrs.label;
-        graph.addNode(id);
-        graph.nodeLabel(id, label);
+        graph.addNode(id, stmt.attrs);
         break;
       case "edge":
         var prev;
@@ -18,7 +16,7 @@ var dig_dot_read = dig.dot.read = function(dot) {
           switch(elem.type) {
             case "node":
               if (prev) {
-                graph.addEdge(prev, elem.id, stmt.attrs.label);
+                graph.addEdge(prev, elem.id, stmt.attrs);
               }
               prev = elem.id; 
               break;

@@ -61,32 +61,26 @@ exports.describeCopy = function(ctor) {
   beforeEach(function() {
     source = ctor();
     source.addNodes(1, 2, 3);
-    source.nodeLabel(1, "a");
+    source.node(1).a = 1;
     source.addEdge(1, 2);
 
     copy = source.copy();
   });
 
   it("copies all nodes from the source graph", function() {
-    assert.equal(source.order(), copy.order());
-    assert.isTrue(copy.hasNode(1));
-    assert.isTrue(copy.hasNode(2));
-    assert.isTrue(copy.hasNode(3));
-    assert.equal(source.nodeLabel(1), copy.nodeLabel(1));
-    assert.equal(source.nodeLabel(2), copy.nodeLabel(2));
-    assert.equal(source.nodeLabel(3), copy.nodeLabel(3));
+    assert.graphEqual(source, copy);
   });
 
   it("doesn't share node changes between copy and source", function() {
     copy.addNode(4);
     assert.isFalse(source.hasNode(4));
-    copy.nodeLabel(2, "b");
-    assert.isUndefined(source.nodeLabel(2));
+    copy.node(2).key = "a";
+    assert.isUndefined(source.node(2).key);
 
     source.addNode(5);
     assert.isFalse(copy.hasNode(5));
-    source.nodeLabel(3, "c");
-    assert.isUndefined(copy.nodeLabel(3));
+    source.node(3).key = "b";
+    assert.isUndefined(copy.node(3).key);
   });
 
   it("copies all edges from the source graph", function() {
@@ -127,14 +121,15 @@ exports.describeEquals = function(ctor) {
     assert.isFalse(graph2.equals(graph));
   });
 
-  it("returns false for graphs that have different node labels", function() {
+  it("returns false for graphs that have different node attributes", function() {
     var g = ctor();
     g.addNodes(1, 2);
+    g.node(1).key = "value";
     g.addEdge(1, 2);
 
     var g2 = ctor();
     g2.addNodes(1, 2);
-    g2.addEdge(1, 2, "a");
+    g2.addEdge(1, 2);
 
     assert.isFalse(g.equals(g2));
     assert.isFalse(g2.equals(g));
@@ -153,14 +148,14 @@ exports.describeEquals = function(ctor) {
     assert.isFalse(graph2.equals(graph));
   });
 
-  it("returns false for graphs that have different edge labels", function() {
+  it("returns false for graphs that have different edge attributes", function() {
     var g = ctor();
     g.addNodes(1, 2, 3);
     g.addEdge(1, 2);
 
     var g2 = ctor();
     g2.addNodes(1, 2, 3);
-    g2.addEdge(1, 2, "a");
+    g2.addEdge(1, 2, {a: 1});
 
     assert.isFalse(g.equals(g2));
     assert.isFalse(g2.equals(g));
@@ -220,6 +215,34 @@ exports.describeAddNode = function(ctor) {
     g.addNode(1);
     assert.isFalse(g.addNode(1));
   });
+
+  it("optionally allows attributes to be set on a node", function() {
+    var g = ctor();
+    var attrs = {xyz: 123};
+    g.addNode(1, attrs);
+    assert.deepEqual({xyz: 123}, g.node(1));
+
+    // attributes are shallow copies, so changes to the original object should
+    // not be reflected in the graph.
+    attrs.abc = 456;
+    assert.deepEqual({xyz: 123}, g.node(1));
+  });
+
+  it("optionally merges attributes if the node already exists", function() {
+    var g = ctor();
+    g.addNode(1, {a: 1, b: 2});
+    g.addNode(1, {b: 3, c: 4}); 
+    assert.deepEqual({a:1, b: 3, c: 4}, g.node(1));
+  });
+
+  it("throws an error if the attributes are not an object", function() {
+    var g = ctor();
+    assert.throws(function() { g.addNode(1, 3); });
+    assert.throws(function() { g.addNode(1, "a"); });
+    assert.throws(function() { g.addNode(1, false); });
+    assert.throws(function() { g.addNode(1, null); });
+    assert.throws(function() { g.addNode(1,  undefined); });
+  });
 };
 
 exports.describeAddNodes = function(ctor) {
@@ -252,56 +275,18 @@ exports.describeAddNodes = function(ctor) {
   });
 };
 
-exports.describeNodeLabelGetter = function(ctor) {
-  it("returns node label or undefined if the node is unlabelled", function() {
-    var g = ctor();
-    g.addNodes(1, 2);
-
-    assert.isUndefined(g.nodeLabel(1));
-
-    g.nodeLabel(2, "xyz");
-    assert.equal("xyz", g.nodeLabel(2));
-
-    // Check again to make sure that caling nodeLabel did not remove the label
-    assert.equal("xyz", g.nodeLabel(2));
-  });
-
-  it("throws an error if the node doesn't exist", function() {
-    assert.throws(function() { ctor().nodeLabel(1); });
-  });
-};
-
-exports.describeNodeLabelSetter = function(ctor) {
-  it("sets a label", function() {
+exports.describeNode = function(ctor) {
+  it("returns the attributes for the node", function() {
     var g = ctor();
     g.addNode(1);
 
-    var prev = g.nodeLabel(1, "a");
-    assert.equal("a", g.nodeLabel(1));
-    assert.isUndefined(prev);
-  });
-
-  it("replaces a label if it exists", function() {
-    var g = ctor();
-    g.addNode(1);
-
-    g.nodeLabel(1, "a");
-    var prev = g.nodeLabel(1, "b");
-    assert.equal("b", g.nodeLabel(1));
-    assert.equal("a", prev);
-  });
-
-  it("allows any arbitrary object", function() {
-    var g = ctor();
-    g.addNodes(1);
-
-    var obj = {k: 1};
-    g.nodeLabel(1, obj);
-    assert.strictEqual(obj, g.nodeLabel(1));
+    assert.isUndefined(g.node(1).key);
+    g.node(1).key = 1;
+    assert.equal(1, g.node(1).key);
   });
 
   it("throws an error if the node doesn't exist", function() {
-    assert.throws(function() { ctor().nodeLabel(1, "xyz"); });
+    assert.throws(function() { ctor().node(1); });
   });
 };
 
@@ -361,11 +346,26 @@ exports.describeAddEdge = function(ctor) {
     assert.isFalse(g.addEdge(1, 2));
   });
 
-  it("allows an optional label to added to the edge", function() {
+  it("optionally allows attributes to be set on the edge", function() {
+    var g = ctor();
+    var attrs = {xyz: 123};
+    g.addNodes(1, 2);
+    g.addEdge(1, 2, attrs);
+
+    assert.deepEqual({xyz: 123}, g.edge(1, 2));
+
+    // attributes are shallow copies, so changes to the original object should
+    // not be reflected in the graph.
+    attrs.abc = 456;
+    assert.deepEqual({xyz: 123}, g.edge(1, 2));
+  });
+
+  it("optionally merges attributes if the edge already exists", function() {
     var g = ctor();
     g.addNodes(1, 2);
-    g.addEdge(1, 2, "a");
-    assert.equal("a", g.edgeLabel(1, 2));
+    g.addEdge(1, 2, {a: 1, b: 2});
+    g.addEdge(1, 2, {b: 3, c: 4}); 
+    assert.deepEqual({a:1, b: 3, c: 4}, g.edge(1, 2));
   });
 
   it("throws an error if one of the nodes was not in the graph", function() {
@@ -373,6 +373,16 @@ exports.describeAddEdge = function(ctor) {
     g.addNode(1);
     assert.throws(function() { g.addEdge(1, 2); });
     assert.isFalse(g.hasEdge(1, 2));
+  });
+
+  it("throws an error if the attributes are not an object", function() {
+    var g = ctor();
+    g.addNodes(1, 2);
+    assert.throws(function() { g.addEdge(1, 2, 3); });
+    assert.throws(function() { g.addEdge(1, 2, "a"); });
+    assert.throws(function() { g.addEdge(1, 2, false); });
+    assert.throws(function() { g.addEdge(1, 2, null); });
+    assert.throws(function() { g.addEdge(1, 2, undefined); });
   });
 }
 
@@ -429,64 +439,21 @@ exports.describeAddPath = function(ctor) {
   });
 };
 
-exports.describeEdgeLabelGetter = function(ctor) {
-  it("returns edge label or undefined if the edge is unlabelled", function() {
+exports.describeEdge = function(ctor) {
+  it("returns the attributes for the edge", function() {
     var g = ctor();
-    g.addNodes(1, 2, 3);
-    g.addPath(1, 2, 3);
+    g.addNodes(1, 2);
+    g.addEdge(1, 2);
 
-    assert.isUndefined(g.edgeLabel(1, 2));
-
-    g.edgeLabel(2, 3, "a");
-    assert.equal("a", g.edgeLabel(2, 3));
-
-    // Check again to make sure that caling edgeLabel did not remove the label
-    assert.equal("a", g.edgeLabel(2, 3));
+    assert.isUndefined(g.edge(1, 2).key);
+    g.edge(1, 2).key = 1;
+    assert.equal(1, g.edge(1, 2).key);
   });
 
   it("throws an error if the edge doesn't exist", function() {
     var g = ctor();
     g.addNodes(1, 2);
-    assert.throws(function() { g.edgeLabel(1, 2); });
-  });
-};
-
-exports.describeEdgeLabelSetter = function(ctor) {
-  it("sets a label", function() {
-    var g = ctor();
-    g.addNodes(1, 2);
-    g.addEdge(1, 2);
-
-    var prev = g.edgeLabel(1, 2, "a");
-    assert.equal("a", g.edgeLabel(1, 2));
-    assert.isUndefined(prev);
-  });
-
-  it("replaces a label if it exists", function() {
-    var g = ctor();
-    g.addNodes(1, 2);
-    g.addEdge(1, 2);
-
-    g.edgeLabel(1, 2, "a");
-    var prev = g.edgeLabel(1, 2, "b");
-    assert.equal("b", g.edgeLabel(1, 2));
-    assert.equal("a", prev);
-  });
-
-  it("allows any arbitrary object", function() {
-    var g = ctor();
-    g.addNodes(1, 2);
-    g.addEdge(1, 2);
-
-    var obj = {k: 1};
-    g.edgeLabel(1, 2, obj);
-    assert.strictEqual(obj, g.edgeLabel(1, 2));
-  });
-
-  it("throws an error if the edge doesn't exist", function() {
-    var g = ctor();
-    g.addNodes(1, 2);
-    assert.throws(function() { g.edgeLabel(1, 2, "a"); });
+    assert.throws(function() { g.edge(1, 2); });
   });
 };
 

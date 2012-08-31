@@ -33,7 +33,9 @@ dig.UGraph = (function() {
 
     addEdge: function(u, v, label) {
       var args = _orderVertices(u, v);
-      args.push(label);
+      if (arguments.length >= 3) {
+        args.push(label);
+      }
       return this._digraph.addEdge.apply(this._digraph, args);
     },
 
@@ -49,15 +51,8 @@ dig.UGraph = (function() {
       }
     },
 
-    edgeLabel: function(u, v, label) {
-      if (arguments.length < 2 || arguments.length > 3) {
-        throw new Error("Wrong number of arguments: " + arguments.length);
-      }
-      var args = _orderVertices(u, v);
-      if (arguments.length === 3) {
-        args.push(arguments[2]);
-      }
-      return this._digraph.edgeLabel.apply(this._digraph, args);
+    edge: function(u, v) {
+      return this._digraph.edge.apply(this._digraph, _orderVertices(u, v));
     },
 
     removeEdge: function(v, w) {
@@ -108,7 +103,7 @@ dig.UGraph = (function() {
   };
 
   _delegate("order", "size",
-            "nodes", "hasNode", "addNode", "addNodes", "nodeLabel", "removeNode",
+            "nodes", "hasNode", "addNode", "addNodes", "node", "removeNode",
             "edges", "degree");
 
   return UGraph;

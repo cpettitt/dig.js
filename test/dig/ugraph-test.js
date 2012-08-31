@@ -34,7 +34,7 @@ describe("dig.UGraph", function() {
     abstract.describeHasNode(ctor);
   });
 
-  describe("addNode(node)", function() {
+  describe("addNode(node, [attrs])", function() {
     abstract.describeAddNode(ctor);
   });
 
@@ -42,12 +42,8 @@ describe("dig.UGraph", function() {
     abstract.describeAddNodes(ctor);
   });
 
-  describe("nodeLabel(u)", function() {
-    abstract.describeNodeLabelGetter(ctor);
-  });
-
-  describe("nodeLabel(u, label)", function() {
-    abstract.describeNodeLabelSetter(ctor);
+  describe("node(u)", function() {
+    abstract.describeNode(ctor);
   });
 
   describe("removeNode(node)", function() {
@@ -60,12 +56,13 @@ describe("dig.UGraph", function() {
     it("returns all edges in the graph", function() {
       var g = ctor();
       g.addNodes(1, 2);
-      g.addEdge(1, 2);
+      g.addEdge(1, 2, {x: 123});
 
       var es = g.edges();
       assert.equal(1, es.length);
       var ns = [es[0].from, es[0].to];
-      assert.deepEqual([1, 2].sort(), ns.sort());
+      assert.deepEqual([1, 2], ns.sort());
+      assert.deepEqual({x: 123}, es[0].attrs);
     });
   });
 
@@ -81,7 +78,7 @@ describe("dig.UGraph", function() {
     });
   });
 
-  describe("addEdge(u, v, [label])", function() {
+  describe("addEdge(u, v, [attrs])", function() {
     it("adds an undirected edge between u and v", function() {
       var g = new dig.UGraph();
       g.addNode(1);
@@ -107,20 +104,16 @@ describe("dig.UGraph", function() {
     });
   });
 
-  describe("edgeLabel(u, v)", function() {
-    abstract.describeEdgeLabelGetter(ctor);
+  describe("edge(u, v)", function() {
+    abstract.describeEdge(ctor);
 
     it("allows access to an edge label from either direction", function() {
       var g = new dig.UGraph();
       g.addNodes(1, 2);
       g.addEdge(1, 2);
-      g.edgeLabel(1, 2, "a");
-      assert.equal("a", g.edgeLabel(2, 1));
+      g.edge(1, 2).a = 123;
+      assert.equal(123, g.edge(2, 1).a);
     });
-  });
-
-  describe("edgeLabel(u, v, label)", function() {
-    abstract.describeEdgeLabelSetter(ctor);
   });
 
   describe("removeEdge(v, w)", function() {

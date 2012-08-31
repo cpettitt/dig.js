@@ -1,7 +1,9 @@
-// Given an undirected graph, find a minimum spanning tree and return it as
-// an undirected graph (an unrooted tree). This function uses Prim's
-// algorithm as described in "Introduction to Algorithms", Third Edition,
-// Comen, et al., Pg 634.
+/*
+ * Given an undirected graph, find a minimum spanning tree and return it as
+ * an undirected graph (an unrooted tree). This function uses Prim's
+ * algorithm as described in "Introduction to Algorithms", Third Edition,
+ * Comen, et al., Pg 634.
+ */
 var dig_alg_prim = dig.alg.prim = function(graph, weight) {
   var parents = {};
   var result = new dig.UGraph();

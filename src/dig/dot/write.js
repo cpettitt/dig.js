@@ -3,26 +3,54 @@ var dig_dot_write = dig.dot.write = (function() {
     return '"' + obj.toString().replace('"', '\\"') + '"';
   }
 
-  return function(graph) {
-    var edgeConnector = graph.isDirected() ? "->" : "--";
-    var str = (graph.isDirected() ? "digraph" : "graph") + " {\n";
-
-    dig_util_forEach(graph.nodes(), function(v) {
-      str += "    " + id(v);
-      var label = graph.nodeLabel(v);
-      if (label !== undefined) {
-        str += ' [label="' + label + '"]';
+  function _writeNode(u, attrs) {
+    var str = "    " + id(u);
+    var hasAttrs = false;
+    for (var k in attrs) {
+      if (!hasAttrs) {
+        str += ' [';
+        hasAttrs = true;
+      } else {
+        str += ',';
       }
-      str += ";\n";
+      str += id(k) + "=" + id(attrs[k]);
+    }
+    if (hasAttrs) {
+      str += "]";
+    }
+    str += "\n";
+    return str;
+  }
+
+  function _writeEdge(edgeConnector, u, v, attrs) {
+    var str = "    " + id(u) + " " + edgeConnector + " " + id(v);
+    var hasAttrs = false;
+    for (var k in attrs) {
+      if (!hasAttrs) {
+        str += ' [';
+        hasAttrs = true;
+      } else {
+        str += ',';
+      }
+      str += id(k) + "=" + id(attrs[k]);
+    }
+    if (hasAttrs) {
+      str += "]";
+    }
+    str += "\n";
+    return str;
+  }
+
+  return function(g) {
+    var edgeConnector = g.isDirected() ? "->" : "--";
+    var str = (g.isDirected() ? "digraph" : "graph") + " {\n";
+
+    dig_util_forEach(g.nodes(), function(u) {
+      str += _writeNode(u, g.node(u));
     });
 
-    dig_util_forEach(graph.edges(), function(e) {
-      str += "    " + id(e.from) + " " + edgeConnector + " " + id(e.to);
-      var label = graph.edgeLabel(e.from, e.to);
-      if (label !== undefined) {
-        str += ' [label="' + label + '"]';
-      }
-      str += ";\n";
+    dig_util_forEach(g.edges(), function(e) {
+      str += _writeEdge(edgeConnector, e.from, e.to, e.attrs);
     });
 
     str += "}\n";

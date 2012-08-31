@@ -39,7 +39,7 @@ describe("dig.dot.alg.initRank(graph)", function() {
   it("can rank a singleton graph", function() {
     var g = graphs.directed.node1;
     var expected = g.copy();
-    expected.nodeLabel(1, 0);
+    expected.node(1).rank = 0;
 
     var actual = dig.dot.alg.initRank(g);
     assert.graphEqual(expected, actual);
@@ -48,10 +48,10 @@ describe("dig.dot.alg.initRank(graph)", function() {
   it("can rank the diamond graph", function() {
     var g = graphs.directed.diamond;
     var expected = g.copy();
-    expected.nodeLabel(1, 0);
-    expected.nodeLabel(2, 1);
-    expected.nodeLabel(3, 1);
-    expected.nodeLabel(4, 2);
+    expected.node(1).rank = 0;
+    expected.node(2).rank = 1;
+    expected.node(3).rank = 1;
+    expected.node(4).rank = 2;
 
     var actual = dig.dot.alg.initRank(g);
     assert.graphEqual(expected, actual);
@@ -60,9 +60,9 @@ describe("dig.dot.alg.initRank(graph)", function() {
   it("can rank a graph with multiple inedge constraints", function() {
     var g = dig.dot.read("digraph { 1 -> 2 -> 3; 1 -> 3 }");
     var expected = g.copy();
-    expected.nodeLabel(1, 0);
-    expected.nodeLabel(2, 1);
-    expected.nodeLabel(3, 2);
+    expected.node(1).rank = 0;
+    expected.node(2).rank = 1;
+    expected.node(3).rank = 2;
 
     var actual = dig.dot.alg.initRank(g);
     assert.graphEqual(expected, actual);
@@ -82,16 +82,16 @@ describe("dig.dot.alg.initRank(graph)", function() {
 describe("dig.dot.alg.addDummyNodes(graph)", function() {
   it("does not change a graph with unit length edges", function() {
     var g = graphs.directed.edge1.copy();
-    g.nodeLabel(1, 0);
-    g.nodeLabel(2, 1);
+    g.node(1, 0);
+    g.node(2, 1);
     var g2 = dig.dot.alg.addDummyNodes(g);
     assert.graphEqual(g, g2);
   });
 
   it("inserts nodes between incident nodes separated by more than one rank", function() {
     var g = graphs.directed.edge1.copy();
-    g.nodeLabel(1, 0);
-    g.nodeLabel(2, 2);
+    g.node(1).rank = 0;
+    g.node(2).rank = 2;
 
     var g2 = dig.dot.alg.addDummyNodes(g);
     assert.isFalse(g2.hasEdge(1, 2));
@@ -103,21 +103,21 @@ describe("dig.dot.alg.addDummyNodes(graph)", function() {
 
   it("assigns the correct rank when inserting nodes", function() {
     var g = graphs.directed.edge1.copy();
-    g.nodeLabel(1, 0);
-    g.nodeLabel(2, 2);
+    g.node(1).rank = 0;
+    g.node(2).rank = 2;
 
     var g2 = dig.dot.alg.addDummyNodes(g);
-    assert.equal(1, g2.nodeLabel(g2.successors(1)[0]));
+    assert.equal(1, g2.node(g2.successors(1)[0]).rank);
   });
 });
 
 describe("dig.dot.alg.initOrder(graph)", function() {
   it("returns an array ordering for graphs", function() {
     var g = graphs.directed.diamond.copy();
-    g.nodeLabel(1, 0);
-    g.nodeLabel(2, 1);
-    g.nodeLabel(3, 1);
-    g.nodeLabel(4, 2);
+    g.node(1).rank = 0;
+    g.node(2).rank = 1;
+    g.node(3).rank = 1;
+    g.node(4).rank = 2;
 
     var ranks = dig.dot.alg.initOrder(g);
     assert.deepEqual([1], ranks[0]);
@@ -128,11 +128,11 @@ describe("dig.dot.alg.initOrder(graph)", function() {
 
   it("works for graphs with multiple min-rank nodes", function() {
     var g = dig.dot.read("digraph { 1 -> 3; 1 -> 4; 2 -> 5 }");
-    g.nodeLabel(1, 0);
-    g.nodeLabel(2, 0);
-    g.nodeLabel(3, 1);
-    g.nodeLabel(4, 1);
-    g.nodeLabel(5, 1);
+    g.node(1).rank = 0;
+    g.node(2).rank = 0;
+    g.node(3).rank = 1;
+    g.node(4).rank = 1;
+    g.node(5).rank = 1;
 
     var ranks = dig.dot.alg.initOrder(g, ranks);
     assert.deepEqual([1, 2], ranks[0].sort());
