@@ -115,6 +115,16 @@ describe("dig.dot.alg.addDummyNodes(graph)", function() {
     dig.dot.alg.addDummyNodes(g2);
     assert.equal(1, g2.node(g2.successors(1)[0]).rank);
   });
+
+  it("sets the dummy flag on dummy nodes", function() {
+    var g = graphs.directed.edge1.copy();
+    g.node(1).rank = 0;
+    g.node(2).rank = 2;
+
+    var g2 = g.copy();
+    dig.dot.alg.addDummyNodes(g2);
+    assert.isTrue(g2.node(g2.successors(1)[0]).dummy);
+  });
 });
 
 describe("dig.dot.alg.initOrder(graph)", function() {

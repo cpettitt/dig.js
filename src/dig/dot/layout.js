@@ -145,8 +145,7 @@ var dig_dot_alg_addDummyNodes = dig.dot.alg.addDummyNodes = function(g) {
     g.removeEdge(u, v);
     while (rankU < rankV) {
       var w = "_dummy-" + origU + "-" + v + "-" + dummyCount++;
-      g.addNode(w);
-      g.node(w).rank = rankU;
+      g.addNode(w, {rank: rankU, dummy: true});
       g.addEdge(u, w);
       u = w;
       rankU++;
