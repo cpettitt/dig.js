@@ -11,7 +11,7 @@ describe("dig.dot.alg.acyclic(graph)", function() {
   });
 
   it("deletes an edge to make a cyclic graph acyclic", function() {
-    var g = graphs.directed.cycle2;
+    var g = graphs.directed.cycle2.copy();
     dig.dot.alg.acyclic(g);
     assert.isTrue(g.isAcyclic());
     assert.equal(1, g.degree(1));
@@ -19,7 +19,7 @@ describe("dig.dot.alg.acyclic(graph)", function() {
   });
 
   it("reverses an edge to make a cyclic graph acyclic", function() {
-    var g = graphs.directed.cycle3;
+    var g = graphs.directed.cycle3.copy();
     dig.dot.alg.acyclic(g);
     assert.isTrue(g.isAcyclic());
     assert.equal(2, g.degree(1));

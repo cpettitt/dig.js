@@ -22,6 +22,12 @@ dig.UGraph = (function() {
       return g;
     },
 
+    immutable: function() {
+      var g = new UGraph();
+      g._digraph = this._digraph.immutable();
+      return g;
+    },
+
     equals: function(ugraph) {
       return ugraph instanceof UGraph &&
              this._digraph.equals(ugraph._digraph);

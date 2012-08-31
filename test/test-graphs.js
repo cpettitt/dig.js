@@ -9,7 +9,7 @@ function scan(dir, appendTo) {
       var shortName = file.slice(0, file.length - 4);
       var fileContents = fs.readFileSync(dir + "/" + file, "utf-8");
       var g = dig.dot.read(fileContents);
-      appendTo[shortName] = g;
+      appendTo[shortName] = g.immutable();
     }
   });
 }

@@ -27,6 +27,13 @@ dig.DiGraph = (function() {
     return uStr.length + ":" + uStr + vStr;
   }
 
+  // Throws an error if this graph is immutable.
+  function _checkMutable(g) {
+    if (g._immutable) {
+      throw new Error("Graph is immutable!");
+    }
+  }
+
   // Copies the first level of keys and values from src to dst.
   function _shallowCopyAttrs(src, dst) {
     if (Object.prototype.toString.call(src) !== '[object Object]') {
@@ -78,6 +85,7 @@ dig.DiGraph = (function() {
     this._edges = {};
     this._order = 0;
     this._size = 0;
+    this._immutable = false;
   };
 
   DiGraph.prototype = {
@@ -109,6 +117,12 @@ dig.DiGraph = (function() {
       return g;
     },
 
+    immutable: function() {
+      var g = this.copy();
+      g._immutable = true;
+      return g;
+    },
+
     nodes: function() {
       return dig_util_keys(this._nodes);
     },
@@ -118,6 +132,7 @@ dig.DiGraph = (function() {
     },
 
     addNode: function(node, attrs) {
+      _checkMutable(this);
       if (arguments.length < 1 || arguments.length > 2) {
         throw new Error("Too many or too few arguments. Argument count: " + arguments.length);
       }
@@ -140,16 +155,24 @@ dig.DiGraph = (function() {
     },
 
     addNodes: function() {
+      _checkMutable(this);
       for (var i = 0; i < arguments.length; ++i) {
         this.addNode(arguments[i]);
       }
     },
 
     node: function(u) {
-      return _safeGetNode(this, u).attrs;
+      var attrs = _safeGetNode(this, u).attrs;
+      if (this._immutable) {
+        var copy = {};
+        _shallowCopyAttrs(attrs, copy);
+        attrs = copy;
+      }
+      return attrs;
     },
 
     removeNode: function(node) {
+      _checkMutable(this);
       var self = this;
       if (this.hasNode(node)) {
         dig_util_forEach(this.predecessors(node), function(i) {
@@ -169,7 +192,13 @@ dig.DiGraph = (function() {
       var edges = [];
       for (var k in this._edges) {
         var edge = this._edges[k];
-        edges.push({from: edge.from, to: edge.to, attrs: edge.attrs});
+        edge = {from: edge.from, to: edge.to, attrs: edge.attrs};
+        if (this._immutable) {
+          var copy = {};
+          _shallowCopyAttrs(edge.attrs, copy);
+          edge.attrs = copy;
+        }
+        edges.push(edge);
       }
       return edges;
     },
@@ -179,6 +208,7 @@ dig.DiGraph = (function() {
     },
 
     addEdge: function(u, v, attrs) {
+      _checkMutable(this);
       if (arguments.length < 2 || arguments.length > 3) {
         throw new Error("Too many or too few arguments. Argument count: " + arguments.length);
       }
@@ -206,6 +236,7 @@ dig.DiGraph = (function() {
     },
 
     addPath: function() {
+      _checkMutable(this);
       var prev, curr;
       if (arguments.length > 1) {
         prev = arguments[0];
@@ -222,6 +253,7 @@ dig.DiGraph = (function() {
     },
 
     removeEdge: function(u, v) {
+      _checkMutable(this);
       var edgeKey = _edgeKey(u, v);
       if (edgeKey in this._edges) {
         delete this._nodes[u].successors[v];
