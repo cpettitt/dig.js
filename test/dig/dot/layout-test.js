@@ -4,20 +4,23 @@ var graphs = require("../../test-graphs");
 
 describe("dig.dot.alg.acyclic(graph)", function() {
   it("does not change an acyclic graph", function() {
-    var g = dig.dot.alg.acyclic(graphs.directed.diamond);
+    var g = graphs.directed.diamond.copy();
+    dig.dot.alg.acyclic(g);
     assert.graphEqual(graphs.directed.diamond, g);
     assert.isTrue(g.isAcyclic());
   });
 
   it("deletes an edge to make a cyclic graph acyclic", function() {
-    var g = dig.dot.alg.acyclic(graphs.directed.cycle2);
+    var g = graphs.directed.cycle2;
+    dig.dot.alg.acyclic(g);
     assert.isTrue(g.isAcyclic());
     assert.equal(1, g.degree(1));
     assert.equal(1, g.degree(2));
   });
 
   it("reverses an edge to make a cyclic graph acyclic", function() {
-    var g = dig.dot.alg.acyclic(graphs.directed.cycle3);
+    var g = graphs.directed.cycle3;
+    dig.dot.alg.acyclic(g);
     assert.isTrue(g.isAcyclic());
     assert.equal(2, g.degree(1));
     assert.equal(2, g.degree(2));
@@ -25,8 +28,8 @@ describe("dig.dot.alg.acyclic(graph)", function() {
   });
 
   it("will reverse multiple edges if necessary", function() {
-    var input = dig.dot.read("digraph { 1 -> 2 -> 3 -> 1; 3 -> 4 -> 2; }");
-    var g = dig.dot.alg.acyclic(input);
+    var g = dig.dot.read("digraph { 1 -> 2 -> 3 -> 1; 3 -> 4 -> 2; }");
+    dig.dot.alg.acyclic(g);
     assert.isTrue(g.isAcyclic());
     assert.equal(2, g.degree(1));
     assert.equal(3, g.degree(2));
@@ -37,24 +40,24 @@ describe("dig.dot.alg.acyclic(graph)", function() {
 
 describe("dig.dot.alg.initRank(graph)", function() {
   it("can rank a singleton graph", function() {
-    var g = graphs.directed.node1;
+    var g = graphs.directed.node1.copy();
     var expected = g.copy();
     expected.node(1).rank = 0;
 
-    var actual = dig.dot.alg.initRank(g);
-    assert.graphEqual(expected, actual);
+    dig.dot.alg.initRank(g);
+    assert.graphEqual(expected, g);
   });
 
   it("can rank the diamond graph", function() {
-    var g = graphs.directed.diamond;
+    var g = graphs.directed.diamond.copy();
     var expected = g.copy();
     expected.node(1).rank = 0;
     expected.node(2).rank = 1;
     expected.node(3).rank = 1;
     expected.node(4).rank = 2;
 
-    var actual = dig.dot.alg.initRank(g);
-    assert.graphEqual(expected, actual);
+    dig.dot.alg.initRank(g);
+    assert.graphEqual(expected, g);
   });
 
   it("can rank a graph with multiple inedge constraints", function() {
@@ -64,8 +67,8 @@ describe("dig.dot.alg.initRank(graph)", function() {
     expected.node(2).rank = 1;
     expected.node(3).rank = 2;
 
-    var actual = dig.dot.alg.initRank(g);
-    assert.graphEqual(expected, actual);
+    dig.dot.alg.initRank(g);
+    assert.graphEqual(expected, g);
   });
 
   it("throws an error for undirected graphs", function() {
@@ -82,9 +85,10 @@ describe("dig.dot.alg.initRank(graph)", function() {
 describe("dig.dot.alg.addDummyNodes(graph)", function() {
   it("does not change a graph with unit length edges", function() {
     var g = graphs.directed.edge1.copy();
-    g.node(1, 0);
-    g.node(2, 1);
-    var g2 = dig.dot.alg.addDummyNodes(g);
+    g.node(1).rank = 0;
+    g.node(2).rank = 1;
+    var g2 = g.copy();
+    dig.dot.alg.addDummyNodes(g2);
     assert.graphEqual(g, g2);
   });
 
@@ -93,7 +97,8 @@ describe("dig.dot.alg.addDummyNodes(graph)", function() {
     g.node(1).rank = 0;
     g.node(2).rank = 2;
 
-    var g2 = dig.dot.alg.addDummyNodes(g);
+    var g2 = g.copy();
+    dig.dot.alg.addDummyNodes(g2);
     assert.isFalse(g2.hasEdge(1, 2));
     var successors = g2.successors(1);
     assert.equal(1, successors.length);
@@ -106,7 +111,8 @@ describe("dig.dot.alg.addDummyNodes(graph)", function() {
     g.node(1).rank = 0;
     g.node(2).rank = 2;
 
-    var g2 = dig.dot.alg.addDummyNodes(g);
+    var g2 = g.copy();
+    dig.dot.alg.addDummyNodes(g2);
     assert.equal(1, g2.node(g2.successors(1)[0]).rank);
   });
 });
@@ -248,7 +254,8 @@ describe("dig.dot.alg.barycenterSort(rank, weights)", function() {
 describe("dig.dot.alg.order(graph)", function() {
   it("finds an optimal ordering for nodes", function() {
     var g = dig.dot.read("digraph { 01 -> 11; 02 -> 12; 02 -> 13; 11 -> 22; 12 -> 21; 13 -> 22; 13 -> 23 }");
-    var result = dig.dot.alg.order(dig.dot.alg.rank(g));
-    assert.equal(0, dig.dot.alg.graphCrossCount(result.graph, result.ranks));
+    dig.dot.alg.rank(g);
+    var layers = dig.dot.alg.order(g);
+    assert.equal(0, dig.dot.alg.graphCrossCount(g, layers));
   });
 });

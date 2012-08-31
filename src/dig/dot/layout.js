@@ -3,26 +3,25 @@
  *
  * NOTE: this is a work in progress.
  */
-var dig_dot_layout = dig.dot.layout = function(g) {
-  var aux = dig_dot_alg_acyclic(g);
-  aux = dig_dot_alg_rank(aux);
-  return dig_dot_alg_order(aux);
+var dig_dot_layout = dig.dot.layout = function(inputGraph) {
+  var auxGraph = inputGraph.clone();
+  dig_dot_alg_acyclic(auxGraph);
+  dig_dot_alg_rank(auxGraph);
+  return dig_dot_alg_order(auxGraph);
 }
 
 /*
- * Given a directed graph this function will return a modified copy of the
- * graph that has been turned into a directed acyclic graph (DAG) by reversing
- * edges that participate in cycles. This algorithm currently just uses a basic
- * DFS traversal.
+ * This function modifies the supplied directed graph to make it acyclic by
+ * reversing edges that participate in cycles. This algorithm currently uses
+ * a basic DFS traversal.
+ *
+ * This algorithm does not preserve attributes.
  *
  * Post-conditions:
  *
  *  1. Input graph is acyclic
- *
- * This algorithm does not preserve labels for reversed edges.
  */
 var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
-  g = g.copy();
   var onStack = {};
   var visited = {};
 
@@ -48,13 +47,11 @@ var dig_dot_alg_acyclic = dig.dot.alg.acyclic = function(g) {
   dig_util_forEach(g.nodes(), function(u) {
     dfs(u);
   });
-
-  return g;
 }
 
 /*
- * Returns an array of ranks, with each rank contains an array of nodes in the
- * rank. Nodes in each rank do not have a particular order.
+ * Returns an array of layers, with each layer containing an unordered array of
+ * nodes.
  *
  * Pre-conditions:
  *
@@ -66,8 +63,8 @@ var dig_dot_alg_rank = dig.dot.alg.rank = function(g) {
 }
 
 /*
- * Finds a feasible ranking (description below) for the given graph and
- * returns a copy of the graph with the nodes labelled with their rank.
+ * Finds a feasible ranking (description below) for the given graph and assigns
+ * a rank attribute to each node for that ranking.
  *
  * A feasible ranking is one such that for all edges e, length(e) >=
  * min_length(e). For our purposes min_length(e) is always 1 and length(e)
@@ -79,7 +76,6 @@ var dig_dot_alg_rank = dig.dot.alg.rank = function(g) {
  *  2. Input graph is acyclic
  */
 var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
-  g = g.copy();
   var pq = new dig_data_PriorityQueue();
   dig_util_forEach(g.nodes(), function(u) {
     pq.add(u, g.indegree(u));
@@ -107,43 +103,38 @@ var dig_dot_alg_initRank = dig.dot.alg.initRank = function(g) {
     current = [];
     rankNum++;
   }
-
-  return g;
 }
 
 /*
- * Given a graph with nodes labelled by their rank, this function returns an array
- * of ranks where each rank has nodes ordered to minimize edge crossings.
- *
- * NOTE: this is a work in progress
+ * Given a graph of nodes with rank attributes, this function returns an array
+ * of layers where each layer has nodes ordered to minimize edge crossings.
  */
 var dig_dot_alg_order = dig.dot.alg.order = function(g) {
   // TODO make this configurable
   var MAX_ITERATIONS = 24;
 
-  var g2 = dig_dot_alg_addDummyNodes(g);
-  var ranks = dig_dot_alg_initOrder(g2);
+  dig_dot_alg_addDummyNodes(g);
+  var ranks = dig_dot_alg_initOrder(g);
   var best = ranks;
 
   for (var i = 0; i < MAX_ITERATIONS; ++i) {
-    ranks = dig_dot_alg_graphBarycenterSort(g2, i, ranks);
+    ranks = dig_dot_alg_graphBarycenterSort(g, i, ranks);
     if (dig_dot_alg_graphCrossCount(g, ranks) > dig_dot_alg_graphCrossCount(g, best)) {
       best = ranks;
     }
   }
 
-  return {ranks: best, graph: g2};
+  return best;
 }
 
 /*
- * Given a graph with nodes labelled by their rank, this function returns a new
+ * Given a graph of nodes with rank attributes, this function returns a new
  * graph where each edge is of unit length. For example, if rank(u) = 2 and
  * rank(v) = 4 and there is an edge (u, v), this function will replace the
  * edge (u, v) with two edges (u, w), (w, v) so that no edge has a length
  * greater than 1. In this example, rank(w) = 1.
  */
 var dig_dot_alg_addDummyNodes = dig.dot.alg.addDummyNodes = function(g) {
-  g = g.copy();
   var dummyCount = 0;
   dig_util_forEach(g.edges(), function(e) {
     var origU = e.from,
@@ -162,12 +153,11 @@ var dig_dot_alg_addDummyNodes = dig.dot.alg.addDummyNodes = function(g) {
     }
     g.addEdge(u, v);
   });
-  return g;
 }
 
 
 /*
- * Returns an array of ranks where each rank has a list of nodes in the given
+ * Returns an array of layers where each layer has a list of nodes in the given
  * rank. This initial pass attempts to generate a good starting point from
  * which to generate an ordering with minimal edge crossings, but almost
  * certainly some iteration will reduce edge crossing.
@@ -175,7 +165,7 @@ var dig_dot_alg_addDummyNodes = dig.dot.alg.addDummyNodes = function(g) {
 var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
   // We currently use DFS as described in the graphviz paper.
 
-  var ranks = [];
+  var layers = [];
   var visited = {};
 
   function dfs(u) {
@@ -185,10 +175,10 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
     visited[u] = true;
 
     var rankNum = g.node(u).rank;
-    if (!(rankNum in ranks)) {
-      ranks[rankNum] = [];
+    if (!(rankNum in layers)) {
+      layers[rankNum] = [];
     }
-    ranks[rankNum].push(u);
+    layers[rankNum].push(u);
 
     dig_util_forEach(g.successors(u), function(v) {
       dfs(v);
@@ -201,22 +191,22 @@ var dig_dot_alg_initOrder = dig.dot.alg.initOrder = function(g) {
     }
   });
 
-  return ranks;
+  return layers;
 }
 
-var dig_dot_alg_graphBarycenterSort = dig.dot.alg.graphBarycenterSort = function(g, i, ranks) {
+var dig_dot_alg_graphBarycenterSort = dig.dot.alg.graphBarycenterSort = function(g, i, layers) {
   if (i % 2) {
-    for (var j = 1; j < ranks.length; ++j) {
-      var weights = dig_dot_alg_barycenter(g, ranks[j - 1], ranks[j]);
-      ranks[j] = dig_dot_alg_barycenterSort(ranks[j], weights);
+    for (var j = 1; j < layers.length; ++j) {
+      var weights = dig_dot_alg_barycenter(g, layers[j - 1], layers[j]);
+      layers[j] = dig_dot_alg_barycenterSort(layers[j], weights);
     }
   } else {
-    for (var j = ranks.length - 2; j > 0; --j) {
-      var weights = dig_dot_alg_barycenter(g, ranks[j + 1], ranks[j]);
-      ranks[j] = dig_dot_alg_barycenterSort(ranks[j], weights);
+    for (var j = layers.length - 2; j > 0; --j) {
+      var weights = dig_dot_alg_barycenter(g, layers[j + 1], layers[j]);
+      layers[j] = dig_dot_alg_barycenterSort(layers[j], weights);
     }
   }
-  return ranks;
+  return layers;
 }
 
 /*
@@ -300,7 +290,6 @@ var dig_dot_alg_graphCrossCount = dig.dot.alg.graphCrossCount = function(g, rank
  */
 var dig_dot_alg_bilayerCrossCount = dig.dot.alg.bilayerCrossCount = function(g, norths, souths) {
   var southPos = dig_dot_alg_nodePosMap(g, souths);
-
 
   var es = [];
   for (var i = 0; i < norths.length; ++i) {
