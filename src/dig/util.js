@@ -18,7 +18,7 @@ var dig_util_defineProperty = (function() {
   }
 })();
 
-function dig_util_objToArr(obj) {
+function dig_util_keys(obj) {
   var arr = [];
   for (var k in obj) {
     arr.push(k);

@@ -39,8 +39,8 @@ dig.DiGraph = (function() {
 
   // Checks for equality of all keys and values on the two objects.
   function _shallowEqual(lhs, rhs) {
-    var lhsKeys = dig_util_objToArr(lhs);
-    var rhsKeys = dig_util_objToArr(rhs);
+    var lhsKeys = dig_util_keys(lhs);
+    var rhsKeys = dig_util_keys(rhs);
     if (lhsKeys.length !== rhsKeys.length) {
       return false;
     }
@@ -110,7 +110,7 @@ dig.DiGraph = (function() {
     },
 
     nodes: function() {
-      return dig_util_objToArr(this._nodes);
+      return dig_util_keys(this._nodes);
     },
 
     hasNode: function(node) {
@@ -264,11 +264,11 @@ dig.DiGraph = (function() {
     },
 
     predecessors: function(node) {
-      return dig_util_objToArr(_safeGetNode(this, node).predecessors);
+      return dig_util_keys(_safeGetNode(this, node).predecessors);
     },
 
     successors: function(node) {
-      return dig_util_objToArr(_safeGetNode(this, node).successors);
+      return dig_util_keys(_safeGetNode(this, node).successors);
     },
 
     neighbors: function(node, direction) {
@@ -294,7 +294,7 @@ dig.DiGraph = (function() {
         }
       }
 
-      return dig_util_objToArr(obj);
+      return dig_util_keys(obj);
     },
 
     isAcyclic: function() {
