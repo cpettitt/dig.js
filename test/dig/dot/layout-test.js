@@ -314,4 +314,73 @@ describe("dig.dot.alg.removeNonMedians(graph, layers)", function() {
     dig.dot.alg.removeNonMedians(g, layers);
     assert.graphEqual(expected, g);
   });
+
+  it("works across layers", function() {
+    var g = dig.dot.read("digraph { A1 -> B1 -> C2; A2 -> B2 -> C2; A3 -> B3 -> C2; A1 -> B2; A3 -> B2 }");
+    var layers = [["A1", "A2", "A3"], ["B1", "B2", "B3"], ["C2"]];
+    var expected = g.copy();
+    expected.removeEdge("A1", "B2");
+    expected.removeEdge("A3", "B2");
+    expected.removeEdge("B1", "C2");
+    expected.removeEdge("B3", "C2");
+    dig.dot.alg.removeNonMedians(g, layers);
+    assert.graphEqual(expected, g);
+  });
+});
+
+describe("dig.dot.alg.removeType1Conflicts(graph, layers)", function() {
+  it("does not remove edges with no conflict", function() {
+    var g = dig.dot.read("digraph { 1 -> 2 }");
+    var layers = [[1], [2]];
+    var expected = g.copy();
+    dig.dot.alg.removeType1Conflicts(g, layers);
+    assert.graphEqual(expected, g);
+  });
+
+  it("removes edges with type 1 conflicts", function() {
+    var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1 }");
+    g.node("A2").dummy = true;
+    g.node("B1").dummy = true;
+    var layers = [["A1", "A2"], ["B1", "B2"]];
+    var expected = g.copy();
+    expected.removeEdge("A1", "B2");
+    dig.dot.alg.removeType1Conflicts(g, layers);
+    assert.graphEqual(expected, g);
+  });
+
+  it("does not remove edges with type 0 conflicts", function() {
+    var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1 }");
+    var layers = [["A1", "A2"], ["B1", "B2"]];
+    var expected = g.copy();
+    dig.dot.alg.removeType1Conflicts(g, layers);
+    assert.graphEqual(expected, g);
+  });
+
+  it("it also removes type 2 conflicts", function() {
+    // Note: type 2 conflicts should be resolved before calling this algorithm,
+    // but the algorithm is able to resolve them if needed.
+    var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1 }");
+    var layers = [["A1", "A2"], ["B1", "B2"]];
+    g.node("A1").dummy = true;
+    g.node("A2").dummy = true;
+    g.node("B1").dummy = true;
+    g.node("B2").dummy = true;
+    var expected = g.copy();
+    expected.removeEdge("A1", "B2");
+    dig.dot.alg.removeType1Conflicts(g, layers);
+    assert.graphEqual(expected, g);
+  });
+
+  it("works across multiple layers", function() {
+    var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1; B2 -> C1; B1 -> C2 }");
+    g.node("A2").dummy = true;
+    g.node("B1").dummy = true;
+    g.node("C2").dummy = true;
+    var layers = [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]];
+    var expected = g.copy();
+    expected.removeEdge("A1", "B2");
+    expected.removeEdge("B2", "C1");
+    dig.dot.alg.removeType1Conflicts(g, layers);
+    assert.graphEqual(expected, g);
+  });
 });

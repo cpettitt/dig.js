@@ -371,6 +371,47 @@ dig.dot.alg.removeNonMedians = function(g, layers) {
 }
 
 /*
+ * Finds type 1 edge conflicts and removes them.
+ */
+dig.dot.alg.removeType1Conflicts = function(g, layers) {
+  for (var i = 1; i < layers.length; ++i) {
+    var prevStart = 0;
+    var prevEnd;
+    var currStart = 0;
+    var prevLayer = layers[i - 1];
+    var currLayer = layers[i];
+    var prevOrderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
+    for (var currEnd = 0; currEnd < currLayer.length; ++currEnd) {
+      var v = currLayer[currEnd];
+      var inner = null;
+      if (g.node(v).dummy) {
+        dig_util_forEach(g.predecessors(v), function(u) {
+          if (g.node(u).dummy) {
+            inner = u;
+          }
+        });
+      }
+      if (currEnd + 1 === currLayer.length || inner !== null) {
+        prevEnd = currLayer.length - 1;
+        if (inner !== null) {
+          prevEnd = prevOrderMap[inner];
+        }
+        for (; currStart <= currEnd; ++currStart) {
+          v = currLayer[currStart];
+          dig_util_forEach(g.predecessors(v), function(u) {
+            var k = prevOrderMap[u];
+            if (k < prevStart || k > prevEnd) {
+              g.removeEdge(u, v);
+            }
+          });
+        }
+        prevStart = prevEnd;
+      }
+    }
+  }
+}
+
+/*
  * Helper function that creates a map that contains the order of nodes in a
  * particular layer.
  */
