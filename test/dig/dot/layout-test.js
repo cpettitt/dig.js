@@ -277,3 +277,41 @@ describe("dig.dot.alg.order(graph)", function() {
     assert.equal(0, dig.dot.alg.graphCrossCount(g, layers));
   });
 });
+
+describe("dig.dot.alg.removeNonMedians(graph, layers)", function() {
+  it("does nothing if a node has no predecessors", function() {
+    var g = dig.dot.read("digraph { 1; 2 }");
+    var layers = [[1], [2]];
+    var expected = g.copy();
+    dig.dot.alg.removeNonMedians(g, layers);
+    assert.graphEqual(expected, g);
+  });
+
+  it("does nothing if a node has a single predecessor", function() {
+    var g = dig.dot.read("digraph { 1 -> 2 }");
+    var layers = [[1], [2]];
+    var expected = g.copy();
+    dig.dot.alg.removeNonMedians(g, layers);
+    assert.graphEqual(expected, g);
+  });
+
+  it("removes all but the median node for |predecessor(v)| % 2 == 1", function() {
+    var g = dig.dot.read("digraph { 1 -> 4; 2 -> 4; 3 -> 4 }");
+    var layers = [[1, 2, 3], [4]];
+    var expected = g.copy();
+    expected.removeEdge(1, 4);
+    expected.removeEdge(3, 4);
+    dig.dot.alg.removeNonMedians(g, layers);
+    assert.graphEqual(expected, g);
+  });
+
+  it("removes all but two median nodes for |predecessor(v)| % 2 == 0", function() {
+    var g = dig.dot.read("digraph { 1 -> 5; 2 -> 5; 3 -> 5; 4 -> 5; }");
+    var layers = [[1, 2, 3, 4], [5]];
+    var expected = g.copy();
+    expected.removeEdge(1, 5);
+    expected.removeEdge(4, 5);
+    dig.dot.alg.removeNonMedians(g, layers);
+    assert.graphEqual(expected, g);
+  });
+});

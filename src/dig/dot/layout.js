@@ -220,7 +220,7 @@ dig.dot.alg.graphBarycenterSort = function(g, i, layers) {
  * which is used to indicate it should not be moved during sorting.
  */
 dig.dot.alg.barycenter = function(g, fixed, movable) {
-  var fixedPos = dig_dot_alg_nodePosMap(g, fixed);
+  var fixedPos = dig_dot_alg_nodeOrderMap(g, fixed);
   var weights = {};
   for (var i = 0; i < movable.length; ++i) {
     var weight = -1;
@@ -294,7 +294,7 @@ dig.dot.alg.graphCrossCount = function(g, ranks) {
  *    W. Barth et al., Bilayer Cross Counting, JGAA, 8(2) 179–194 (2004)
  */
 dig.dot.alg.bilayerCrossCount = function(g, norths, souths) {
-  var southPos = dig_dot_alg_nodePosMap(g, souths);
+  var southPos = dig_dot_alg_nodeOrderMap(g, souths);
 
   var es = [];
   for (var i = 0; i < norths.length; ++i) {
@@ -342,18 +342,43 @@ dig.dot.alg.bilayerCrossCount = function(g, norths, souths) {
  * to the node.
  */
 dig.dot.alg.position = function(auxGraph, layers) {
-
 }
 
 /*
- * Helper function that creates a position map based on the given graph and
- * rank array.
+ * Finds median predecessors - of which there will be two for an even number of
+ * predecessors - and removes all predecessors that are not median predecessors.
  */
-function dig_dot_alg_nodePosMap(g, rank) {
-  var pos = {};
-  for (var i = 0; i < rank.length; ++i) {
-    pos[rank[i]] = i;
+dig.dot.alg.removeNonMedians = function(g, layers) {
+  var prevLayer = layers[0];
+  for (var i = 1; i < layers.length; ++i) {
+    var currLayer = layers[i];
+    var orderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
+    for (var j = 0; j < currLayer.length; ++j) {
+      var v = currLayer[j];
+      var preds = g.predecessors(v);
+      if (preds.length > 0) {
+        preds = dig_util_radixSort(preds, 1, function(_, u) { return orderMap[u]; });
+        for (var k = 0, upper = Math.floor((preds.length - 1) / 2); k < upper; ++k) {
+          g.removeEdge(preds[k], v);
+        }
+        for (var k = Math.ceil((preds.length + 1) / 2); k < preds.length; ++k) {
+          g.removeEdge(preds[k], v);
+        }
+      }
+    }
+    prevLayer = currLayer;
   }
-  return pos;
+}
+
+/*
+ * Helper function that creates a map that contains the order of nodes in a
+ * particular layer.
+ */
+function dig_dot_alg_nodeOrderMap(g, layer) {
+  var order = {};
+  for (var i = 0; i < layer.length; ++i) {
+    order[layer[i]] = i;
+  }
+  return order;
 }
 
