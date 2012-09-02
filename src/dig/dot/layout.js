@@ -4,57 +4,10 @@
  * NOTE: this is a work in progress.
  */
 dig.dot.layout = function(inputGraph) {
-  var auxGraph = inputGraph.copy();
-  dig.dot.alg.acyclic(auxGraph);
-  dig.dot.alg.addDummyNodes(auxGraph);
-  dig.dot.alg.rank(auxGraph);
-  var layers = dig.dot.alg.order(auxGraph);
-  dig.dot.alg.position(auxGraph, layers);
-
-  // Update the input graph with the x and y coordinates
-  auxGraph.nodes().forEach(function(u) {
-    //inputGraph.node(u).x = auxGraph.node(u).x;
-    //inputGraph.node(u).y = auxGraph.node(u).y;
-  });
-}
-
-/*
- * This function modifies the supplied directed graph to make it acyclic by
- * reversing edges that participate in cycles. This algorithm currently uses
- * a basic DFS traversal.
- *
- * This algorithm does not preserve attributes.
- *
- * Post-conditions:
- *
- *  1. Input graph is acyclic
- */
-dig.dot.alg.acyclic = function(g) {
-  var onStack = {};
-  var visited = {};
-
-  function dfs(u) {
-    if (u in visited) {
-      return;
-    }
-    visited[u] = true;
-    onStack[u] = true;
-    dig_util_forEach(g.successors(u), function(v) {
-      if (v in onStack) {
-        if (!g.hasEdge(v, u)) {
-          g.addEdge(v, u);
-        }
-        g.removeEdge(u, v);
-      } else {
-        dfs(v);
-      }
-    });
-    delete onStack[u];
-  }
-
-  dig_util_forEach(g.nodes(), function(u) {
-    dfs(u);
-  });
+  dig.dot.layout.rank(inputGraph);
+  dig.dot.alg.addDummyNodes(inputGraph);
+  var layers = dig.dot.alg.order(inputGraph);
+  dig.dot.alg.position(inputGraph, layers);
 }
 
 /*
@@ -82,62 +35,6 @@ dig.dot.alg.addDummyNodes = function(g) {
     }
     g.addEdge(u, v);
   });
-}
-
-/*
- * Returns an array of layers, with each layer containing an unordered array of
- * nodes.
- *
- * Pre-conditions:
- *
- *  1. Input graph is connected
- *  2. Input graph is acyclic
- */
-dig.dot.alg.rank = function(g) {
-  return dig.dot.alg.initRank(g);
-}
-
-/*
- * Finds a feasible ranking (description below) for the given graph and assigns
- * a rank attribute to each node for that ranking.
- *
- * A feasible ranking is one such that for all edges e, length(e) >=
- * min_length(e). For our purposes min_length(e) is always 1 and length(e)
- * is defined as rank(v) - rank(u) for (u, v) = e.
- *
- * Pre-conditions:
- *
- *  1. Input graph is connected
- *  2. Input graph is acyclic
- */
-dig.dot.alg.initRank = function(g) {
-  var pq = new dig_data_PriorityQueue();
-  dig_util_forEach(g.nodes(), function(u) {
-    pq.add(u, g.indegree(u));
-  });
-
-  var current = [];
-  var rankNum = 0;
-  while (pq.size() > 0) {
-    for (var min = pq.min(); pq.priority(min) === 0; min = pq.min()) {
-      pq.removeMin();
-      g.node(min).rank = rankNum;
-      current.push(min);
-    }
-
-    if (current.length === 0) {
-      throw new Error("Input graph is not acyclic!");
-    }
-
-    dig_util_forEach(current, function(u) {
-      dig_util_forEach(g.successors(u), function(v) {
-        pq.decrease(v, pq.priority(v) - 1);
-      });
-    });
-
-    current = [];
-    rankNum++;
-  }
 }
 
 /*
