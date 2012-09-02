@@ -405,44 +405,50 @@ dig.dot.alg.bottom = {
 }
 
 /*
- * Finds type 1 edge conflicts and removes them.
+ * Finds type 1 conflicts and removes them from the median object.
  */
-dig.dot.alg.removeType1Conflicts = function(g, layers) {
-  for (var i = 1; i < layers.length; ++i) {
-    var prevStart = 0;
-    var prevEnd;
-    var currStart = 0;
-    var prevLayer = layers[i - 1];
-    var currLayer = layers[i];
-    var prevOrderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
-    for (var currEnd = 0; currEnd < currLayer.length; ++currEnd) {
-      var v = currLayer[currEnd];
-      var inner = null;
-      if (g.node(v).dummy) {
-        dig_util_forEach(g.predecessors(v), function(u) {
-          if (g.node(u).dummy) {
-            inner = u;
-          }
-        });
-      }
-      if (currEnd + 1 === currLayer.length || inner !== null) {
-        prevEnd = currLayer.length - 1;
-        if (inner !== null) {
-          prevEnd = prevOrderMap[inner];
-        }
-        for (; currStart <= currEnd; ++currStart) {
-          v = currLayer[currStart];
-          dig_util_forEach(g.predecessors(v), function(u) {
-            var k = prevOrderMap[u];
-            if (k < prevStart || k > prevEnd) {
-              g.removeEdge(u, v);
+dig.dot.alg.removeType1Conflicts = function(g, medians, layers, layerTraversal) {
+  var prevLayer = null;
+  function layerIter(currLayer) {
+    if (prevLayer !== null) {
+      var prevStart = 0;
+      var prevEnd;
+      var currStart = 0;
+      var prevOrderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
+      for (var currPos = 0; currPos < currLayer.length; ++currPos) {
+        var u = currLayer[currPos];
+        var inner = null;
+        if (g.node(u).dummy) {
+          dig_util_forEach(medians[u], function(v) {
+            if (g.node(v).dummy) {
+              inner = v;
             }
           });
         }
-        prevStart = prevEnd;
+        if (currPos + 1 === currLayer.length || inner !== null) {
+          prevEnd = currLayer.length - 1;
+          if (inner !== null) {
+            prevEnd = prevOrderMap[inner];
+          }
+          for (; currStart <= currPos; ++currStart) {
+            u = currLayer[currStart];
+            var meds = medians[u];
+            for (var i = 0; i < meds.length; ++i) {
+              var v = meds[i];
+              var pos = prevOrderMap[v];
+              if ((pos < prevStart || pos > prevEnd) && !(g.node(u).dummy && g.node(v).dummy)) {
+                meds.splice(i, 1);
+                --i;
+              }
+            }
+          }
+          prevStart = prevEnd;
+        }
       }
     }
+    prevLayer = currLayer;
   }
+  layerTraversal.iterate(layers, layerIter);
 }
 
 /*

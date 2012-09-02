@@ -326,9 +326,9 @@ describe("dig.dot.alg.removeType1Conflicts(graph, layers)", function() {
   it("does not remove edges with no conflict", function() {
     var g = dig.dot.read("digraph { 1 -> 2 }");
     var layers = [[1], [2]];
-    var expected = g.copy();
-    dig.dot.alg.removeType1Conflicts(g, layers);
-    assert.graphEqual(expected, g);
+    var meds = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    dig.dot.alg.removeType1Conflicts(g, meds, layers, dig.dot.alg.top);
+    assert.deepEqual({1: [], 2: [1]}, meds);
   });
 
   it("removes edges with type 1 conflicts", function() {
@@ -336,33 +336,32 @@ describe("dig.dot.alg.removeType1Conflicts(graph, layers)", function() {
     g.node("A2").dummy = true;
     g.node("B1").dummy = true;
     var layers = [["A1", "A2"], ["B1", "B2"]];
-    var expected = g.copy();
-    expected.removeEdge("A1", "B2");
-    dig.dot.alg.removeType1Conflicts(g, layers);
-    assert.graphEqual(expected, g);
+
+    var meds = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    dig.dot.alg.removeType1Conflicts(g, meds, layers, dig.dot.alg.top);
+    assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: []}, meds);
   });
 
   it("does not remove edges with type 0 conflicts", function() {
     var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1 }");
     var layers = [["A1", "A2"], ["B1", "B2"]];
-    var expected = g.copy();
-    dig.dot.alg.removeType1Conflicts(g, layers);
-    assert.graphEqual(expected, g);
+
+    var meds = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    dig.dot.alg.removeType1Conflicts(g, meds, layers, dig.dot.alg.top);
+    assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: ["A1"]}, meds);
   });
 
-  it("it also removes type 2 conflicts", function() {
-    // Note: type 2 conflicts should be resolved before calling this algorithm,
-    // but the algorithm is able to resolve them if needed.
+  it("does not remove edges with type 2 conflicts", function() {
     var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1 }");
     var layers = [["A1", "A2"], ["B1", "B2"]];
     g.node("A1").dummy = true;
     g.node("A2").dummy = true;
     g.node("B1").dummy = true;
     g.node("B2").dummy = true;
-    var expected = g.copy();
-    expected.removeEdge("A1", "B2");
-    dig.dot.alg.removeType1Conflicts(g, layers);
-    assert.graphEqual(expected, g);
+
+    var meds = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    dig.dot.alg.removeType1Conflicts(g, meds, layers, dig.dot.alg.top);
+    assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: ["A1"]}, meds);
   });
 
   it("works across multiple layers", function() {
@@ -371,10 +370,20 @@ describe("dig.dot.alg.removeType1Conflicts(graph, layers)", function() {
     g.node("B1").dummy = true;
     g.node("C2").dummy = true;
     var layers = [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]];
-    var expected = g.copy();
-    expected.removeEdge("A1", "B2");
-    expected.removeEdge("B2", "C1");
-    dig.dot.alg.removeType1Conflicts(g, layers);
-    assert.graphEqual(expected, g);
+
+    var meds = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    dig.dot.alg.removeType1Conflicts(g, meds, layers, dig.dot.alg.top);
+    assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: [], C1: [], C2: ["B1"]}, meds);
+  });
+
+  it("works for bottom traversal", function() {
+    var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1 }");
+    g.node("A2").dummy = true;
+    g.node("B1").dummy = true;
+    var layers = [["A1", "A2"], ["B1", "B2"]];
+
+    var meds = dig.dot.alg.findMedians(g, layers, dig.dot.alg.bottom);
+    dig.dot.alg.removeType1Conflicts(g, meds, layers, dig.dot.alg.bottom);
+    assert.deepEqual({A1: [], A2: ["B1"], B1: [], B2: []}, meds);
   });
 });
