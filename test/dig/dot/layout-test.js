@@ -387,3 +387,40 @@ describe("dig.dot.alg.removeType1Conflicts(graph, layers)", function() {
     assert.deepEqual({A1: [], A2: ["B1"], B1: [], B2: []}, meds);
   });
 });
+
+describe("dig.dot.alg.verticalAlignment(graph, layers, medians)", function() {
+  it("returns two roots for 2 unconnected nodes", function() {
+    var g = dig.dot.read("digraph { 1; 2 }");
+    var layers = [[1], [2]];
+    var meds = {1: [], 2: []};
+    var expected = {
+      root: {1: 1, 2: 2},
+      align: {1: 1, 2: 2}
+    };
+    assert.deepEqual(expected, dig.dot.alg.verticalAlignment(g, layers, meds));
+  });
+
+  it("returns a single root for 2 connected nodes", function() {
+    var g = dig.dot.read("digraph { 1 -> 2 }");
+    var layers = [[1], [2]];
+    var meds = {1: [], 2: [1]};
+    var expected = {
+      root: {1: 1, 2: 1},
+      align: {1: 2, 2: 1}
+    };
+
+    assert.deepEqual(expected, dig.dot.alg.verticalAlignment(g, layers, meds));
+  });
+
+  it("biases to the left when there are two medians", function() {
+    var g = dig.dot.read("digraph { 1 -> 3; 2 -> 3 }");
+    var layers = [[1, 2], [3]];
+    var meds = {1: [], 2: [], 3: [1, 2]};
+    var expected = {
+      root: {1: 1, 2: 2, 3: 1},
+      align: {1: 3, 2: 2, 3: 1}
+    };
+
+    assert.deepEqual(expected, dig.dot.alg.verticalAlignment(g, layers, meds));
+  });
+});

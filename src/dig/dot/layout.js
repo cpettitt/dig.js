@@ -452,6 +452,43 @@ dig.dot.alg.removeType1Conflicts = function(g, medians, layers, layerTraversal) 
 }
 
 /*
+ * Generates an alignment given the medians and layering of a graph. This
+ * function returns the blocks of the alignment (maximal set of vertically
+ * aligned nodes) and the roots of the alignment (topmost vertex of a block).
+ */
+dig.dot.alg.verticalAlignment = function(g, layers, medians) {
+  var root = {};
+  dig_util_forEach(g.nodes(), function(u) { root[u] = u; });
+
+  var align = {};
+  dig_util_forEach(g.nodes(), function(u) { align[u] = u; });
+
+  for (var i = 1; i < layers.length; ++i) {
+    var r = -1;
+    var prevLayer = layers[i - 1];
+    var prevLayerOrder = dig_dot_alg_nodeOrderMap(g, prevLayer);
+    var currLayer = layers[i];
+    for (var j = 0; j < currLayer.length; ++j) {
+      var v = currLayer[j];
+      var meds = medians[v];
+      for (var k = 0; k < meds.length; ++k) {
+        var u = meds[k];
+        var uPos = prevLayerOrder[u];
+        if (align[v] == v && r < uPos) {
+          align[u] = v;
+          align[v] = root[v] = root[u];
+          r = uPos;
+        }
+      }
+    }
+  }
+  return {
+    root: root,
+    align: align
+  }
+}
+
+/*
  * Helper function that creates a map that contains the order of nodes in a
  * particular layer.
  */
