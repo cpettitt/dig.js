@@ -345,28 +345,62 @@ dig.dot.alg.position = function(auxGraph, layers) {
 }
 
 /*
- * Finds median predecessors - of which there will be two for an even number of
- * predecessors - and removes all predecessors that are not median predecessors.
+ * Iterates through the given layers and finds for each node finds the median
+ * incident node(s) from the previous layer. In the case of an odd number of
+ * incident nodes there will be one median, whereas with an even number of
+ * incident nodes there weill be two. This function returns a mapping of each
+ * node to its median incident node(s).
  */
-dig.dot.alg.removeNonMedians = function(g, layers) {
-  var prevLayer = layers[0];
-  for (var i = 1; i < layers.length; ++i) {
-    var currLayer = layers[i];
-    var orderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
-    for (var j = 0; j < currLayer.length; ++j) {
-      var v = currLayer[j];
-      var preds = g.predecessors(v);
-      if (preds.length > 0) {
-        preds = dig_util_radixSort(preds, 1, function(_, u) { return orderMap[u]; });
-        for (var k = 0, upper = Math.floor((preds.length - 1) / 2); k < upper; ++k) {
-          g.removeEdge(preds[k], v);
-        }
-        for (var k = Math.ceil((preds.length + 1) / 2); k < preds.length; ++k) {
-          g.removeEdge(preds[k], v);
+dig.dot.alg.findMedians = function(g, layers, layerTraversal) {
+  var medians = {};
+  dig_util_forEach(g.nodes(), function(u) {
+    medians[u] = [];
+  });
+
+  var prevLayer = null;
+  function layerIter(currLayer) {
+    if (prevLayer !== null) {
+      var orderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
+      // direction in the layer doesn't matter for this function
+      for (var i = 0; i < currLayer.length; ++i) {
+        var u = currLayer[i];
+        var vs = dig_util_radixSort(layerTraversal.neighbors(g, u),
+                                    1,
+                                    function(_, x) { return orderMap[x]; });
+        if (vs.length > 0) {
+          var mid = (vs.length - 1) / 2;
+          medians[u] = vs.slice(Math.floor(mid), Math.ceil(mid) + 1);
         }
       }
     }
     prevLayer = currLayer;
+  }
+
+  layerTraversal.iterate(layers, layerIter);
+  return medians;
+}
+
+dig.dot.alg.top = {
+  iterate: function(layers, func) {
+    for (var i = 0; i < layers.length; ++i) {
+      func(layers[i]);
+    }
+  },
+
+  neighbors: function(g, u) {
+    return g.predecessors(u);
+  }
+}
+
+dig.dot.alg.bottom = {
+  iterate: function(layers, func) {
+    for (var i = layers.length - 1; i >= 0; --i) {
+      func(layers[i]);
+    }
+  },
+
+  neighbors: function(g, u) {
+    return g.successors(u);
   }
 }
 

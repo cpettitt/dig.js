@@ -278,53 +278,47 @@ describe("dig.dot.alg.order(graph)", function() {
   });
 });
 
-describe("dig.dot.alg.removeNonMedians(graph, layers)", function() {
-  it("does nothing if a node has no predecessors", function() {
+describe("dig.dot.alg.findMedians(graph, layers, layerTraversal)", function() {
+  it("gives an empty array for nodes without incident edges", function() {
     var g = dig.dot.read("digraph { 1; 2 }");
     var layers = [[1], [2]];
-    var expected = g.copy();
-    dig.dot.alg.removeNonMedians(g, layers);
-    assert.graphEqual(expected, g);
+    var medians = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    assert.deepEqual({1: [], 2: []}, medians);
   });
 
-  it("does nothing if a node has a single predecessor", function() {
+  it("gives a singleton array for nodes with one incident edge", function() {
     var g = dig.dot.read("digraph { 1 -> 2 }");
     var layers = [[1], [2]];
-    var expected = g.copy();
-    dig.dot.alg.removeNonMedians(g, layers);
-    assert.graphEqual(expected, g);
+    var medians = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    assert.deepEqual({1: [], 2: [1]}, medians);
   });
 
-  it("removes all but the median node for |predecessor(v)| % 2 == 1", function() {
+  it("gives the single median for nodes with an odd number of incident edges", function() {
     var g = dig.dot.read("digraph { 1 -> 4; 2 -> 4; 3 -> 4 }");
     var layers = [[1, 2, 3], [4]];
-    var expected = g.copy();
-    expected.removeEdge(1, 4);
-    expected.removeEdge(3, 4);
-    dig.dot.alg.removeNonMedians(g, layers);
-    assert.graphEqual(expected, g);
+    var medians = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    assert.deepEqual({1: [], 2: [], 3: [], 4: [2]}, medians);
   });
 
-  it("removes all but two median nodes for |predecessor(v)| % 2 == 0", function() {
+  it("gives two medians for nodes with an even number of incident edges", function() {
     var g = dig.dot.read("digraph { 1 -> 5; 2 -> 5; 3 -> 5; 4 -> 5; }");
     var layers = [[1, 2, 3, 4], [5]];
-    var expected = g.copy();
-    expected.removeEdge(1, 5);
-    expected.removeEdge(4, 5);
-    dig.dot.alg.removeNonMedians(g, layers);
-    assert.graphEqual(expected, g);
+    var medians = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    assert.deepEqual({1: [], 2: [], 3: [], 4: [], 5: [2, 3]}, medians);
   });
 
   it("works across layers", function() {
     var g = dig.dot.read("digraph { A1 -> B1 -> C2; A2 -> B2 -> C2; A3 -> B3 -> C2; A1 -> B2; A3 -> B2 }");
     var layers = [["A1", "A2", "A3"], ["B1", "B2", "B3"], ["C2"]];
-    var expected = g.copy();
-    expected.removeEdge("A1", "B2");
-    expected.removeEdge("A3", "B2");
-    expected.removeEdge("B1", "C2");
-    expected.removeEdge("B3", "C2");
-    dig.dot.alg.removeNonMedians(g, layers);
-    assert.graphEqual(expected, g);
+    var medians = dig.dot.alg.findMedians(g, layers, dig.dot.alg.top);
+    assert.deepEqual({A1: [], A2: [], A3: [], B1: ["A1"], B2: ["A2"], B3: ["A3"], C2: ["B2"]}, medians);
+  });
+
+  it("works for bottom traversal", function() {
+    var g = dig.dot.read("digraph { 1 -> 4; 2 -> 4; 3 -> 4 }");
+    var layers = [[1, 2, 3], [4]];
+    var medians = dig.dot.alg.findMedians(g, layers, dig.dot.alg.bottom);
+    assert.deepEqual({1: [4], 2: [4], 3: [4], 4: []}, medians);
   });
 });
 
