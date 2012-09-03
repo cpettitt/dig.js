@@ -1,7 +1,5 @@
 require("../../test-env");
 
-var graphs = require("../../test-graphs");
-
 describe("dig.dot.layout(graph)", function() {
   // Weak assertion for now :)
   // TODO better tests
@@ -45,146 +43,35 @@ describe("dig.dot.layout.addDummyNodes(graph)", function() {
   });
 });
 
-describe("dig.dot.alg.initOrder(graph)", function() {
-  it("returns an array ordering for graphs", function() {
-    var g = graphs.directed.diamond.copy();
-    g.node(1).rank = 0;
-    g.node(2).rank = 1;
-    g.node(3).rank = 1;
-    g.node(4).rank = 2;
-
-    var ranks = dig.dot.alg.initOrder(g);
-    assert.deepEqual([1], ranks[0]);
-    assert.deepEqual([2, 3], ranks[1].sort());
-    assert.deepEqual([4], ranks[2]);
-    assert.equal(3, ranks.length);
-  });
-
-  it("works for graphs with multiple min-rank nodes", function() {
-    var g = dig.dot.read("digraph { 1 -> 3; 1 -> 4; 2 -> 5 }");
-    g.node(1).rank = 0;
-    g.node(2).rank = 0;
-    g.node(3).rank = 1;
-    g.node(4).rank = 1;
-    g.node(5).rank = 1;
-
-    var ranks = dig.dot.alg.initOrder(g, ranks);
-    assert.deepEqual([1, 2], ranks[0].sort());
-    assert.deepEqual([3, 4, 5], ranks[1].sort());
-    assert.equal(2, ranks.length);
-  });
-});
-
-describe("dig.dot.alg.graphCrossCount(graph, ranks)", function() {
+describe("dig.dot.layout.crossCount(graph, ranks)", function() {
   it("returns 0 for an empty graph", function() {
     var g = new dig.DiGraph();
-    assert.equal(0, dig.dot.alg.graphCrossCount(g, []));
+    assert.equal(0, dig.dot.layout.crossCount(g, []));
   });
 
   it("returns 0 for a graph with one layer", function() {
-    var g = dig.dot.read("digraph { 1; 2; 3}");
-    assert.equal(0, dig.dot.alg.graphCrossCount(g, [[1, 2, 3]]));
+    var g = dig.dot.read("digraph { A; B; C }");
+    assert.equal(0, dig.dot.layout.crossCount(g, [["A", "B", "C"]]));
   });
 
-  it("matches bilayerCrossCount for 2 layers", function() {
-    var g = dig.dot.read("digraph { n0 -> s0; n1 -> s1; n1 -> s2; n2 -> s0; n2 -> s3; n2 -> s4; n3 -> s0; n3 -> s2; n4 -> s3; n5 -> s2; n5 -> s4;}");
-    assert.equal(12, dig.dot.alg.graphCrossCount(g, [["n0", "n1", "n2", "n3", "n4", "n5"], ["s0", "s1", "s2", "s3", "s4"]]));
+  it("returns 0 for a 2-layer graph with no crossings", function() {
+    var g = dig.dot.read("digraph { A1 -> B1; A2 -> B2; A3 -> B3 }");
+    assert.equal(0, dig.dot.layout.crossCount(g, [["A1", "A2", "A3"], ["B1", "B2", "B3"]]));
+  });
+
+  it("returns 1 for a 2-layer graph with 1 crossing", function() {
+    var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1; A3 -> B3 }");
+    assert.equal(1, dig.dot.layout.crossCount(g, [["A1", "A2", "A3"], ["B1", "B2", "B3"]]));
+  });
+
+  it("handles complicated 2-layer graph crossings", function() {
+    var g = dig.dot.read("digraph { A1 -> B1; A2 -> B2; A2 -> B3; A3 -> B1; A3 -> B4; A3 -> B5; A4 -> B1; A4 -> B3; A5 -> B4; A6 -> B3; A6 -> B5 }");
+    assert.equal(12, dig.dot.layout.crossCount(g, [["A1", "A2", "A3", "A4", "A5", "A6"], ["B1", "B2", "B3", "B4", "B5"]]));
   });
 
   it("works for graphs with more than 2 layers", function() {
-    var g = dig.dot.read("digraph { 1 -> 12; 2 -> 11; 11 -> 22; 12 -> 21 }");
-    assert.equal(2, dig.dot.alg.graphCrossCount(g, [[01, 02], [11, 12], [21, 22]]));
-  });
-});
-
-describe("dig.dot.alg.bilayerCrossCount(graph, norths, souths)", function() {
-  it("returns 0 for a single edge", function() {
-    var g = graphs.directed.edge1;
-    assert.equal(0, dig.dot.alg.bilayerCrossCount(g, [1], [2]));
-  });
-
-  it("returns 1 for a graph with an x structure", function() {
-    var g = dig.dot.read("digraph { 1 -> 4; 2 -> 3 }");
-    assert.equal(1, dig.dot.alg.bilayerCrossCount(g, [1, 2], [3, 4]));
-  });
-
-  it("returns 0 for a graph with parallel edges", function() {
-    var g = dig.dot.read("digraph { 1 -> 3; 2 -> 4 }");
-    assert.equal(0, dig.dot.alg.bilayerCrossCount(g, [1, 2], [3, 4]));
-  });
-
-  it("returns 0 for a graph with 3 edges that don't overlap", function() {
-    var g = dig.dot.read("digraph { 01 -> 11; 02 -> 13; 02 -> 12; }");
-    assert.equal(0, dig.dot.alg.bilayerCrossCount(g, ["01", "02"], ["11", "13", "12"]));
-  });
-
-  it("returns 12 for barth example", function() {
-    var g = dig.dot.read("digraph { n0 -> s0; n1 -> s1; n1 -> s2; n2 -> s0; n2 -> s3; n2 -> s4; n3 -> s0; n3 -> s2; n4 -> s3; n5 -> s2; n5 -> s4;}");
-    assert.equal(12, dig.dot.alg.bilayerCrossCount(g, ["n0", "n1", "n2", "n3", "n4", "n5"], ["s0", "s1", "s2", "s3", "s4"]));
-  });
-
-  it("is not influenced by unrelated layers", function() {
-    var g = dig.dot.read("digraph { 1 -> 12; 2 -> 11; 11 -> 22; 12 -> 21 }");
-    assert.equal(1, dig.dot.alg.bilayerCrossCount(g, [01, 02], [11, 12]));
-  });
-});
-
-describe("dig.dot.alg.barycenter(graph, fixed, movable)", function() {
-  it("returns the average position of adjacent nodes in the fixed rank", function() {
-    var g = dig.dot.read("digraph { 3 -> 1; 4 -> 1; 4 -> 2 }");
-    var fixed = [3, 4];
-    var movable = [1, 2];
-
-    assert.deepEqual({1: 0.5, 2: 1}, dig.dot.alg.barycenter(g, fixed, movable));
-  });
-
-  it("handles neighbors in either direction (successors or predecessors)", function() {
-    var g = dig.dot.read("digraph { 1 -> 3; 1 -> 4; 2 -> 4 }");
-    var fixed = [1, 2];
-    var movable = [3, 4];
-
-    assert.deepEqual({3: 0, 4: 0.5}, dig.dot.alg.barycenter(g, fixed, movable));
-  });
-
-  it("assigns -1 weight to nodes with no neighbors", function() {
-    var g = dig.dot.read("digraph { 1 -> 2; 3 }");
-    var fixed = [1];
-    var movable = [2, 3];
-
-    assert.deepEqual({2: 0, 3: -1}, dig.dot.alg.barycenter(g, fixed, movable));
-  });
-
-  it("only uses nodes in the selected ranks to calculate weight", function() {
-    var g = dig.dot.read("digraph { 1 -> 2; 2 -> 3; 2 -> 4 }");
-    var fixed = [1];
-    var movable = [2];
-
-    assert.deepEqual({2: 0}, dig.dot.alg.barycenter(g, fixed, movable));
-  });
-});
-
-describe("dig.dot.alg.barycenterSort(rank, weights)", function() {
-  it("sorts based on the given weights", function() {
-    var rank = [3, 2, 4, 1];
-    var weights = {3: 6, 2: 4, 4: 8, 1: 2};
-
-    assert.deepEqual([1, 2, 3, 4], dig.dot.alg.barycenterSort(rank, weights));
-  });
-
-  it("leaves -1 in fixed positions", function() {
-    var rank = [3, 2, 4, 1];
-    var weights = {3: 6, 2: -1, 4: 8, 1: 2};
-
-    assert.deepEqual([1, 2, 3, 4], dig.dot.alg.barycenterSort(rank, weights));
-  });
-});
-
-describe("dig.dot.alg.order(graph)", function() {
-  it("finds an optimal ordering for nodes", function() {
-    var g = dig.dot.read("digraph { 01 -> 11; 02 -> 12; 02 -> 13; 11 -> 22; 12 -> 21; 13 -> 22; 13 -> 23 }");
-    dig.dot.layout.rank(g);
-    var layers = dig.dot.alg.order(g);
-    assert.equal(0, dig.dot.alg.graphCrossCount(g, layers));
+    var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1; B1 -> C2; B2 -> C1 }");
+    assert.equal(2, dig.dot.layout.crossCount(g, [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]]));
   });
 });
 

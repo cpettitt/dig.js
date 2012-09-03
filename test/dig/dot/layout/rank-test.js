@@ -1,7 +1,5 @@
 require("../../../test-env");
 
-var graphs = require("../../../test-graphs");
-
 describe("dig.dot.layout.rank(graph)", function() {
   it("gives rank 0 to a single node", function() {
     var g = dig.dot.read("digraph { A }");

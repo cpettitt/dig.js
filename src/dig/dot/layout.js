@@ -7,7 +7,7 @@ dig.dot.layout = function(inputGraph) {
   dig.dot.layout.rank(inputGraph);
   var aux = inputGraph.copy();
   dig.dot.layout.addDummyNodes(aux);
-  var layers = dig.dot.alg.order(aux);
+  var layers = dig.dot.layout.order(aux);
   dig.dot.alg.position(aux, layers);
 }
 
@@ -42,148 +42,12 @@ dig.dot.layout.addDummyNodes = function(g) {
 }
 
 /*
- * Given a graph of nodes with rank attributes, this function returns an array
- * of layers where each layer has nodes ordered to minimize edge crossings.
- */
-dig.dot.alg.order = function(g) {
-  // TODO make this configurable
-  var MAX_ITERATIONS = 24;
-
-  var layers = dig.dot.alg.initOrder(g);
-  var best = layers;
-
-  for (var i = 0; i < MAX_ITERATIONS; ++i) {
-    layers = dig.dot.alg.graphBarycenterSort(g, i, layers);
-    if (dig.dot.alg.graphCrossCount(g, layers) > dig.dot.alg.graphCrossCount(g, best)) {
-      best = layers;
-    }
-  }
-
-  return best;
-}
-
-/*
- * Returns an array of layers where each layer has a list of nodes in the given
- * rank. This initial pass attempts to generate a good starting point from
- * which to generate an ordering with minimal edge crossings, but almost
- * certainly some iteration will reduce edge crossing.
- */
-dig.dot.alg.initOrder = function(g) {
-  // We currently use DFS as described in the graphviz paper.
-
-  var layers = [];
-  var visited = {};
-
-  function dfs(u) {
-    if (u in visited) {
-      return;
-    }
-    visited[u] = true;
-
-    var rankNum = g.node(u).rank;
-    if (!(rankNum in layers)) {
-      layers[rankNum] = [];
-    }
-    layers[rankNum].push(u);
-
-    dig_util_forEach(g.successors(u), function(v) {
-      dfs(v);
-    });
-  }
-
-  dig_util_forEach(g.nodes(), function(u) {
-    if (g.node(u).rank === 0) {
-      dfs(u);
-    }
-  });
-
-  return layers;
-}
-
-dig.dot.alg.graphBarycenterSort = function(g, i, layers) {
-  if (i % 2) {
-    for (var j = 1; j < layers.length; ++j) {
-      var weights = dig.dot.alg.barycenter(g, layers[j - 1], layers[j]);
-      layers[j] = dig.dot.alg.barycenterSort(layers[j], weights);
-    }
-  } else {
-    for (var j = layers.length - 2; j > 0; --j) {
-      var weights = dig.dot.alg.barycenter(g, layers[j + 1], layers[j]);
-      layers[j] = dig.dot.alg.barycenterSort(layers[j], weights);
-    }
-  }
-  return layers;
-}
-
-/*
- * Weights each node by the average position of nodes in the adjacent rank.
- * If a node has no edges to the adjacent rank then it receives the weight -1,
- * which is used to indicate it should not be moved during sorting.
- */
-dig.dot.alg.barycenter = function(g, fixed, movable) {
-  var fixedPos = dig_dot_alg_nodeOrderMap(g, fixed);
-  var weights = {};
-  for (var i = 0; i < movable.length; ++i) {
-    var weight = -1;
-    var u = movable[i];
-    var sucs = g.neighbors(movable[i], "both");
-    if (sucs.length > 0) {
-      weight = 0;
-      dig_util_forEach(sucs, function(v) {
-        // Only calculate the weight if the node is in the fixed rank
-        if (v in fixedPos) {
-          weight = fixedPos[v];
-        }
-      });
-      weight = weight / sucs.length;
-    }
-    weights[u] = weight;
-  }
-  return weights;
-}
-
-/*
- * Sorts the given rank in ascending order using the given weights. The
- * barycenter algorithm sets a nodes weight to -1 if it has no neighbors. For
- * sorting purposes, we treat such nodes as fixed - they are not moved during
- * the sort.
- */
-dig.dot.alg.barycenterSort = function(rank, weights) {
-  var result = [];
-
-  rank = rank.slice(0);
-  
-  // Move fixed nodes into the result array first
-  for (var i = 0; i < rank.length; ++i) {
-    var u = rank[i];
-    if (weights[u] === -1) {
-      result[i] = u;
-      rank[i] = null;
-    }
-  }
-
-  rank.sort(function(x, y) { return (x ? weights[x] : -1) - (y ? weights[y] : -1); });
-
-  var nextIdx = 0;
-  for (var i = 0; i < rank.length; ++i) {
-    if (rank[i] !== null) {
-      while (result[nextIdx] !== undefined) {
-        ++nextIdx;
-      }
-      result[nextIdx] = rank[i];
-    }
-  }
-
-  return result;
-}
-
-/*
  * Applies the bilayer cross count algorith, to each pair of layers in the graph.
  */
-dig.dot.alg.graphCrossCount = function(g, ranks) {
+dig.dot.layout.crossCount = function(g, ranks) {
   var cc = 0;
   for (var i = 1; i < ranks.length; ++i) {
-    cc += dig.dot.alg.bilayerCrossCount(g, ranks[i-1], ranks[i]);
+    cc += dig_dot_layout_bilayerCrossCount(g, ranks[i-1], ranks[i]);
   }
   return cc;
 }
@@ -194,8 +58,8 @@ dig.dot.alg.graphCrossCount = function(g, ranks) {
  *
  *    W. Barth et al., Bilayer Cross Counting, JGAA, 8(2) 179–194 (2004)
  */
-dig.dot.alg.bilayerCrossCount = function(g, norths, souths) {
-  var southPos = dig_dot_alg_nodeOrderMap(g, souths);
+dig_dot_layout_bilayerCrossCount = function(g, norths, souths) {
+  var southPos = dig_dot_layout_orderMap(g, souths);
 
   var es = [];
   for (var i = 0; i < norths.length; ++i) {
@@ -261,7 +125,7 @@ dig.dot.alg.findMedians = function(g, layers, layerTraversal) {
   var prevLayer = null;
   function layerIter(currLayer) {
     if (prevLayer !== null) {
-      var orderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
+      var orderMap = dig_dot_layout_orderMap(g, prevLayer);
       // direction in the layer doesn't matter for this function
       for (var i = 0; i < currLayer.length; ++i) {
         var u = currLayer[i];
@@ -315,7 +179,7 @@ dig.dot.alg.removeType1Conflicts = function(g, medians, layers, layerTraversal) 
       var prevStart = 0;
       var prevEnd;
       var currStart = 0;
-      var prevOrderMap = dig_dot_alg_nodeOrderMap(g, prevLayer);
+      var prevOrderMap = dig_dot_layout_orderMap(g, prevLayer);
       for (var currPos = 0; currPos < currLayer.length; ++currPos) {
         var u = currLayer[currPos];
         var inner = null;
@@ -367,7 +231,7 @@ dig.dot.alg.verticalAlignment = function(g, layers, medians) {
   for (var i = 1; i < layers.length; ++i) {
     var r = -1;
     var prevLayer = layers[i - 1];
-    var prevLayerOrder = dig_dot_alg_nodeOrderMap(g, prevLayer);
+    var prevLayerOrder = dig_dot_layout_orderMap(g, prevLayer);
     var currLayer = layers[i];
     for (var j = 0; j < currLayer.length; ++j) {
       var v = currLayer[j];
@@ -393,7 +257,7 @@ dig.dot.alg.verticalAlignment = function(g, layers, medians) {
  * Helper function that creates a map that contains the order of nodes in a
  * particular layer.
  */
-function dig_dot_alg_nodeOrderMap(g, layer) {
+function dig_dot_layout_orderMap(g, layer) {
   var order = {};
   for (var i = 0; i < layer.length; ++i) {
     order[layer[i]] = i;
