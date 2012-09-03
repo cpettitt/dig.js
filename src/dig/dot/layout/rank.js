@@ -1,24 +1,12 @@
 /*
  * This function takes a (possibly cyclic) directed graph as input and finds a
- * feasible ranking for the nodes in the graph. Each node in the graph is
- * assigned a rank attribute that reflects that node's rank.
+ * ranking for the nodes that satisfies all constraints. A ranking is used to
+ * determine which nodes will be in the same layer.
  *
- * Ranks start at 0.
+ * When this function completes each node `u` will have a `rank` attribute,
+ * that can be retrieved using `g.node(u).rank`. Ranks start at 0.
  */
 dig.dot.layout.rank = (function() {
-  function rank(g) { 
-    if (!g.isDirected()) {
-      throw new Error("Input graph must be directed!");
-    }
-
-    var aux = g.copy();
-    rank.makeAcyclic(aux);
-    rank.init(aux);
-    dig_util_forEach(aux.nodes(), function(u) {
-      g.node(u).rank = aux.node(u).rank;
-    });
-  }
-
   /*
    * This function modifies the supplied directed graph to make it acyclic by
    * reversing edges that participate in cycles. This algorithm currently uses
@@ -26,7 +14,7 @@ dig.dot.layout.rank = (function() {
    *
    * This algorithm does not preserve attributes.
    */
-  rank.makeAcyclic = function(g) {
+  function makeAcyclic(g) {
     var onStack = {};
     var visited = {};
 
@@ -65,7 +53,7 @@ dig.dot.layout.rank = (function() {
    * It is possible to improve the result of this function using either exact or
    * iterative heuristic methods.
    */
-  rank.init= function(g) {
+  function init(g) {
     var pq = new dig_data_PriorityQueue();
     dig_util_forEach(g.nodes(), function(u) {
       pq.add(u, g.indegree(u));
@@ -95,5 +83,16 @@ dig.dot.layout.rank = (function() {
     }
   };
 
-  return rank;
+  return function(g) { 
+    if (!g.isDirected()) {
+      throw new Error("Input graph must be directed!");
+    }
+
+    var aux = g.copy();
+    makeAcyclic(aux);
+    init(aux);
+    dig_util_forEach(aux.nodes(), function(u) {
+      g.node(u).rank = aux.node(u).rank;
+    });
+  }
 })();
