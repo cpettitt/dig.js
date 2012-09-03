@@ -30,5 +30,15 @@ describe("dig.dot.layout.crossCount(graph, ranks)", function() {
     var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1; B1 -> C2; B2 -> C1 }");
     assert.equal(2, dig.dot.layout.crossCount(g, [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]]));
   });
+
+  it("works for graphs with back edges", function() {
+    var g = dig.dot.read("digraph { A1 -> B2; B1 -> A2 }");
+    assert.equal(1, dig.dot.layout.crossCount(g, [["A1", "A2"], ["B1", "B2"]]));
+  });
+
+  it("handles back edges on graphs with more than 2 layers", function() {
+    var g = dig.dot.read("digraph { A1 -> B2; B1 -> A2; B2 -> C1; C2 -> B1 }");
+    assert.equal(2, dig.dot.layout.crossCount(g, [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]]));
+  });
 });
 
