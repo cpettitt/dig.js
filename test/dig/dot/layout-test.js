@@ -10,48 +10,38 @@ describe("dig.dot.layout(graph)", function() {
   });
 });
 
-describe("dig.dot.alg.addDummyNodes(graph)", function() {
+describe("dig.dot.layout.addDummyNodes(graph)", function() {
   it("does not change a graph with unit length edges", function() {
-    var g = graphs.directed.edge1.copy();
-    g.node(1).rank = 0;
-    g.node(2).rank = 1;
+    var g = dig.dot.read("digraph { A [rank=0]; B [rank=1]; A -> B}");
     var g2 = g.copy();
-    dig.dot.alg.addDummyNodes(g2);
+    dig.dot.layout.addDummyNodes(g2);
     assert.graphEqual(g, g2);
   });
 
-  it("inserts nodes between incident nodes separated by more than one rank", function() {
-    var g = graphs.directed.edge1.copy();
-    g.node(1).rank = 0;
-    g.node(2).rank = 2;
+  it("adds dummy nodes for forward edges that cross multiple ranks", function() {
+    var g = dig.dot.read("digraph { A [rank=0]; B [rank=2]; A -> B }");
+    dig.dot.layout.addDummyNodes(g);
 
-    var g2 = g.copy();
-    dig.dot.alg.addDummyNodes(g2);
-    assert.isFalse(g2.hasEdge(1, 2));
-    var successors = g2.successors(1);
+    assert.isFalse(g.hasEdge("A", "B")); 
+    var successors = g.successors("A");
     assert.equal(1, successors.length);
     var successor = successors[0];
-    assert.isTrue(g2.hasEdge(successor, 2));
+    assert.isTrue(g.hasEdge(successor, "B"));
+    assert.equal(1, g.node(successor).rank);
+    assert.isTrue(g.node(successor).dummy);
   });
 
-  it("assigns the correct rank when inserting nodes", function() {
-    var g = graphs.directed.edge1.copy();
-    g.node(1).rank = 0;
-    g.node(2).rank = 2;
+  it("adds dummy nodes for back edges that cross multiple ranks", function() {
+    var g = dig.dot.read("digraph { A [rank=0]; B [rank=2]; B -> A }");
+    dig.dot.layout.addDummyNodes(g);
 
-    var g2 = g.copy();
-    dig.dot.alg.addDummyNodes(g2);
-    assert.equal(1, g2.node(g2.successors(1)[0]).rank);
-  });
-
-  it("sets the dummy flag on dummy nodes", function() {
-    var g = graphs.directed.edge1.copy();
-    g.node(1).rank = 0;
-    g.node(2).rank = 2;
-
-    var g2 = g.copy();
-    dig.dot.alg.addDummyNodes(g2);
-    assert.isTrue(g2.node(g2.successors(1)[0]).dummy);
+    assert.isFalse(g.hasEdge("B", "A")); 
+    var successors = g.successors("B");
+    assert.equal(1, successors.length);
+    var successor = successors[0];
+    assert.isTrue(g.hasEdge(successor, "A"));
+    assert.equal(1, g.node(successor).rank);
+    assert.isTrue(g.node(successor).dummy);
   });
 });
 
