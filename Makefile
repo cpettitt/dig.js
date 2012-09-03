@@ -34,6 +34,7 @@ src/dig/dot/grammar.js:
 	src/dig/alg/topsort.js \
 	src/dig/dot.js \
 	src/dig/dot/layout.js \
+	src/dig/dot/layout/cross-count.js \
 	src/dig/dot/layout/order.js \
 	src/dig/dot/layout/rank.js \
 	src/dig/dot/read.js \
