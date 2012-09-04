@@ -3,7 +3,21 @@
  * x and y coordinates for each node in the graph and assign them as attributes
  * to the node.
  */
-dig.dot.layout.position = function(auxGraph, layers) {
+dig.dot.layout.position = function(g, layers) {
+  // First pass is upper
+  var medians = dig.dot.layout.findMedians(g, layers);
+  // TODO collapse this into findMedians
+  dig.dot.layout.removeType1Conflicts(g, layers, medians);
+
+  var alignment = dig.dot.layout.verticalAlignment(g, layers, medians);
+  var xs = dig.dot.layout.horizontalCompaction(g, layers, alignment);
+
+  // TODO multiple passes to find the best combination
+  var yd = 100;
+  dig_util_forEach(g.nodes(), function(u) {
+    g.node(u).x = xs[u];
+    g.node(u).y = yd * g.node(u).rank;
+  });
 }
 
 /*
@@ -46,13 +60,14 @@ dig.dot.layout.findMedians = function(g, layers) {
     }
     prevLayer = currLayer;
   }
+
   return medians;
 }
 
 /*
  * Finds type 1 conflicts and removes them from the median object.
  */
-dig.dot.layout.removeType1Conflicts = function(g, medians, layers) {
+dig.dot.layout.removeType1Conflicts = function(g, layers, medians) {
   var prevLayer = null;
   for (var i = 0; i < layers.length; ++i) {
     var currLayer = layers[i];
@@ -131,4 +146,56 @@ dig.dot.layout.verticalAlignment = function(g, layers, medians) {
     root: root,
     align: align
   }
+}
+
+dig.dot.layout.horizontalCompaction = function(g, layers, alignment) {
+  // TODO make d configurable
+  var d = 50;
+
+  var sink = {};
+  dig_util_forEach(g.nodes(), function(v) { sink[v] = v; });
+
+  var shift = {};
+  dig_util_forEach(g.nodes(), function(v) { shift[v] = Number.POSITIVE_INFINITY; });
+
+  var x = {};
+
+  function placeBlock(v) {
+    if (!x[v]) {
+      x[v] = 0;
+      var w = v;
+      do
+      {
+        if (g.node(w).order > 0) {
+          var u = alignment.root[layers[g.node(w).rank][g.node(w).order - 1]];
+          placeBlock(u);
+          if (sink[v] === v) {
+            sink[v] = sink[u];
+          }
+          if (sink[v] !== sink[u]) {
+            shift[sink[u]] = Math.min(shift[sink[u]], x[v] - x[u] - d);
+          } else {
+            x[v] = Math.max(x[v], x[u] + d);
+          }
+        }
+        w = alignment.align[w];
+      } while (w !== v);
+    }
+  }
+
+  dig_util_forEach(g.nodes(), function(u) {
+    if (alignment.root[u] === u) {
+      placeBlock(u);
+    }
+  });
+
+  dig_util_forEach(g.nodes(), function(u) {
+    x[u] = x[alignment.root[u]];
+    var delta = shift[sink[alignment.root[u]]];
+    if (delta < Number.POSITIVE_INFINITY) {
+      x[u] = x[u] + delta;
+    }
+  });
+
+  return x;
 }

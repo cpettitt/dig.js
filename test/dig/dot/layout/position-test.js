@@ -48,7 +48,7 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     var g = dig.dot.read("digraph { 1 -> 2 }");
     var layers = [[1], [2]];
     var meds = dig.dot.layout.findMedians(g, layers);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers);
+    dig.dot.layout.removeType1Conflicts(g, layers, meds);
     assert.deepEqual({1: [], 2: [1]}, meds);
   });
 
@@ -59,7 +59,7 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     var layers = [["A1", "A2"], ["B1", "B2"]];
 
     var meds = dig.dot.layout.findMedians(g, layers);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers)
+    dig.dot.layout.removeType1Conflicts(g, layers, meds)
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: []}, meds);
   });
 
@@ -68,7 +68,7 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     var layers = [["A1", "A2"], ["B1", "B2"]];
 
     var meds = dig.dot.layout.findMedians(g, layers);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers);
+    dig.dot.layout.removeType1Conflicts(g, layers, meds);
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: ["A1"]}, meds);
   });
 
@@ -81,7 +81,7 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     g.node("B2").dummy = true;
 
     var meds = dig.dot.layout.findMedians(g, layers);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers);
+    dig.dot.layout.removeType1Conflicts(g, layers, meds);
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: ["A1"]}, meds);
   });
 
@@ -93,7 +93,7 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     var layers = [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]];
 
     var meds = dig.dot.layout.findMedians(g, layers);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers);
+    dig.dot.layout.removeType1Conflicts(g, layers, meds);
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: [], C1: [], C2: ["B1"]}, meds);
   });
 
@@ -105,7 +105,7 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     layers.reverse();
 
     var meds = dig.dot.layout.findMedians(g, layers);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers);
+    dig.dot.layout.removeType1Conflicts(g, layers, meds);
     assert.deepEqual({A1: [], A2: ["B1"], B1: [], B2: []}, meds);
   });
 });

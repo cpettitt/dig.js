@@ -3,12 +3,21 @@
  *
  * NOTE: this is a work in progress.
  */
-dig.dot.layout = function(inputGraph) {
-  dig.dot.layout.rank(inputGraph);
-  var aux = inputGraph.copy();
+dig.dot.layout = function(g) {
+  var aux = g.copy();
+  dig.dot.layout.rank(aux);
   dig.dot.layout.addDummyNodes(aux);
   var layers = dig.dot.layout.order(aux);
   dig.dot.layout.position(aux, layers);
+
+  dig_util_forEach(aux.nodes(), function(u) {
+    if (g.hasNode(u)) {
+      g.node(u).x = aux.node(u).x;
+      g.node(u).y = aux.node(u).y;
+    }
+  });
+
+  return aux;
 }
 
 /*
