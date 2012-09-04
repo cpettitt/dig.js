@@ -4,7 +4,8 @@
  * overall edge crossings in the graph.
  *
  * Ordering will be returned as an array of ranks with each rank containing
- * an array of ordered nodes for the rank.
+ * an array of ordered nodes for the rank. This function will also set an
+ * `order` attribute on each node in the graph.
  */
 dig.dot.layout.order = (function() {
   /*
@@ -136,6 +137,13 @@ dig.dot.layout.order = (function() {
       if (cc > bestCC) {
         bestOrdering = ordering;
         bestCC = cc;
+      }
+    }
+
+    // Add order to node
+    for (var i = 0; i < bestOrdering.length; ++i) {
+      for (var j = 0; j < bestOrdering[i].length; ++j) {
+        g.node(bestOrdering[i][j]).order = j;
       }
     }
 

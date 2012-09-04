@@ -51,4 +51,13 @@ describe("dig.dot.layout.order(graph)", function() {
     var ordering = dig.dot.layout.order(g);
     assert.equal(5, dig.dot.layout.crossCount(g, ordering));
   });
+
+  it("sets ordering on the node to match order in the returned array", function() {
+    var g = graphs.directed.order6.copy();
+    dig.dot.layout.rank(g);
+    var ordering = dig.dot.layout.order(g);
+    g.nodes().forEach(function(u) {
+      assert.equal(u, ordering[g.node(u).rank][g.node(u).order]);
+    });
+  });
 });
