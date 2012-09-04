@@ -7,26 +7,35 @@ dig.dot.layout.position = function(auxGraph, layers) {
 }
 
 /*
- * Iterates through the given layers and finds for each node finds the median
+ * Iterates through the given orering and for each node finds the upper median
  * incident node(s) from the previous layer. In the case of an odd number of
  * incident nodes there will be one median, whereas with an even number of
  * incident nodes there weill be two. This function returns a mapping of each
  * node to its median incident node(s).
+ *
+ * To find the lower median incident nodes simply call this function with the
+ * layers array reversed.
  */
-dig.dot.layout.findMedians = function(g, layers, layerTraversal) {
+dig.dot.layout.findMedians = function(g, layers) {
   var medians = {};
   dig_util_forEach(g.nodes(), function(u) {
     medians[u] = [];
   });
 
   var prevLayer = null;
-  function layerIter(currLayer) {
+  for (var i = 0; i < layers.length; ++i) {
+    var currLayer = layers[i];
     if (prevLayer !== null) {
       var orderMap = dig_dot_layout_orderMap(g, prevLayer);
-      // direction in the layer doesn't matter for this function
-      for (var i = 0; i < currLayer.length; ++i) {
-        var u = currLayer[i];
-        var vs = dig_util_radixSort(layerTraversal.neighbors(g, u),
+      for (var j = 0; j < currLayer.length; ++j) {
+        var u = currLayer[j];
+        var preds = [];
+        dig_util_forEach(g.neighbors(u, "both"), function(v) {
+          if (v in orderMap) {
+            preds.push(v);
+          }
+        });
+        var vs = dig_util_radixSort(preds,
                                     1,
                                     function(_, x) { return orderMap[x]; });
         if (vs.length > 0) {
@@ -37,41 +46,16 @@ dig.dot.layout.findMedians = function(g, layers, layerTraversal) {
     }
     prevLayer = currLayer;
   }
-
-  layerTraversal.iterate(layers, layerIter);
   return medians;
-}
-
-dig.dot.layout.top = {
-  iterate: function(layers, func) {
-    for (var i = 0; i < layers.length; ++i) {
-      func(layers[i]);
-    }
-  },
-
-  neighbors: function(g, u) {
-    return g.predecessors(u);
-  }
-}
-
-dig.dot.layout.bottom = {
-  iterate: function(layers, func) {
-    for (var i = layers.length - 1; i >= 0; --i) {
-      func(layers[i]);
-    }
-  },
-
-  neighbors: function(g, u) {
-    return g.successors(u);
-  }
 }
 
 /*
  * Finds type 1 conflicts and removes them from the median object.
  */
-dig.dot.layout.removeType1Conflicts = function(g, medians, layers, layerTraversal) {
+dig.dot.layout.removeType1Conflicts = function(g, medians, layers) {
   var prevLayer = null;
-  function layerIter(currLayer) {
+  for (var i = 0; i < layers.length; ++i) {
+    var currLayer = layers[i];
     if (prevLayer !== null) {
       var prevStart = 0;
       var prevEnd;
@@ -95,12 +79,12 @@ dig.dot.layout.removeType1Conflicts = function(g, medians, layers, layerTraversa
           for (; currStart <= currPos; ++currStart) {
             u = currLayer[currStart];
             var meds = medians[u];
-            for (var i = 0; i < meds.length; ++i) {
-              var v = meds[i];
+            for (var j = 0; j < meds.length; ++j) {
+              var v = meds[j];
               var pos = prevOrderMap[v];
               if ((pos < prevStart || pos > prevEnd) && !(g.node(u).dummy && g.node(v).dummy)) {
-                meds.splice(i, 1);
-                --i;
+                meds.splice(j, 1);
+                --j;
               }
             }
           }
@@ -110,7 +94,6 @@ dig.dot.layout.removeType1Conflicts = function(g, medians, layers, layerTraversa
     }
     prevLayer = currLayer;
   }
-  layerTraversal.iterate(layers, layerIter);
 }
 
 /*

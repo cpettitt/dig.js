@@ -2,42 +2,43 @@ describe("dig.dot.layout.findMedians(graph, layers, layerTraversal)", function()
   it("gives an empty array for nodes without incident edges", function() {
     var g = dig.dot.read("digraph { 1; 2 }");
     var layers = [[1], [2]];
-    var medians = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
+    var medians = dig.dot.layout.findMedians(g, layers);
     assert.deepEqual({1: [], 2: []}, medians);
   });
 
   it("gives a singleton array for nodes with one incident edge", function() {
     var g = dig.dot.read("digraph { 1 -> 2 }");
     var layers = [[1], [2]];
-    var medians = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
+    var medians = dig.dot.layout.findMedians(g, layers);
     assert.deepEqual({1: [], 2: [1]}, medians);
   });
 
   it("gives the single median for nodes with an odd number of incident edges", function() {
     var g = dig.dot.read("digraph { 1 -> 4; 2 -> 4; 3 -> 4 }");
     var layers = [[1, 2, 3], [4]];
-    var medians = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
+    var medians = dig.dot.layout.findMedians(g, layers);
     assert.deepEqual({1: [], 2: [], 3: [], 4: [2]}, medians);
   });
 
   it("gives two medians for nodes with an even number of incident edges", function() {
     var g = dig.dot.read("digraph { 1 -> 5; 2 -> 5; 3 -> 5; 4 -> 5; }");
     var layers = [[1, 2, 3, 4], [5]];
-    var medians = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
+    var medians = dig.dot.layout.findMedians(g, layers);
     assert.deepEqual({1: [], 2: [], 3: [], 4: [], 5: [2, 3]}, medians);
   });
 
   it("works across layers", function() {
     var g = dig.dot.read("digraph { A1 -> B1 -> C2; A2 -> B2 -> C2; A3 -> B3 -> C2; A1 -> B2; A3 -> B2 }");
     var layers = [["A1", "A2", "A3"], ["B1", "B2", "B3"], ["C2"]];
-    var medians = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
+    var medians = dig.dot.layout.findMedians(g, layers);
     assert.deepEqual({A1: [], A2: [], A3: [], B1: ["A1"], B2: ["A2"], B3: ["A3"], C2: ["B2"]}, medians);
   });
 
   it("works for bottom traversal", function() {
     var g = dig.dot.read("digraph { 1 -> 4; 2 -> 4; 3 -> 4 }");
     var layers = [[1, 2, 3], [4]];
-    var medians = dig.dot.layout.findMedians(g, layers, dig.dot.layout.bottom);
+    layers.reverse();
+    var medians = dig.dot.layout.findMedians(g, layers);
     assert.deepEqual({1: [4], 2: [4], 3: [4], 4: []}, medians);
   });
 });
@@ -46,8 +47,8 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
   it("does not remove edges with no conflict", function() {
     var g = dig.dot.read("digraph { 1 -> 2 }");
     var layers = [[1], [2]];
-    var meds = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers, dig.dot.layout.top);
+    var meds = dig.dot.layout.findMedians(g, layers);
+    dig.dot.layout.removeType1Conflicts(g, meds, layers);
     assert.deepEqual({1: [], 2: [1]}, meds);
   });
 
@@ -57,8 +58,8 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     g.node("B1").dummy = true;
     var layers = [["A1", "A2"], ["B1", "B2"]];
 
-    var meds = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers, dig.dot.layout.top);
+    var meds = dig.dot.layout.findMedians(g, layers);
+    dig.dot.layout.removeType1Conflicts(g, meds, layers)
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: []}, meds);
   });
 
@@ -66,8 +67,8 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     var g = dig.dot.read("digraph { A1 -> B2; A2 -> B1 }");
     var layers = [["A1", "A2"], ["B1", "B2"]];
 
-    var meds = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers, dig.dot.layout.top);
+    var meds = dig.dot.layout.findMedians(g, layers);
+    dig.dot.layout.removeType1Conflicts(g, meds, layers);
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: ["A1"]}, meds);
   });
 
@@ -79,8 +80,8 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     g.node("B1").dummy = true;
     g.node("B2").dummy = true;
 
-    var meds = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers, dig.dot.layout.top);
+    var meds = dig.dot.layout.findMedians(g, layers);
+    dig.dot.layout.removeType1Conflicts(g, meds, layers);
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: ["A1"]}, meds);
   });
 
@@ -91,8 +92,8 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     g.node("C2").dummy = true;
     var layers = [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]];
 
-    var meds = dig.dot.layout.findMedians(g, layers, dig.dot.layout.top);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers, dig.dot.layout.top);
+    var meds = dig.dot.layout.findMedians(g, layers);
+    dig.dot.layout.removeType1Conflicts(g, meds, layers);
     assert.deepEqual({A1: [], A2: [], B1: ["A2"], B2: [], C1: [], C2: ["B1"]}, meds);
   });
 
@@ -101,9 +102,10 @@ describe("dig.dot.layout.removeType1Conflicts(graph, layers)", function() {
     g.node("A2").dummy = true;
     g.node("B1").dummy = true;
     var layers = [["A1", "A2"], ["B1", "B2"]];
+    layers.reverse();
 
-    var meds = dig.dot.layout.findMedians(g, layers, dig.dot.layout.bottom);
-    dig.dot.layout.removeType1Conflicts(g, meds, layers, dig.dot.layout.bottom);
+    var meds = dig.dot.layout.findMedians(g, layers);
+    dig.dot.layout.removeType1Conflicts(g, meds, layers);
     assert.deepEqual({A1: [], A2: ["B1"], B1: [], B2: []}, meds);
   });
 });
