@@ -7,8 +7,9 @@ dig.dot.layout = function(g) {
   var aux = g.copy();
   dig.dot.layout.rank(aux);
   dig.dot.layout.addDummyNodes(aux);
-  var layers = dig.dot.layout.order(aux);
-  dig.dot.layout.position(aux, layers);
+  dig.dot.layout.order(aux);
+  dig.dot.layout.position()
+    .graph(aux);
 
   dig_util_forEach(aux.nodes(), function(u) {
     if (g.hasNode(u)) {
