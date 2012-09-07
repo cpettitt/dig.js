@@ -27,6 +27,9 @@ describe("dig.dot.layout.addDummyNodes(graph)", function() {
     assert.isTrue(g.hasEdge(successor, "B"));
     assert.equal(1, g.node(successor).rank);
     assert.isTrue(g.node(successor).dummy);
+    assert.equal("A", g.node(successor).source);
+    assert.equal("B", g.node(successor).sink);
+    assert.equal(0, g.node(successor).dummyIdx);
   });
 
   it("adds dummy nodes for back edges that cross multiple ranks", function() {
@@ -40,5 +43,8 @@ describe("dig.dot.layout.addDummyNodes(graph)", function() {
     assert.isTrue(g.hasEdge(successor, "A"));
     assert.equal(1, g.node(successor).rank);
     assert.isTrue(g.node(successor).dummy);
+    assert.equal("B", g.node(successor).source);
+    assert.equal("A", g.node(successor).sink);
+    assert.equal(0, g.node(successor).dummyIdx);
   });
 });

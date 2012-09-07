@@ -33,21 +33,24 @@ dig.dot.layout = function(g) {
  */
 dig.dot.layout.addDummyNodes = function(g) {
   dig_util_forEach(g.edges(), function(e) {
-    var dummyCount = 1,
+    var dummyCount = 0,
         prefix = "_d-" + e.from + "-" + e.to + "-",
-        u = e.from,
-        v = e.to,
-        rankU = parseInt(g.node(u).rank),
-        rankV = parseInt(g.node(v).rank),
-        delta = rankU < rankV ? 1 : -1;
-    g.removeEdge(u, v);
-    for (rankU += delta; rankU != rankV; rankU += delta) {
-      var w = prefix + dummyCount++;
-      g.addNode(w, {rank: rankU, dummy: true});
-      g.addEdge(u, w);
-      u = w;
+        source = e.from,
+        sink = e.to,
+        rankSource = parseInt(g.node(source).rank),
+        rankSink = parseInt(g.node(sink).rank),
+        delta = rankSource < rankSink ? 1 : -1;
+    var u = source;
+    var rankU = rankSource;
+    g.removeEdge(u, sink);
+    for (rankU += delta; rankU != rankSink; rankU += delta) {
+      var v = prefix + dummyCount;
+      g.addNode(v, {rank: rankU, dummy: true, dummyIdx: dummyCount, source: source, sink: sink});
+      g.addEdge(u, v);
+      dummyCount++;
+      u = v;
     }
-    g.addEdge(u, v);
+    g.addEdge(u, sink);
   });
 }
 
