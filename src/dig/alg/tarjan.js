@@ -1,12 +1,12 @@
 // Algorithm derived from: 
 // http://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
-var dig_alg_tarjan = dig.alg.tarjan = function(graph) {
+var dig_alg_tarjan = dig.alg.tarjan = function(g) {
   var index = 0;
   var stack = new dig.data.Stack();
   var visited = {}; // node -> index + lowlink
   var results = [];
 
-  if (!graph.isDirected()) {
+  if (!g.isDirected()) {
     throw new Error("tarjan can only be called for directed graphs");
   }
 
@@ -20,7 +20,7 @@ var dig_alg_tarjan = dig.alg.tarjan = function(graph) {
     index++;
     stack.push(v);
 
-    dig_util_forEach(graph.successors(v), function(w) {
+    g.successors(v).forEach(function(w) {
       if (!(w in visited)) {
         scc(w);
         vEntry.lowlink = Math.min(vEntry.lowlink, visited[w].lowlink);
@@ -41,7 +41,7 @@ var dig_alg_tarjan = dig.alg.tarjan = function(graph) {
     }
   }
 
-  dig_util_forEach(graph.nodes(), function(v) {
+  g.nodes().forEach(function(v) {
     if (!(v in visited)) {
       scc(v);
     }

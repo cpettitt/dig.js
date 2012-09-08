@@ -24,7 +24,7 @@ dig.dot.layout.rank = (function() {
       }
       visited[u] = true;
       onStack[u] = true;
-      dig_util_forEach(g.successors(u), function(v) {
+      g.successors(u).forEach(function(v) {
         if (v in onStack) {
           g.addEdge(v, u);
           g.removeEdge(u, v);
@@ -35,7 +35,7 @@ dig.dot.layout.rank = (function() {
       delete onStack[u];
     }
 
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       dfs(u);
     });
   };
@@ -53,7 +53,7 @@ dig.dot.layout.rank = (function() {
    */
   function init(g) {
     var pq = new dig_data_PriorityQueue();
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       pq.add(u, g.indegree(u));
     });
 
@@ -70,8 +70,8 @@ dig.dot.layout.rank = (function() {
         throw new Error("Input graph is not acyclic!");
       }
 
-      dig_util_forEach(current, function(u) {
-        dig_util_forEach(g.successors(u), function(v) {
+      current.forEach(function(u) {
+        g.successors(u).forEach(function(v) {
           pq.decrease(v, pq.priority(v) - 1);
         });
       });
@@ -89,7 +89,7 @@ dig.dot.layout.rank = (function() {
     var aux = g.copy();
     makeAcyclic(aux);
     init(aux);
-    dig_util_forEach(aux.nodes(), function(u) {
+    aux.nodes().forEach(function(u) {
       g.node(u).rank = aux.node(u).rank;
     });
   }

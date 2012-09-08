@@ -4,7 +4,7 @@ dig.UGraph = (function() {
   };
 
   function _delegate() {
-    dig_util_forEach(arguments, function(func) {
+    Array.prototype.slice.call(arguments).forEach(function(func) {
       UGraph.prototype[func] = function() {
         return this._digraph[func].apply(this._digraph, arguments);
       }
@@ -76,7 +76,7 @@ dig.UGraph = (function() {
     directed: function() {
       var g = this._digraph.copy();
       // Add edges in both directions
-      dig_util_forEach(this.edges(), function(e) {
+      this.edges().forEach(function(e) {
         g.addEdge(e.from, e.to);
         g.addEdge(e.to, e.from);
       });

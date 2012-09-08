@@ -7,11 +7,11 @@
  *
  *    http://en.wikipedia.org/wiki/Connected_component_(graph_theory)
  */
-var dig_alg_components = dig.alg.components = function(graph) {
+var dig_alg_components = dig.alg.components = function(g) {
   var results = [];
   var visited = {};
 
-  if (graph.isDirected()) {
+  if (g.isDirected()) {
     throw new Error("components can only be used on undirected graphs");
   }
 
@@ -19,13 +19,13 @@ var dig_alg_components = dig.alg.components = function(graph) {
     if (!(v in visited)) {
       visited[v] = true;
       component.push(v);
-      dig_util_forEach(graph.neighbors(v), function(w) {
+      g.neighbors(v).forEach(function(w) {
         dfs(w, component);
       });
     }
   };
 
-  dig_util_forEach(graph.nodes(), function(v) {
+  g.nodes().forEach(function(v) {
     var component = [];
     dfs(v, component);
     if (component.length > 0) {

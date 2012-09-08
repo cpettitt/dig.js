@@ -1,11 +1,5 @@
 dig.util = {};
 
-function dig_util_forEach(array, func) {
-  for (var i = 0; i < array.length; ++i) {
-    func(array[i]);
-  }
-}
-
 var dig_util_defineProperty = (function() {
   if (Object.defineProperty) {
     return function(obj, property, value) {

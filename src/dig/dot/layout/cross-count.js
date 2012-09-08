@@ -12,7 +12,7 @@ dig.dot.layout.crossCount = (function() {
     for (var i = 0; i < norths.length; ++i) {
       var curr = [];
       var u = norths[i];
-      dig_util_forEach(g.neighbors(u, "both"), function(v) {
+      g.neighbors(u, "both").forEach(function(v) {
         // v may not be in southPos is the edge is to a layer other than souths
         if (v in southPos) {
           curr.push(southPos[v]);

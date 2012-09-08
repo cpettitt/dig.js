@@ -1,9 +1,9 @@
-var dig_alg_topsort = dig.alg.topsort = function(graph) {
+var dig_alg_topsort = dig.alg.topsort = function(g) {
   var visited = {};
   var stack = {};
   var results = [];
 
-  if (!graph.isDirected()) {
+  if (!g.isDirected()) {
     throw new Error("topsort can only be called for directed graphs");
   }
 
@@ -15,7 +15,7 @@ var dig_alg_topsort = dig.alg.topsort = function(graph) {
     if (!(node in visited)) {
       stack[node] = true;
       visited[node] = true;
-      dig_util_forEach(graph.predecessors(node), function(pred) {
+      g.predecessors(node).forEach(function(pred) {
         visit(pred);
       });
       delete stack[node];
@@ -23,12 +23,12 @@ var dig_alg_topsort = dig.alg.topsort = function(graph) {
     }
   }
 
-  var sinks = graph.sinks();
-  if (graph.order() != 0 && sinks.length == 0) {
+  var sinks = g.sinks();
+  if (g.order() != 0 && sinks.length == 0) {
     throw new Error("graph has at least one cycle!");
   }
 
-  dig_util_forEach(graph.sinks(), function(sink) {
+  g.sinks().forEach(function(sink) {
     visit(sink);
   });
 

@@ -10,7 +10,7 @@
  *
  * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
  */
-var dig_alg_dijkstra = dig.alg.dijkstra = function(graph, source) {
+var dig_alg_dijkstra = dig.alg.dijkstra = function(g, source) {
   var results = {};
   var q = new dig_data_PriorityQueue();
   var maxDist = Number.POSITIVE_INFINITY;
@@ -18,7 +18,7 @@ var dig_alg_dijkstra = dig.alg.dijkstra = function(graph, source) {
   var u, v;
   var altDist;
 
-  dig_util_forEach(graph.nodes(), function(node) {
+  g.nodes().forEach(function(node) {
     var distance = node == source ? 0 : maxDist;
     results[node] = { distance: distance, predecessor: null };
     q.add(node, distance);
@@ -31,7 +31,7 @@ var dig_alg_dijkstra = dig.alg.dijkstra = function(graph, source) {
       break;
     } 
 
-    dig_util_forEach(graph.neighbors(nodeU), function(nodeV) {
+    g.neighbors(nodeU).forEach(function(nodeV) {
       v = results[nodeV];
       // TODO: support weighted edges
       altDist = u.distance + 1;
@@ -58,10 +58,10 @@ var dig_alg_dijkstra = dig.alg.dijkstra = function(graph, source) {
  *
  * http://en.wikipedia.org/wiki/Dijkstra's_algorithm
  */
-var dig_alg_disjkstraAll = dig.alg.dijkstraAll = function(graph) {
+var dig_alg_dijkstraAll = dig.alg.dijkstraAll = function(g) {
   var results = {};
-  dig_util_forEach(graph.nodes(), function(node) {
-    results[node] = dig_alg_dijkstra(graph, node);
+  g.nodes().forEach(function(node) {
+    results[node] = dig_alg_dijkstra(g, node);
   });
   return results;
 };

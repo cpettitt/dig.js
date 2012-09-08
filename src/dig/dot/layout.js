@@ -11,7 +11,7 @@ dig.dot.layout = function(g) {
   dig.dot.layout.position()
     .graph(aux);
 
-  dig_util_forEach(aux.nodes(), function(u) {
+  aux.nodes().forEach(function(u) {
     var auxAttrs = aux.node(u);
     if (g.hasNode(u)) {
       g.node(u).x = auxAttrs.x;
@@ -38,7 +38,7 @@ dig.dot.layout = function(g) {
  * This function does not preserve edge labels.
  */
 dig.dot.layout.addDummyNodes = function(g) {
-  dig_util_forEach(g.edges(), function(e) {
+  g.edges().forEach(function(e) {
     if (e.from !== e.to) {
       var dummyCount = 0,
           prefix = "_d-" + e.from + "-" + e.to + "-",

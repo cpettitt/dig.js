@@ -31,12 +31,12 @@ dig.dot.layout.order = (function() {
       }
       ordering[rankNum].push(u);
 
-      dig_util_forEach(g.successors(u), function(v) {
+      g.successors(u).forEach(function(v) {
         dfs(v);
       });
     }
 
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       if (g.node(u).rank === 0) {
         dfs(u);
       }
@@ -110,7 +110,7 @@ dig.dot.layout.order = (function() {
       var sucs = g.neighbors(movable[i], "both");
       if (sucs.length > 0) {
         weight = 0;
-        dig_util_forEach(sucs, function(v) {
+        sucs.forEach(function(v) {
           // Only calculate the weight if the node is in the fixed rank
           if (v in fixedPos) {
             weight = fixedPos[v];

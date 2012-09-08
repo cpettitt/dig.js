@@ -10,20 +10,20 @@
  *
  * http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
  */
-var dig_alg_floydWarshall = dig.alg.floydWarshall = function(graph) {
+var dig_alg_floydWarshall = dig.alg.floydWarshall = function(g) {
   var results = {};
-  var nodes = graph.nodes();
+  var nodes = g.nodes();
   var altDistance;
   var rowI, rowK;
   var ik, kj, ij;
   var maxDist = Number.POSITIVE_INFINITY;
 
-  dig_util_forEach(nodes, function(i) {
+  nodes.forEach(function(i) {
     rowI = results[i] = {};
-    dig_util_forEach(nodes, function(j) {
+    nodes.forEach(function(j) {
       if (i == j) {
         rowI[j] = { distance: 0, predecessor: null };  
-      } else if (graph.hasEdge(i, j)) {
+      } else if (g.hasEdge(i, j)) {
         rowI[j] = { distance: 1, predecessor: i };
       } else {
         rowI[j] = { distance: maxDist, predecessor: null };
@@ -31,11 +31,11 @@ var dig_alg_floydWarshall = dig.alg.floydWarshall = function(graph) {
     });
   });
 
-  dig_util_forEach(nodes, function(k) {
+  nodes.forEach(function(k) {
     rowK = results[k];
-    dig_util_forEach(nodes, function(i) {
+    nodes.forEach(function(i) {
       rowI = results[i];
-      dig_util_forEach(nodes, function(j) {
+      nodes.forEach(function(j) {
         ik = rowI[k];
         kj = rowK[j];
         ij = rowI[j];

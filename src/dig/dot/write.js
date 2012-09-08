@@ -45,11 +45,11 @@ var dig_dot_write = dig.dot.write = (function() {
     var edgeConnector = g.isDirected() ? "->" : "--";
     var str = (g.isDirected() ? "digraph" : "graph") + " {\n";
 
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       str += _writeNode(u, g.node(u));
     });
 
-    dig_util_forEach(g.edges(), function(e) {
+    g.edges().forEach(function(e) {
       str += _writeEdge(edgeConnector, e.from, e.to, e.attrs);
     });
 

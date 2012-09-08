@@ -20,14 +20,14 @@ var dig_alg_levels = dig.alg.levels = function(g, roots) {
     levels[u] = level;
   }
 
-  dig_util_forEach(roots, function(u) {
+  roots.forEach(function(u) {
     levelAndQueue(u, 0);
   });
 
   var curr, u;
   while (queue.size() !== 0) {
     u = queue.dequeue();
-    dig_util_forEach(g.neighbors(u), function(v) {
+    g.neighbors(u).forEach(function(v) {
       if (!(v in levels)) {
         levelAndQueue(v, levels[u] + 1);
       }

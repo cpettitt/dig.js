@@ -60,7 +60,7 @@ dig.DiGraph = (function() {
   }
 
   function _copyNodesTo(self, g) {
-    dig_util_forEach(self.nodes(), function(u) {
+    self.nodes().forEach(function(u) {
       g.addNode(u, self.node(u));
     });
   };
@@ -111,7 +111,7 @@ dig.DiGraph = (function() {
       var g = new DiGraph();
       var self = this;
       _copyNodesTo(self, g);
-      dig_util_forEach(self.edges(), function(e) {
+      self.edges().forEach(function(e) {
         g.addEdge(e.from, e.to, self.edge(e.from, e.to));
       });
       return g;
@@ -175,10 +175,10 @@ dig.DiGraph = (function() {
       _checkMutable(this);
       var self = this;
       if (this.hasNode(node)) {
-        dig_util_forEach(this.predecessors(node), function(i) {
+        this.predecessors(node).forEach(function(i) {
           self.removeEdge(i, node);
         });
-        dig_util_forEach(this.successors(node), function(k) {
+        this.successors(node).forEach(function(k) {
           self.removeEdge(node, k);
         });
         delete this._nodes[node];
@@ -341,7 +341,7 @@ dig.DiGraph = (function() {
     sources: function() {
       var sources = [];
       var self = this;
-      dig_util_forEach(this.nodes(), function(i) { 
+      this.nodes().forEach(function(i) {
         if (self.indegree(i) == 0) {
           sources.push(i);
         }
@@ -352,7 +352,7 @@ dig.DiGraph = (function() {
     sinks: function() {
       var sinks = [];
       var self = this;
-      dig_util_forEach(this.nodes(), function(i) {
+      this.nodes().forEach(function(i) {
         if (self.outdegree(i) === 0) {
           sinks.push(i);
         }
@@ -374,7 +374,7 @@ dig.DiGraph = (function() {
 
       _copyNodesTo(this, g);
       var self = this;
-      dig_util_forEach(this.edges(), function(e) {
+      this.edges().forEach(function(e) {
         if (!(_edgeKey(e.from, e.to) in visitedEdges)) {
           visitedEdges[_edgeKey(e.from, e.to)] = visitedEdges[_edgeKey(e.to, e.from)] = true;
           var es = [e];

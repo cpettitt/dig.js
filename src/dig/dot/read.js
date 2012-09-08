@@ -10,7 +10,7 @@ var dig_dot_read = dig.dot.read = function(dot) {
         break;
       case "edge":
         var prev;
-        dig_util_forEach(stmt.elems, function(elem) {
+        stmt.elems.forEach(function(elem) {
           handleStmt(elem);
 
           switch(elem.type) {
@@ -34,8 +34,10 @@ var dig_dot_read = dig.dot.read = function(dot) {
     }
   }
 
-  dig_util_forEach(parseTree.stmts, function(stmt) {
-    handleStmt(stmt);
-  });
+  if (parseTree.stmts) {
+    parseTree.stmts.forEach(function(stmt) {
+      handleStmt(stmt);
+    });
+  }
   return graph;
 }

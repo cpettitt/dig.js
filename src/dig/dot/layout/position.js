@@ -22,7 +22,7 @@ dig.dot.layout.position = function() {
 
   function makeOrderArray(g) {
     var ordering = [];
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       var attrs = g.node(u);
       var rank = ordering[attrs.rank];
       if (rank === undefined) {
@@ -54,7 +54,7 @@ dig.dot.layout.position = function() {
 
   function findMedians(g, orderArray, orderMap) {
     var medians = {};
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       medians[u] = [];
     });
 
@@ -65,7 +65,7 @@ dig.dot.layout.position = function() {
         for (var j = 0; j < currLayer.length; ++j) {
           var u = currLayer[j];
           var preds = [];
-          dig_util_forEach(g.neighbors(u, "both"), function(v) {
+          g.neighbors(u, "both").forEach(function(v) {
             if (orderMap[v].rank === i - 1) {
               preds.push(v);
             }
@@ -96,7 +96,7 @@ dig.dot.layout.position = function() {
           var u = currLayer[currPos];
           var inner = null;
           if (g.node(u).dummy) {
-            dig_util_forEach(medianMap[u], function(v) {
+            medianMap[u].forEach(function(v) {
               if (g.node(v).dummy) {
                 inner = v;
               }
@@ -129,10 +129,10 @@ dig.dot.layout.position = function() {
 
   function verticalAlignment(g, orderArray, orderMap, medianMap) {
     var root = {};
-    dig_util_forEach(g.nodes(), function(u) { root[u] = u; });
+    g.nodes().forEach(function(u) { root[u] = u; });
 
     var align = {};
-    dig_util_forEach(g.nodes(), function(u) { align[u] = u; });
+    g.nodes().forEach(function(u) { align[u] = u; });
 
     for (var i = 1; i < orderArray.length; ++i) {
       var r = -1;
@@ -159,10 +159,10 @@ dig.dot.layout.position = function() {
 
   function horizontalCompaction(g, orderArray, orderMap, alignment) {
     var sink = {};
-    dig_util_forEach(g.nodes(), function(v) { sink[v] = v; });
+    g.nodes().forEach(function(v) { sink[v] = v; });
 
     var shift = {};
-    dig_util_forEach(g.nodes(), function(v) { shift[v] = Number.POSITIVE_INFINITY; });
+    g.nodes().forEach(function(v) { shift[v] = Number.POSITIVE_INFINITY; });
 
     var x = {};
 
@@ -190,13 +190,13 @@ dig.dot.layout.position = function() {
       }
     }
 
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       if (alignment.root[u] === u) {
         placeBlock(u);
       }
     });
 
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       x[u] = x[alignment.root[u]];
       var delta = shift[sink[alignment.root[u]]];
       if (delta < Number.POSITIVE_INFINITY) {
@@ -219,7 +219,7 @@ dig.dot.layout.position = function() {
 
   function flipPosition(g, orderArray, xs) {
     var maxCoord = Number.NEGATIVE_INFINITY;
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       var coord = xs[u] + g.node(u).width;
       if (coord > maxCoord) {
         maxCoord = coord;
@@ -253,7 +253,7 @@ dig.dot.layout.position = function() {
    * set in the instance of the position algorithm.
    */
   function graph(g) {
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       g.node(u).y = _rankSep * g.node(u).rank;
       var w = g.node(u).width;
       if (w) {
@@ -290,7 +290,7 @@ dig.dot.layout.position = function() {
     flipMedians(medianMap);
     xs.push(pass(g, orderArray, orderMap, medianMap));
 
-    dig_util_forEach(g.nodes(), function(u) {
+    g.nodes().forEach(function(u) {
       var xArray = [];
       for (var i = 0; i < xs.length; ++i) {
         xArray.push(xs[i][u]);
