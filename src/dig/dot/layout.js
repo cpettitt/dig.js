@@ -39,24 +39,26 @@ dig.dot.layout = function(g) {
  */
 dig.dot.layout.addDummyNodes = function(g) {
   dig_util_forEach(g.edges(), function(e) {
-    var dummyCount = 0,
-        prefix = "_d-" + e.from + "-" + e.to + "-",
-        source = e.from,
-        sink = e.to,
-        rankSource = parseInt(g.node(source).rank),
-        rankSink = parseInt(g.node(sink).rank),
-        delta = rankSource < rankSink ? 1 : -1;
-    var u = source;
-    var rankU = rankSource;
-    g.removeEdge(u, sink);
-    for (rankU += delta; rankU != rankSink; rankU += delta) {
-      var v = prefix + dummyCount;
-      g.addNode(v, {rank: rankU, dummy: true, dummyIdx: dummyCount, source: source, sink: sink});
-      g.addEdge(u, v);
-      dummyCount++;
-      u = v;
+    if (e.from !== e.to) {
+      var dummyCount = 0,
+          prefix = "_d-" + e.from + "-" + e.to + "-",
+          source = e.from,
+          sink = e.to,
+          rankSource = parseInt(g.node(source).rank),
+          rankSink = parseInt(g.node(sink).rank),
+          delta = rankSource < rankSink ? 1 : -1;
+      var u = source;
+      var rankU = rankSource;
+      g.removeEdge(u, sink);
+      for (rankU += delta; rankU != rankSink; rankU += delta) {
+        var v = prefix + dummyCount;
+        g.addNode(v, {rank: rankU, dummy: true, dummyIdx: dummyCount, source: source, sink: sink});
+        g.addEdge(u, v);
+        dummyCount++;
+        u = v;
+      }
+      g.addEdge(u, sink);
     }
-    g.addEdge(u, sink);
   });
 }
 

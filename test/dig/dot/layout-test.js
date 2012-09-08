@@ -47,4 +47,12 @@ describe("dig.dot.layout.addDummyNodes(graph)", function() {
     assert.equal("A", g.node(successor).sink);
     assert.equal(0, g.node(successor).dummyIdx);
   });
+
+  it("does not add dummy nodes for self loops", function() {
+    var g = dig.dot.read("digraph { A -> A }");
+    dig.dot.layout.addDummyNodes(g);
+
+    assert.isTrue(g.hasEdge("A", "A"));
+    assert.equal(1, g.size());
+  });
 });

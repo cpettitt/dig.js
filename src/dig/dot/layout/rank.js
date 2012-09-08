@@ -26,9 +26,7 @@ dig.dot.layout.rank = (function() {
       onStack[u] = true;
       dig_util_forEach(g.successors(u), function(v) {
         if (v in onStack) {
-          if (!g.hasEdge(v, u)) {
-            g.addEdge(v, u);
-          }
+          g.addEdge(v, u);
           g.removeEdge(u, v);
         } else {
           dfs(v);
