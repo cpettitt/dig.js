@@ -1,5 +1,7 @@
 dig.dot.layout.position = function() {
   var _nodeSep = 50;
+  var _nodeWidth = 50;
+  var _edgeWidth = 1;
   var _rankSep = 50;
 
   function nodeSep(newVal) {
@@ -8,6 +10,24 @@ dig.dot.layout.position = function() {
       return self;
     } else {
       return _nodeSep;
+    }
+  }
+
+  function nodeWidth(newVal) {
+    if (arguments.length > 0) {
+      _nodeWidth = newVal;
+      return self;
+    } else {
+      return _nodeWidth;
+    }
+  }
+
+  function edgeWidth(newVal) {
+    if (arguments.length > 0) {
+      _edgeWidth = newVal;
+      return self;
+    } else {
+      return _edgeWidth;
     }
   }
 
@@ -237,15 +257,61 @@ dig.dot.layout.position = function() {
     return xs;
   }
 
-  function flipMedians(medianMap) {
-    for (var k in medianMap) {
-      medianMap[k].reverse();
-    }
+  /*
+   * Initializes the graph by ensuring that each node has a numeric width. If
+   * no width was assigned to a node, we assign a default value. Dummy nodes
+   * are assigned the value edgeWidth.
+   */
+  function init(g) {
+    g.nodes().forEach(function(u) {
+      var attrs = g.node(u);
+      attrs.y = _rankSep * attrs.rank;
+      if (attrs.width) {
+        attrs.width = parseInt(attrs.width);
+      } else {
+        attrs.width = attrs.dummy ? _edgeWidth : _nodeWidth;
+      }
+    });
+  }
+
+  function upperLeft(g) {
+    var orderArray = makeOrderArray(g);
+    var orderMap = makeOrderMap(orderArray);
+    var medianMap = makeMedianMap(g, orderArray, orderMap);
+    return pass(g, orderArray, orderMap, medianMap);
+  }
+
+  function upperRight(g) {
+    var orderArray = makeOrderArray(g);
+    var originalOrderArray = orderArray.slice(0);
+    flipOrderHoriz(orderArray);
+    var orderMap = makeOrderMap(orderArray);
+    var medianMap = makeMedianMap(g, orderArray, orderMap);
+    return flipPosition(g, originalOrderArray, pass(g, orderArray, orderMap, medianMap));
+  }
+
+  function lowerRight(g) {
+    var orderArray = makeOrderArray(g);
+    var originalOrderArray = orderArray.slice(0);
+    flipOrderHoriz(orderArray);
+    flipOrderVert(orderArray);
+    var orderMap = makeOrderMap(orderArray);
+    var medianMap = makeMedianMap(g, orderArray, orderMap);
+    return flipPosition(g, originalOrderArray, pass(g, orderArray, orderMap, medianMap));
+  }
+
+  function lowerLeft(g) {
+    var orderArray = makeOrderArray(g);
+    flipOrderVert(orderArray);
+    var orderMap = makeOrderMap(orderArray);
+    var medianMap = makeMedianMap(g, orderArray, orderMap);
+    return pass(g, orderArray, orderMap, medianMap);
   }
 
   function pass(g, orderArray, orderMap, medianMap) {
     var alignment = verticalAlignment(g, orderArray, orderMap, medianMap);
-    return horizontalCompaction(g, orderArray, orderMap, alignment);
+    var compacted = horizontalCompaction(g, orderArray, orderMap, alignment);
+    return compacted;
   }
 
   /*
@@ -253,42 +319,9 @@ dig.dot.layout.position = function() {
    * set in the instance of the position algorithm.
    */
   function graph(g) {
-    g.nodes().forEach(function(u) {
-      g.node(u).y = _rankSep * g.node(u).rank;
-      var w = g.node(u).width;
-      if (w) {
-        g.node(u).width = parseInt(w);
-      } else {
-        g.node(u).width = g.node(u).dummy ? 1 : 50;
-      }
-    });
+    init(g);
 
-    var orderArray = makeOrderArray(g);
-    var originalOrderArray = orderArray.slice(0);
-    var xs = [];
-
-    // Upper Left
-    var orderMap = makeOrderMap(orderArray);
-    var medianMap = makeMedianMap(g, orderArray, orderMap);
-    xs.push(pass(g, orderArray, orderMap, medianMap));
-
-    // Upper Right
-    flipOrderHoriz(orderArray);
-    orderMap = makeOrderMap(orderArray);
-    flipMedians(medianMap);
-    xs.push(flipPosition(g, originalOrderArray, pass(g, orderArray, orderMap, medianMap)));
-    
-    // Lower Right
-    flipOrderVert(orderArray);
-    orderMap = makeOrderMap(orderArray);
-    medianMap = makeMedianMap(g, orderArray, orderMap);
-    xs.push(flipPosition(g, originalOrderArray, pass(g, orderArray, orderMap, medianMap)));
-
-    // Lower Left
-    flipOrderHoriz(orderArray);
-    orderMap = makeOrderMap(orderArray);
-    flipMedians(medianMap);
-    xs.push(pass(g, orderArray, orderMap, medianMap));
+    var xs = [upperLeft(g), upperRight(g), lowerRight(g), lowerLeft(g)];
 
     g.nodes().forEach(function(u) {
       var xArray = [];
@@ -303,7 +336,14 @@ dig.dot.layout.position = function() {
   var self = {
     graph: graph,
     nodeSep: nodeSep,
-    rankSep: rankSep
+    nodeWidth: nodeWidth,
+    edgeWidth: edgeWidth,
+    rankSep: rankSep,
+    init: init,
+    upperLeft: upperLeft,
+    upperRight: upperRight,
+    lowerLeft: lowerLeft,
+    lowerRight: lowerRight
   }
 
   return self;
