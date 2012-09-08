@@ -12,34 +12,6 @@ var dig_util_defineProperty = (function() {
   }
 })();
 
-function dig_util_keys(obj) {
-  var arr = [];
-  for (var k in obj) {
-    arr.push(k);
-  }
-  return arr;
-}
-
-function dig_util_any(arr, pred) {
-  for (var i = 0; i < arr.length; ++i) {
-    if (pred(arr[i])) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function dig_util_all(arr, pred) {
-  for (var i = 0; i < arr.length; ++i) {
-    if (!pred(arr[i])) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 // Radix sort where key 0 is the most significant key.
 var dig_util_radixSort = dig.util.radixSort = function(array, k, keyFunc) {
   function inner(array, j) {

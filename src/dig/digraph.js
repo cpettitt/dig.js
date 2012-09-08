@@ -46,8 +46,8 @@ dig.DiGraph = (function() {
 
   // Checks for equality of all keys and values on the two objects.
   function _shallowEqual(lhs, rhs) {
-    var lhsKeys = dig_util_keys(lhs);
-    var rhsKeys = dig_util_keys(rhs);
+    var lhsKeys = Object.keys(lhs);
+    var rhsKeys = Object.keys(rhs);
     if (lhsKeys.length !== rhsKeys.length) {
       return false;
     }
@@ -67,14 +67,14 @@ dig.DiGraph = (function() {
 
   function _nodesEqual(lhs, rhs) {
     return lhs.order() === rhs.order() &&
-           dig_util_all(lhs.nodes(), function(u) {
+           lhs.nodes().every(function(u) {
              return rhs.hasNode(u) && _shallowEqual(lhs.node(u), rhs.node(u));
            });
   }
 
   function _edgesEqual(lhs, rhs) {
     return lhs.size() === rhs.size() &&
-           dig_util_all(lhs.edges(), function(e) {
+           lhs.edges().every(function(e) {
              return rhs.hasEdge(e.from, e.to) &&
                     _shallowEqual(lhs.edge(e.from, e.to), rhs.edge(e.from, e.to));
            });
@@ -124,7 +124,7 @@ dig.DiGraph = (function() {
     },
 
     nodes: function() {
-      return dig_util_keys(this._nodes);
+      return Object.keys(this._nodes);
     },
 
     hasNode: function(node) {
@@ -296,11 +296,11 @@ dig.DiGraph = (function() {
     },
 
     predecessors: function(node) {
-      return dig_util_keys(_safeGetNode(this, node).predecessors);
+      return Object.keys(_safeGetNode(this, node).predecessors);
     },
 
     successors: function(node) {
-      return dig_util_keys(_safeGetNode(this, node).successors);
+      return Object.keys(_safeGetNode(this, node).successors);
     },
 
     neighbors: function(node, direction) {
@@ -326,13 +326,13 @@ dig.DiGraph = (function() {
         }
       }
 
-      return dig_util_keys(obj);
+      return Object.keys(obj);
     },
 
     isAcyclic: function() {
       var components = dig_alg_tarjan(this);
       var self = this;
-      return dig_util_all(components, function(component) {
+      return components.every(function(component) {
         var v = component[0];
         return component.length === 1 && !self.hasEdge(v, v);
       });

@@ -14,7 +14,7 @@ var dig_data_PriorityQueue = dig.data.PriorityQueue = (function() {
     },
 
     keys: function() {
-      return dig_util_keys(this._keyIndices);
+      return Object.keys(this._keyIndices);
     },
 
     has: function(key) {

@@ -89,12 +89,12 @@ dig.UGraph = (function() {
       var self = this;
       function dfs(curr, prev) {
         visited[curr] = true;
-        return dig_util_all(self.neighbors(curr), function(next) {
+        return self.neighbors(curr).every(function(next) {
           return (!(next in visited)) ? dfs(next, curr) : next === prev;
         });
       }
 
-      return dig_util_all(this.nodes(), function(v) {
+      return this.nodes().every(function(v) {
         return (v in visited) || dfs(v, undefined);
       });
     },
