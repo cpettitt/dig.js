@@ -240,7 +240,7 @@ dig.dot.layout.position = function() {
   function flipPosition(g, orderArray, xs) {
     var maxCoord = Number.NEGATIVE_INFINITY;
     g.nodes().forEach(function(u) {
-      var coord = xs[u] + g.node(u).width;
+      var coord = xs[u];
       if (coord > maxCoord) {
         maxCoord = coord;
       }
@@ -251,7 +251,7 @@ dig.dot.layout.position = function() {
       var last = rank[rank.length - 1];
       for (var j = 0; j < rank.length; ++j) {
         var u = rank[j];
-        xs[u] = maxCoord - xs[u] - g.node(u).width;
+        xs[u] = maxCoord - xs[u];
       }
     }
     return xs;
