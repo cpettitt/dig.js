@@ -255,7 +255,10 @@ dig.dot.layout.position = function() {
   function graph(g) {
     dig_util_forEach(g.nodes(), function(u) {
       g.node(u).y = _rankSep * g.node(u).rank;
-      if (!("width" in g.node(u))) {
+      var w = g.node(u).width;
+      if (w) {
+        g.node(u).width = parseInt(w);
+      } else {
         g.node(u).width = g.node(u).dummy ? 1 : 50;
       }
     });
