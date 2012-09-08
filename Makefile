@@ -62,7 +62,7 @@ package.json: src/version.js package.js
 	@chmod a-w $@
 
 .PHONY: test
-test: dig.js
+test: dig.js dig.min.js
 	$(MOCHA) $(MOCHA_OPTS) --recursive test
 
 clean:
