@@ -12,9 +12,15 @@ dig.dot.layout = function(g) {
     .graph(aux);
 
   dig_util_forEach(aux.nodes(), function(u) {
+    var auxAttrs = aux.node(u);
     if (g.hasNode(u)) {
-      g.node(u).x = aux.node(u).x;
-      g.node(u).y = aux.node(u).y;
+      g.node(u).x = auxAttrs.x;
+      g.node(u).y = auxAttrs.y;
+    } else if (auxAttrs.dummy) {
+      var edgeAttrs = g.edge(auxAttrs.source, auxAttrs.sink);
+      var points = edgeAttrs.points || [];
+      points[auxAttrs.dummyIdx] = {x: auxAttrs.x, y: auxAttrs.y};
+      edgeAttrs.points = points;
     }
   });
 
