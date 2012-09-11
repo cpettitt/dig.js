@@ -96,6 +96,53 @@ exports.describeCopy = function(ctor) {
   });
 };
 
+exports.describeSubgraph = function(ctor) {
+  var source, subgraph;
+
+  beforeEach(function() {
+    source = ctor();
+    source.addNode(1, {n1: 1});
+    source.addNode(2, {n2: 2});
+    source.addNode(3, {n3: 3});
+    source.addEdge(1, 2, {k12: 12});
+    source.addEdge(1, 3, {k13: 13});
+    source.addEdge(2, 3, {k23: 23});
+
+    subgraph = source.subgraph([1, 2]);
+  });
+
+  it("copies a subset of nodes from the source graph", function() {
+    assert.deepEqual([1, 2], subgraph.nodes());
+  });
+
+  it("copies a subset of edges from the source graph", function() {
+    assert.isTrue(subgraph.hasEdge(1, 2));
+    assert.isFalse(subgraph.hasEdge(1, 3));
+    assert.isFalse(subgraph.hasEdge(2, 3));
+  });
+
+  it("copies attributes for nodes", function() {
+    assert.deepEqual({n1: 1}, subgraph.node(1));
+    assert.deepEqual({n2: 2}, subgraph.node(2));
+
+    subgraph.node(1).subgraph = "123";
+    assert.isFalse("subgraph" in source.node(1));
+
+    source.node(1).source = "123";
+    assert.isFalse("source" in subgraph.node(1));
+  });
+
+  it("copies attributes for edges", function() {
+    assert.deepEqual({k12: 12}, subgraph.edge(1, 2));
+
+    subgraph.edge(1, 2).subgraph = "123";
+    assert.isFalse("subgraph" in source.edge(1, 2));
+
+    source.edge(1, 2).source = "123";
+    assert.isFalse("source" in subgraph.edge(1, 2));
+  });
+};
+
 exports.describeEquals = function(ctor) {
   it("returns true for a graph that has the same nodes and edges", function() {
     var graph = ctor();

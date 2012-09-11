@@ -22,6 +22,10 @@ describe("dig.UGraph", function() {
     abstract.describeCopy(ctor);
   });
 
+  describe("subgraph(nodes)", function() {
+    abstract.describeSubgraph(ctor);
+  });
+
   describe("equals(graph)", function() {
     abstract.describeEquals(ctor);
   });

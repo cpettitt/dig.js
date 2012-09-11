@@ -22,6 +22,10 @@ describe("dig.DiGraph", function() {
     abstract.describeCopy(ctor);
   });
 
+  describe("subgraph(nodes)", function() {
+    abstract.describeSubgraph(ctor);
+  });
+
   describe("nodes()", function() {
     abstract.describeNodes(ctor);
   });

@@ -22,6 +22,12 @@ dig.UGraph = (function() {
       return g;
     },
 
+    subgraph: function(nodes) {
+      var g = new UGraph();
+      g._digraph = this._digraph.subgraph(nodes);
+      return g;
+    },
+
     immutable: function() {
       var g = new UGraph();
       g._digraph = this._digraph.immutable();

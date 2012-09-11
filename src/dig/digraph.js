@@ -117,6 +117,22 @@ dig.DiGraph = (function() {
       return g;
     },
 
+    subgraph: function(nodes) {
+      var g = new DiGraph();
+      var self = this;
+      nodes.forEach(function(u) {
+        g.addNode(u, self.node(u));
+      });
+      nodes.forEach(function(u) {
+        self.successors(u).forEach(function(v) {
+          if (g.hasNode(v)) {
+            g.addEdge(u, v, self.edge(u, v));
+          }
+        });
+      });
+      return g;
+    },
+
     immutable: function() {
       var g = this.copy();
       g._immutable = true;
