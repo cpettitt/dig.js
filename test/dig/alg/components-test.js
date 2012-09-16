@@ -32,7 +32,10 @@ describe("dig.alg.components", function() {
     assert.deepEqual([["a", "b", "c"]], dig.alg.components(graph));
   });
 
-  it("throws an error for directed graphs", function() {
-    assert.throws(function() { dig.alg.components(new dig.DiGraph()); });
+  it("works for directed graphs using undirected traversal", function() {
+    var graph = new dig.DiGraph();
+    graph.addNodes("a", "b", "c");
+    graph.addPath("a", "b", "c");
+    assert.deepEqual([["a", "b", "c"]], dig.alg.components(graph));
   });
 });

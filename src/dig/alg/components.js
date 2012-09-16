@@ -11,15 +11,11 @@ var dig_alg_components = dig.alg.components = function(g) {
   var results = [];
   var visited = {};
 
-  if (g.isDirected()) {
-    throw new Error("components can only be used on undirected graphs");
-  }
-
   function dfs(v, component) {
     if (!(v in visited)) {
       visited[v] = true;
       component.push(v);
-      g.neighbors(v).forEach(function(w) {
+      g.neighbors(v, "both").forEach(function(w) {
         dfs(w, component);
       });
     }
