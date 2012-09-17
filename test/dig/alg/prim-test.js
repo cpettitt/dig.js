@@ -29,4 +29,20 @@ describe("dig.alg.prim", function() {
 
     assert.graphEqual(expected, dig.alg.prim(g, edgeLabel(g)));
   });
+
+  it("allows directed graphs using undirected traversal", function() {
+    var g = new dig.DiGraph();
+    g.addNodes("A", "B", "C");
+    g.addEdge("A", "B");
+    g.addEdge("C", "B");
+
+    assert.graphEqual(g.undirected(), dig.alg.prim(g, function() { return 1; }));
+  });
+
+  it("throws an error for graphs that are not connected", function() {
+    var g = new dig.UGraph();
+    g.addNodes("A", "B");
+
+    assert.throws(function() { dig.alg.prim(g); });
+  });
 });

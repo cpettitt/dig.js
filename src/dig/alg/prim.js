@@ -9,10 +9,6 @@ var dig_alg_prim = dig.alg.prim = function(g, weight) {
   var result = new dig.UGraph();
   var q = new dig_data_PriorityQueue();
 
-  if (g.isDirected()) {
-    throw new Error("prim can only be used on undirected graphs");
-  }
-
   if (g.order() == 0) {
     return result;
   }
@@ -26,12 +22,17 @@ var dig_alg_prim = dig.alg.prim = function(g, weight) {
   q.decrease(g.nodes()[0], 0);
 
   var u, v, parent;
+  var init = false;
   while (q.size() > 0) {
     u = q.removeMin();
     if (u in parents) {
       result.addEdge(u, parents[u]);
+    } else if (init) {
+      throw new Error("Input graph is not connected: " + g);
+    } else {
+      init = true;
     }
-    g.neighbors(u).forEach(function(v) {
+    g.neighbors(u, "both").forEach(function(v) {
       var pri = q.priority(v);
       if (pri !== undefined) {
         var edgeWeight = weight(u, v);
