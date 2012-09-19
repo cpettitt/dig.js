@@ -31,7 +31,7 @@ dig.dot.layout.order = (function() {
       }
       ordering[rankNum].push(u);
 
-      g.successors(u).forEach(function(v) {
+      g.neighbors(u, "both").forEach(function(v) {
         dfs(v);
       });
     }

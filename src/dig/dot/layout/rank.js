@@ -38,7 +38,7 @@ dig.dot.layout.rank = (function() {
     g.nodes().forEach(function(u) {
       dfs(u);
     });
-  };
+  }
 
   /*
    * Finds a feasible ranking (description below) for the given graph and assigns
@@ -51,7 +51,7 @@ dig.dot.layout.rank = (function() {
    * It is possible to improve the result of this function using either exact or
    * iterative heuristic methods.
    */
-  function init(g) {
+  function initRank(g) {
     var pq = new dig_data_PriorityQueue();
     g.nodes().forEach(function(u) {
       pq.add(u, g.indegree(u));
@@ -79,18 +79,55 @@ dig.dot.layout.rank = (function() {
       current = [];
       rankNum++;
     }
-  };
+  }
+
+  function feasibleTree(g) {
+    // We treat minLength as a constant for now
+    var minLength = 1;
+    var tree = dig.alg.prim(g, function(u, v) {
+      return Math.abs(g.node(u).rank - g.node(v).rank) - minLength;
+    });
+
+    // assign ranks based on the tree structure
+    var visited = {};
+    function dfs(u, rank) {
+      visited[u] = true;
+      tree.node(u).rank = rank;
+
+      tree.neighbors(u).forEach(function(v) {
+        if (!(v in visited)) {
+          dfs(v, rank + (g.hasEdge(u, v) ? minLength : -minLength));
+        }
+      });
+    }
+
+    // seed dfs
+    dfs(tree.nodes()[0], 0);
+
+    return tree;
+  }
+
+  function normalize(g) {
+    var min = Math.min.apply(null, g.nodes().map(function(u) { return g.node(u).rank; }));
+    g.nodes().forEach(function(u) {
+      g.node(u).rank -= min;
+    });
+  }
 
   return function(g) { 
     if (!g.isDirected()) {
       throw new Error("Input graph must be directed!");
     }
 
-    var aux = g.copy();
-    makeAcyclic(aux);
-    init(aux);
-    aux.nodes().forEach(function(u) {
-      g.node(u).rank = aux.node(u).rank;
+    dig.alg.components(g).forEach(function(cmpt) {
+      var subgraph = g.subgraph(cmpt);
+      makeAcyclic(subgraph);
+      initRank(subgraph);
+      var tree = feasibleTree(subgraph);
+      normalize(tree);
+      tree.nodes().forEach(function(u) {
+        g.node(u).rank = tree.node(u).rank;
+      });
     });
   }
 })();
