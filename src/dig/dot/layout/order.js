@@ -46,7 +46,8 @@ dig.dot.layout.order = (function() {
   }
 
   function improveOrdering(g, i, ordering) {
-    if (i % 2) {
+    ordering = ordering.slice(0);
+    if (i % 2 === 0) {
       for (var j = 1; j < ordering.length; ++j) {
         ordering[j] = improveRankOrdering(g, ordering[j - 1], ordering[j]);
       }
@@ -107,14 +108,11 @@ dig.dot.layout.order = (function() {
     for (var i = 0; i < movable.length; ++i) {
       var weight = -1;
       var u = movable[i];
-      var sucs = g.neighbors(movable[i], "both");
+      var sucs = g.neighbors(movable[i], "both").filter(function(v) { return v in fixedPos; });
       if (sucs.length > 0) {
         weight = 0;
         sucs.forEach(function(v) {
-          // Only calculate the weight if the node is in the fixed rank
-          if (v in fixedPos) {
-            weight = fixedPos[v];
-          }
+          weight += fixedPos[v];
         });
         weight = weight / sucs.length;
       }
@@ -134,7 +132,7 @@ dig.dot.layout.order = (function() {
     for (var i = 0; i < MAX_ITERATIONS; ++i) {
       ordering = improveOrdering(g, i, ordering);
       var cc = dig.dot.layout.crossCount(g, ordering);
-      if (cc > bestCC) {
+      if (cc < bestCC) {
         bestOrdering = ordering;
         bestCC = cc;
       }
