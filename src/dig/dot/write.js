@@ -1,6 +1,14 @@
 var dig_dot_write = dig.dot.write = (function() {
   function id(obj) {
-    return '"' + obj.toString().replace('"', '\\"') + '"';
+    return '"' + obj.toString().replace(/"/g, '\\"') + '"';
+  }
+
+  function idVal(obj) {
+    if (Object.prototype.toString.call(obj) === "[object Object]" ||
+        Object.prototype.toString.call(obj) === "[object Array]") {
+      return id(JSON.stringify(obj));
+    }
+    return id(obj);
   }
 
   function _writeNode(u, attrs) {
@@ -13,7 +21,7 @@ var dig_dot_write = dig.dot.write = (function() {
       } else {
         str += ',';
       }
-      str += id(k) + "=" + id(attrs[k]);
+      str += id(k) + "=" + idVal(attrs[k]);
     }
     if (hasAttrs) {
       str += "]";
@@ -32,7 +40,7 @@ var dig_dot_write = dig.dot.write = (function() {
       } else {
         str += ',';
       }
-      str += id(k) + "=" + id(attrs[k]);
+      str += id(k) + "=" + idVal(attrs[k]);
     }
     if (hasAttrs) {
       str += "]";

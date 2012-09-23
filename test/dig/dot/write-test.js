@@ -31,11 +31,21 @@ describe("dig.dot.write(graph)", function() {
     assert.graphEqual(src, parsed);
   });
 
-  it("can serialize edge labels", function() {
+  it("can serialize edge attributes", function() {
     var src = new dig.DiGraph();
     src.addNode("n1");
     src.addNode("n2");
     src.addEdge("n1", "n2", {label: "label1", weight: "123"});
+    var serialized = dig.dot.write(src);
+    var parsed = dig.dot.read(serialized);
+    assert.graphEqual(src, parsed);
+  });
+
+  it("can serialize edge attributes with embedded quotes", function() {
+    var src = new dig.DiGraph();
+    src.addNode("n1");
+    src.addNode("n2");
+    src.addEdge("n1", "n2", {label: "\"label1\"", dblquote: "test\\\\", weight: "123"});
     var serialized = dig.dot.write(src);
     var parsed = dig.dot.read(serialized);
     assert.graphEqual(src, parsed);
