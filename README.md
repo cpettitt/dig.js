@@ -3,6 +3,8 @@ dig - Graph Algorithms for JavaScript
 
 dig is a library of graph algorithms for use with JavaScript.
 
+**Sugiyama-like visualization is not being actively developed here. It is now being done in [dagre](https://github.com/cpettitt/dagre)**. This project remains because it had some algorithms totally unrelated to Sugiyama-layout that may be interesting to others.
+
 Building
 ========
 
